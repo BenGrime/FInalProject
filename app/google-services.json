@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "648542625453",
+    "project_id": "finalproject-b3b2a",
+    "storage_bucket": "finalproject-b3b2a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648542625453:android:66bb423fbf2d9e80f27024",
+        "android_client_info": {
+          "package_name": "com.example.timetabler"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_n39D1f-BiQiwIP1xZwpUtxuBkmKcZls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
