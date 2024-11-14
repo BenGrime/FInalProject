@@ -15,27 +15,50 @@ class MainActivity : AppCompatActivity() {
     private lateinit var addStaffConfirm : Button
 
     private lateinit var addStaffButton : Button
+    private lateinit var removeStaffButton : Button
+
+    private lateinit var removeStaffCancel : Button
+    private lateinit var removeStaffConfirm : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
         dialog = Dialog(this)
-        dialog.setContentView(R.layout.add_staff_dialogue)
         dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
         dialog.setCancelable(false)
 
 
-        addStaffCancel = dialog.findViewById(R.id.AddStaffCancel)
-        addStaffConfirm = dialog.findViewById(R.id.AddStaffConfirm)
+        addStaffButton = findViewById(R.id.addStaffButton)
+        removeStaffButton = findViewById(R.id.removeStaffButton)
 
-        addStaffCancel.setOnClickListener(View.OnClickListener {
-            dialog.dismiss()
+
+
+        addStaffButton.setOnClickListener(View.OnClickListener {
+            dialog.setContentView(R.layout.add_staff_dialogue)
+            addStaffCancel = dialog.findViewById(R.id.AddStaffCancel)
+            addStaffConfirm = dialog.findViewById(R.id.AddStaffConfirm)
+
+            addStaffCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+            dialog.show()
+
         })
 
-        addStaffButton = findViewById(R.id.addStaffButton)
-        addStaffButton.setOnClickListener(View.OnClickListener {
+
+        removeStaffButton.setOnClickListener(View.OnClickListener {
+            dialog.setContentView(R.layout.remove_staff_dialog)
+
+            // Initialize views in remove_staff_dialog layout
+            removeStaffCancel = dialog.findViewById(R.id.RemoveStaffCancel)
+            removeStaffConfirm = dialog.findViewById(R.id.RemoveStaffConfirm)
+
+            removeStaffCancel.setOnClickListener {
+                dialog.dismiss()
+            }
             dialog.show()
 
         })
