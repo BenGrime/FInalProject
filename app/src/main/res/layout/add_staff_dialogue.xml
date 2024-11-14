@@ -93,13 +93,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/AddStaffCancel"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:text="@string/cancel"
                 android:textColor="@color/white"
-                android:textSize="10sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 app:strokeColor="@color/darkRed"
                 app:strokeWidth="2dp"
@@ -110,13 +110,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/AddStaffConfirm"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:text="@string/confirm"
                 android:textColor="@color/white"
-                android:textSize="10sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 app:strokeColor="@color/darkGreen"
                 app:backgroundTint="@color/green"
