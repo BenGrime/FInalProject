@@ -52,22 +52,24 @@
     </RelativeLayout>
 
     <GridLayout
+        android:id="@+id/staffPage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="30dp">
 
-        <!-- Edit Staff Button -->
+
+        <!-- Create Staff Button -->
         <Button
-            android:id="@+id/editStaffButton"
+            android:id="@+id/createStaffButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="#66CC33"
-            android:text="Edit Staff"
+            android:text="Create new Staff"
             android:textColor="#FFFFFF"
-            android:textSize="30sp"
-            android:layout_marginBottom="70dp"
-            android:padding="20dp"/>
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"/>
 
         <!-- Add Staff Button -->
         <Button
@@ -75,11 +77,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="#66CC33"
-            android:text="Add Staff"
+            android:text="Add Staff to Ride"
             android:textColor="#FFFFFF"
-            android:textSize="30sp"
-            android:layout_marginBottom="70dp"
-            android:padding="20dp"
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"
             />
 
         <!-- Remove Staff Button -->
@@ -88,20 +90,43 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="#66CC33"
-            android:text="Remove Staff"
+            android:text="Remove Staff from Ride"
             android:textColor="#FFFFFF"
-            android:textSize="30sp"
-            android:layout_marginBottom="70dp"
-            android:padding="20dp"
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"
             />
 
+        <!-- Edit Staff Button -->
+        <Button
+            android:id="@+id/editStaffButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#66CC33"
+            android:text="Edit Staff Member"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"/>
+
+        <!-- Delete Staff Button -->
+        <Button
+            android:id="@+id/deleteStaffButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#66CC33"
+            android:text="Delete Staff Member"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"/>
 
     </GridLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="0dp">
 
         <!-- Generate Board Button -->
         <Button
@@ -112,7 +137,7 @@
             android:text="GENERATE BOARD"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
-            android:layout_marginBottom="70dp"
+            android:layout_marginBottom="0dp"
             android:padding="10dp"
             android:layout_alignParentBottom="true"/>
 

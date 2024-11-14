@@ -1,11 +1,13 @@
 package com.example.timetabler
 
 import android.app.Dialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
 
 
 class MainActivity : AppCompatActivity() {
@@ -44,6 +46,10 @@ class MainActivity : AppCompatActivity() {
             addStaffCancel.setOnClickListener {
                 dialog.dismiss()
             }
+            addStaffConfirm.setOnClickListener{
+                Toast.makeText(this, "FAKE: staff added to Ride", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
             dialog.show()
 
         })
@@ -57,6 +63,11 @@ class MainActivity : AppCompatActivity() {
             removeStaffConfirm = dialog.findViewById(R.id.RemoveStaffConfirm)
 
             removeStaffCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+            removeStaffConfirm.setOnClickListener{
+                //delete Staff
+                Toast.makeText(this, "FAKE: staff Removed from Ride", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
             dialog.show()
