@@ -3,6 +3,8 @@ package com.example.timetabler
 import android.app.Dialog
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -10,6 +12,7 @@ import android.widget.GridLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 
@@ -29,7 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var staffPage : GridLayout
     private lateinit var ridesPage : GridLayout
 
-
+    private lateinit var toggleGroup: MaterialButtonToggleGroup
+    private lateinit var gestureDetector: GestureDetectorCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +43,8 @@ class MainActivity : AppCompatActivity() {
 
         staffPage = findViewById(R.id.staffPage)
         ridesPage = findViewById(R.id.ridesPage)
+        toggleGroup = findViewById(R.id.toggleGroup)
+        gestureDetector = GestureDetectorCompat(this, SwipeGestureListener())
 
         val toggleGroup = findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
         val staffViewButton = findViewById<MaterialButton>(R.id.staffViewButton)
@@ -68,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         dialog = Dialog(this)
         dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
-        dialog.setCancelable(false)
+        dialog.setCancelable(true)
 
 
         addStaffButton = findViewById(R.id.addStaffButton)
@@ -112,4 +118,49 @@ class MainActivity : AppCompatActivity() {
 
         })
     }
+    // Override onTouchEvent to detect swipe gestures
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(event)
+        return super.onTouchEvent(event)
+    }
+
+    // Custom GestureDetector to detect swipe gestures
+    inner class SwipeGestureListener : GestureDetector.SimpleOnGestureListener() {
+
+        // Detect swipe left or right
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean
+        {
+            val SWIPE_THRESHOLD = 100
+            val SWIPE_VELOCITY_THRESHOLD = 100
+
+            try {
+                if (e1 == null || e2 == null) return false
+                val diffX = e2.x - e1.x
+                val diffY = e2.y - e1.y
+
+                // Check if the swipe is horizontal (left or right)
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        // Swipe left or right
+                        if (diffX > 0) {
+                            // Swipe right -> Show Staff
+                            toggleGroup.check(R.id.staffViewButton)
+                        } else {
+                            // Swipe left -> Show Rides
+                            toggleGroup.check(R.id.ridesViewButton)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return true
+        }
+    }
+
 }
