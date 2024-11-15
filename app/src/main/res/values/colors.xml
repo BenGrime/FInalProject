@@ -8,4 +8,6 @@
     <color name="green"> #008000</color>
     <color name="darkGreen">#06402B</color>
     <color name="darkRed"> #8B0000</color>
+    <color name="purple">#4B0082</color>
+    <color name="lightPurple">#5F28A0</color>
 </resources>

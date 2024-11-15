@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#4B0082"
+    android:background="@color/purple"
     android:padding="16dp"
     tools:context=".MainActivity">
 
@@ -27,27 +27,46 @@
             android:layout_centerHorizontal="true"
             />
 
-        <!--add settings icon here-->
 
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_vertical"
+        android:gravity="center">
 
-        <Spinner
-            android:id="@+id/viewSpinner"
+        <!-- add settings icon-->
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_centerHorizontal="true"
-            android:padding="18dp"
-        />
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:gravity="center">
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/staffViewButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Staff"
+                android:backgroundTint="@color/customGreen"
+            android:textColor="@android:color/white"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ridesViewButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Rides" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <!--add notification icon here-->
-
-
 
     </RelativeLayout>
 
@@ -56,7 +75,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="30dp">
+        android:layout_marginTop="30dp"
+        android:visibility="visible">
 
 
         <!-- Create Staff Button -->
@@ -103,7 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="#66CC33"
-            android:text="Edit Staff Member"
+            android:text="View Staff Member"
             android:textColor="#FFFFFF"
             android:textSize="25sp"
             android:layout_marginBottom="30dp"
@@ -120,6 +140,53 @@
             android:textSize="25sp"
             android:layout_marginBottom="30dp"
             android:padding="10dp"/>
+
+    </GridLayout>
+
+    <GridLayout
+        android:id="@+id/ridesPage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="30dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/createRideButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#66CC33"
+            android:text="Create Ride"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"
+            />
+
+        <!-- Edit Staff Button -->
+        <Button
+            android:id="@+id/viewRideButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#66CC33"
+            android:text="View Ride"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"/>
+
+        <!-- Delete Staff Button -->
+        <Button
+            android:id="@+id/deleteRideButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#66CC33"
+            android:text="Delete Ride"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:layout_marginBottom="30dp"
+            android:padding="10dp"/>
+
 
     </GridLayout>
 
@@ -140,9 +207,5 @@
             android:layout_marginBottom="0dp"
             android:padding="10dp"
             android:layout_alignParentBottom="true"/>
-
-
     </RelativeLayout>
-
-
 </LinearLayout>
