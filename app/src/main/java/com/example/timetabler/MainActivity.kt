@@ -1,8 +1,10 @@
 package com.example.timetabler
 
 import android.app.Dialog
+import android.content.ContentValues.TAG
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -15,9 +17,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 
 
 class MainActivity : AppCompatActivity() {
+
+    private val db = Firebase.firestore
 
     private lateinit var dialog : Dialog
     private lateinit var addStaffCancel : Button
@@ -25,9 +33,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var addStaffButton : Button
     private lateinit var removeStaffButton : Button
+    private lateinit var createNewStaff : Button
 
     private lateinit var removeStaffCancel : Button
     private lateinit var removeStaffConfirm : Button
+
+    private lateinit var createStaffCancel : Button
+    private lateinit var createStaffConfirm : Button
 
     private lateinit var staffPage : GridLayout
     private lateinit var ridesPage : GridLayout
@@ -79,6 +91,7 @@ class MainActivity : AppCompatActivity() {
 
         addStaffButton = findViewById(R.id.addStaffButton)
         removeStaffButton = findViewById(R.id.removeStaffButton)
+        createNewStaff = findViewById(R.id.createStaffButton)
 
 
 
@@ -117,7 +130,30 @@ class MainActivity : AppCompatActivity() {
             dialog.show()
 
         })
+
+
+        createNewStaff.setOnClickListener(View.OnClickListener {
+            dialog.setContentView(R.layout.create_new_staff)
+
+
+
+            createStaffCancel = dialog.findViewById(R.id.createStaffCancel)
+            createStaffConfirm = dialog.findViewById(R.id.createStaffConfirm)
+
+            createStaffCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            createStaffConfirm.setOnClickListener {
+                dialog.dismiss()
+                Toast.makeText(this, "FAKE: staff Made", Toast.LENGTH_SHORT).show()
+            }
+
+            dialog.show()
+
+        })
     }
+
     // Override onTouchEvent to detect swipe gestures
     override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)
