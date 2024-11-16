@@ -8,5 +8,5 @@ data class Staff(
     var Name: String = "",
     var PreviousRide: String = "",
     var DoB: Timestamp,
-    var RidesTrained: ArrayList<String>
+    var RidesTrained: ArrayList<*>
 ) : Serializable

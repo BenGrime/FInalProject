@@ -1,25 +1,26 @@
 package com.example.timetabler
 
 import android.app.Dialog
-import android.content.ContentValues.TAG
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.GridLayout
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
 
@@ -34,12 +35,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var addStaffButton : Button
     private lateinit var removeStaffButton : Button
     private lateinit var createNewStaff : Button
+    private lateinit var deleteStaffbtn : Button
+
+    private lateinit var staffDeleteSelect : Spinner
 
     private lateinit var removeStaffCancel : Button
     private lateinit var removeStaffConfirm : Button
 
     private lateinit var createStaffCancel : Button
     private lateinit var createStaffConfirm : Button
+    private lateinit var nameInput : TextInputEditText
+    private lateinit var dobInput : TextInputEditText
+
+    private lateinit var deleteStaffCancel : Button
+    private lateinit var  deleteStaffConfirm : Button
 
     private lateinit var staffPage : GridLayout
     private lateinit var ridesPage : GridLayout
@@ -135,22 +144,103 @@ class MainActivity : AppCompatActivity() {
         createNewStaff.setOnClickListener(View.OnClickListener {
             dialog.setContentView(R.layout.create_new_staff)
 
-
-
             createStaffCancel = dialog.findViewById(R.id.createStaffCancel)
             createStaffConfirm = dialog.findViewById(R.id.createStaffConfirm)
+            nameInput = dialog.findViewById(R.id.staffNameInput)
+            dobInput = dialog.findViewById(R.id.staffDobInput)
 
             createStaffCancel.setOnClickListener {
                 dialog.dismiss()
             }
 
             createStaffConfirm.setOnClickListener {
+                val name = nameInput.text.toString()
+                val dob = dobInput.text.toString()
+
+                if(name.isEmpty() || dob.isEmpty())
+                {
+                    Toast.makeText(this, "Please fill in fields", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 dialog.dismiss()
-                Toast.makeText(this, "FAKE: staff Made", Toast.LENGTH_SHORT).show()
+
+//                val s = Staff(
+//                    Name = name.toString(),
+//                    DoB = stringToFirebaseTimestamp(dob),
+//                    Id = "",
+//                    PreviousRide = "",
+//                    RidesTrained = ArrayList<String>()
+//                )
             }
 
             dialog.show()
 
+        })
+        deleteStaffbtn = findViewById(R.id.deleteStaffButton)
+        deleteStaffbtn.setOnClickListener(View.OnClickListener {
+            dialog.setContentView(R.layout.delete_staff_dialog)
+            deleteStaffCancel = dialog.findViewById(R.id.deleteStaffCancel)
+            deleteStaffConfirm = dialog.findViewById(R.id.deleteStaffConfirm)
+            staffDeleteSelect = dialog.findViewById(R.id.staffDeleteSelect)
+
+            val staffMembers = mutableListOf<String>()
+            db.collection("Staff").get().addOnSuccessListener{result ->
+                staffMembers.add("Select Staff")
+                for (staff in result){
+                    val Id = staff.getString("Id")
+                    val Name = staff.getString("Name")
+                    val prev = staff.getString("Previous Ride")
+                    val dob = staff.getTimestamp("DoB")  ?: Timestamp.now()
+                    val ridesTrained = staff.get("RidesTrained") as? ArrayList<String> ?: emptyList()
+
+                    val s = Staff(
+                        Id = Id.toString(),
+                        Name = Name.toString(),
+                        PreviousRide = prev.toString(),
+                        DoB = dob,
+                        RidesTrained = ArrayList(ridesTrained)
+                    )
+                    staffMembers.add(s.Name)
+                }
+
+                // Set up the Adapter
+                val adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,  // Default spinner layout
+                    staffMembers
+                )
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
+                staffDeleteSelect.adapter = adapter
+                // Handle item selection
+                var selectedItem = ""
+                staffDeleteSelect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        selectedItem = staffMembers[position]
+
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // Optional: Handle no selection
+                    }
+                }
+
+                deleteStaffCancel.setOnClickListener {
+                    dialog.dismiss()
+                }
+                deleteStaffConfirm.setOnClickListener {
+                    //are you sure you want to delete this staff
+                    //close both
+                    //show toast "staff deleted"
+
+                    if (selectedItem != "Select Staff") {
+                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    }
+                    Toast.makeText(this@MainActivity, "Staff not selected", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                dialog.show()
+            }
         })
     }
 
@@ -198,5 +288,4 @@ class MainActivity : AppCompatActivity() {
             return true
         }
     }
-
 }
