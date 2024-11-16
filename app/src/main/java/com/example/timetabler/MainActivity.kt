@@ -27,6 +27,7 @@ import com.google.firebase.firestore.firestore
 class MainActivity : AppCompatActivity() {
 
     private val db = Firebase.firestore
+    var fh = FirebaseHandler()
 
     private lateinit var dialog : Dialog
     private lateinit var addStaffCancel : Button
@@ -184,25 +185,11 @@ class MainActivity : AppCompatActivity() {
             staffDeleteSelect = dialog.findViewById(R.id.staffDeleteSelect)
 
             val staffMembers = mutableListOf<String>()
-            db.collection("Staff").get().addOnSuccessListener{result ->
+            fh.getAllStaff { staffArray ->
                 staffMembers.add("Select Staff")
-                for (staff in result){
-                    val Id = staff.getString("Id")
-                    val Name = staff.getString("Name")
-                    val prev = staff.getString("Previous Ride")
-                    val dob = staff.getTimestamp("DoB")  ?: Timestamp.now()
-                    val ridesTrained = staff.get("RidesTrained") as? ArrayList<String> ?: emptyList()
-
-                    val s = Staff(
-                        Id = Id.toString(),
-                        Name = Name.toString(),
-                        PreviousRide = prev.toString(),
-                        DoB = dob,
-                        RidesTrained = ArrayList(ridesTrained)
-                    )
+                for(s in staffArray){
                     staffMembers.add(s.Name)
                 }
-
                 // Set up the Adapter
                 val adapter = ArrayAdapter(
                     this,
