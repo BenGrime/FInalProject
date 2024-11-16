@@ -29,31 +29,44 @@ class MainActivity : AppCompatActivity() {
     private val db = Firebase.firestore
     var fh = FirebaseHandler()
 
+    //set dialog
     private lateinit var dialog : Dialog
-    private lateinit var addStaffCancel : Button
-    private lateinit var addStaffConfirm : Button
 
+    //main menu buttons
     private lateinit var addStaffButton : Button
     private lateinit var removeStaffButton : Button
     private lateinit var createNewStaff : Button
     private lateinit var deleteStaffbtn : Button
+    private lateinit var viewStaffButton : Button
 
-    private lateinit var staffDeleteSelect : Spinner
+    //layouts for main menu
+    private lateinit var staffPage : GridLayout
+    private lateinit var ridesPage : GridLayout
 
-    private lateinit var removeStaffCancel : Button
-    private lateinit var removeStaffConfirm : Button
-
+    //pop up for creating staff
     private lateinit var createStaffCancel : Button
     private lateinit var createStaffConfirm : Button
     private lateinit var nameInput : TextInputEditText
     private lateinit var dobInput : TextInputEditText
 
+    //pop up for adding staff to ride
+    private lateinit var addStaffCancel : Button
+    private lateinit var addStaffConfirm : Button
+    private lateinit var rideSelect : Spinner
+    private lateinit var staffSelect : Spinner
+
+    //pop up for removing staff from ride
+    private lateinit var removeStaffCancel : Button
+    private lateinit var removeStaffConfirm : Button
+
+
+    //pop up for delete staff
+    private lateinit var staffDeleteSelect : Spinner
     private lateinit var deleteStaffCancel : Button
     private lateinit var  deleteStaffConfirm : Button
 
-    private lateinit var staffPage : GridLayout
-    private lateinit var ridesPage : GridLayout
 
+    //other
     private lateinit var toggleGroup: MaterialButtonToggleGroup
     private lateinit var gestureDetector: GestureDetectorCompat
 
@@ -98,30 +111,75 @@ class MainActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
         dialog.setCancelable(true)
 
-
+        //binding main menu buttons
         addStaffButton = findViewById(R.id.addStaffButton)
         removeStaffButton = findViewById(R.id.removeStaffButton)
         createNewStaff = findViewById(R.id.createStaffButton)
 
 
-
+        //adding staff to ride button + pop up function
         addStaffButton.setOnClickListener(View.OnClickListener {
             dialog.setContentView(R.layout.add_staff_dialogue)
             addStaffCancel = dialog.findViewById(R.id.AddStaffCancel)
             addStaffConfirm = dialog.findViewById(R.id.AddStaffConfirm)
+            staffSelect = dialog.findViewById(R.id.staffSelect)
+            rideSelect = dialog.findViewById(R.id.rideSelect)
 
-            addStaffCancel.setOnClickListener {
-                dialog.dismiss()
+            val staffMembers = mutableListOf<String>()
+            fh.getAllStaff { staffArray ->
+                staffMembers.add("Select Staff")
+                for (s in staffArray) {
+                    staffMembers.add(s.Name)
+                }
+                // Set up the Adapter
+                val adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,  // Default spinner layout
+                    staffMembers
+                )
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
+                staffSelect.adapter = adapter
+                // Handle item selection
+                var selectedItem = ""
+                staffSelect.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            selectedItem = staffMembers[position]
+
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            // Optional: Handle no selection
+                        }
+                    }
+
+                //do rides now
+
+
+                addStaffCancel.setOnClickListener {
+                    dialog.dismiss()
+                }
+                addStaffConfirm.setOnClickListener{
+                    if (selectedItem != "Select Staff") {
+                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    }
+                    Toast.makeText(this@MainActivity, "Staff not selected", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                dialog.show()
             }
-            addStaffConfirm.setOnClickListener{
-                Toast.makeText(this, "FAKE: staff added to Ride", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
-            }
-            dialog.show()
+
+
 
         })
 
-
+        //removing staff from ride button + popup function
         removeStaffButton.setOnClickListener(View.OnClickListener {
             dialog.setContentView(R.layout.remove_staff_dialog)
 
@@ -141,7 +199,7 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-
+        //create new staff button + pop up function
         createNewStaff.setOnClickListener(View.OnClickListener {
             dialog.setContentView(R.layout.create_new_staff)
 
@@ -165,18 +223,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 dialog.dismiss()
 
-//                val s = Staff(
-//                    Name = name.toString(),
-//                    DoB = stringToFirebaseTimestamp(dob),
-//                    Id = "",
-//                    PreviousRide = "",
-//                    RidesTrained = ArrayList<String>()
-//                )
             }
 
             dialog.show()
 
         })
+
+        //delete staff button + pop up function
         deleteStaffbtn = findViewById(R.id.deleteStaffButton)
         deleteStaffbtn.setOnClickListener(View.OnClickListener {
             dialog.setContentView(R.layout.delete_staff_dialog)
