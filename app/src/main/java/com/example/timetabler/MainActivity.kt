@@ -12,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.GridLayout
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -80,6 +81,8 @@ class MainActivity : AppCompatActivity() {
     //other
     private lateinit var toggleGroup: MaterialButtonToggleGroup
     private lateinit var gestureDetector: GestureDetectorCompat
+    private lateinit var settingsBtn : ImageView
+    private lateinit var notificationBtn : ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +129,18 @@ class MainActivity : AppCompatActivity() {
         addStaffButton = findViewById(R.id.addStaffButton)
         removeStaffButton = findViewById(R.id.removeStaffButton)
         createNewStaff = findViewById(R.id.createStaffButton)
+        notificationBtn = findViewById(R.id.notification)
+        settingsBtn = findViewById(R.id.settings)
+
+        settingsBtn.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this, Settings_Page::class.java)
+            startActivity(intent)
+        })
+
+        notificationBtn.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this, Notifications_Page::class.java)
+            startActivity(intent)
+        })
 
 
         //adding staff to ride button + pop up function
@@ -239,18 +254,18 @@ class MainActivity : AppCompatActivity() {
                                         }
                                         if(!alreadyTrained) {
                                             db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
-                                                Toast.makeText(this@MainActivity, "Added: $selectedStaff added to $selectedRide", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
                                                 dialog.dismiss()
                                             }
                                         }
                                         else
                                         {
-                                            Toast.makeText(this@MainActivity, "$selectedStaff already trained on $selectedRide", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(this@MainActivity, "$selectedStaff is already trained on $selectedRide", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                     else
                                     {
-                                        Toast.makeText(this@MainActivity, "$selectedStaff not old enough to run $selectedRide", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(this@MainActivity, "$selectedStaff is not old enough to run $selectedRide", Toast.LENGTH_SHORT).show()
 
                                     }
                                 }
@@ -384,7 +399,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 else
                                 {
-                                    Toast.makeText(this@MainActivity, "$selectedStaff not trained on $selectedRide", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@MainActivity, "$selectedStaff is not trained on $selectedRide", Toast.LENGTH_SHORT).show()
                                 }
                         }
 
@@ -441,7 +456,7 @@ class MainActivity : AppCompatActivity() {
 
                     db.collection("Staff").document(staffId).set(s).addOnSuccessListener {
 
-                        Toast.makeText(this, "Staff added", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Staff created", Toast.LENGTH_SHORT).show()
                     }
                 }
 

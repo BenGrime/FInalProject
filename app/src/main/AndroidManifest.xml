@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Timetabler"
         tools:targetApi="31">
         <activity
+            android:name=".Notifications_Page"
+            android:exported="false" />
+        <activity
+            android:name=".Settings_Page"
+            android:exported="false" />
+        <activity
             android:name=".ViewStaffRide"
             android:exported="false" />
         <activity

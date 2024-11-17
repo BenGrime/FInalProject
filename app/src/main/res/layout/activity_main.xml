@@ -39,12 +39,15 @@
 
         <!-- add settings icon-->
         <ImageView
-            android:id="@+id/tinyIcon2"
+            android:id="@+id/settings"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/settings_icon"
             android:layout_alignParentStart="true"
-            android:layout_margin="8dp" />
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/settings_icon" />
 
 
 
@@ -78,7 +81,7 @@
 
         <!--add notification icon here-->
         <ImageView
-            android:id="@+id/tinyIcon"
+            android:id="@+id/notification"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/notifications_icon"
