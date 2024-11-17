@@ -1,6 +1,7 @@
 package com.example.timetabler
 
 import android.app.Dialog
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.GestureDetector
@@ -449,6 +450,13 @@ class MainActivity : AppCompatActivity() {
 
             dialog.show()
 
+        })
+
+
+        viewStaffButton = findViewById(R.id.viewStaffButton)
+        viewStaffButton.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this, ViewStaffRide::class.java)
+            startActivity(intent)
         })
 
         //delete staff button + pop up function
