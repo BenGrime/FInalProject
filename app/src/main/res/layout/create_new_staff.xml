@@ -52,6 +52,7 @@
                 android:layout_width="150sp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ- "
                 android:maxLines="1"
                 android:inputType="text">
 
@@ -85,6 +86,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:maxLines="1"
+
                 android:inputType="date"
                 android:hint="##/##/####">
 

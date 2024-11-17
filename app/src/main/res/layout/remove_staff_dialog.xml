@@ -44,16 +44,13 @@ app:cardCornerRadius="16dp">
             android:text="Staff Name"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             />
-        <TextView
+        <Spinner
+            android:id="@+id/staffRemoveSelect"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Ride Name"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_marginLeft="10dp"
-            />
+            android:layout_height="match_parent" />
+
 
 
     </LinearLayout>
@@ -69,15 +66,17 @@ app:cardCornerRadius="16dp">
         app:layout_constraintStart_toStartOf="@+id/dropdownText"
         app:layout_constraintTop_toBottomOf="@+id/dropdownText">
 
-        <Spinner
-            android:id="@+id/staffSelect"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="20dp"
+            android:text="Ride Name"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginEnd="10dp"
             />
 
         <Spinner
-            android:id="@+id/rideSelect"
+            android:id="@+id/rideRemoveSelect"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

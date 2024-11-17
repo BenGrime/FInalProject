@@ -22,6 +22,9 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestore
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     //set dialog
     private lateinit var dialog : Dialog
+    private lateinit var  dialog2 : Dialog
 
     //main menu buttons
     private lateinit var addStaffButton : Button
@@ -58,12 +62,18 @@ class MainActivity : AppCompatActivity() {
     //pop up for removing staff from ride
     private lateinit var removeStaffCancel : Button
     private lateinit var removeStaffConfirm : Button
+    private lateinit var  rideRemoveSelect : Spinner
+    private lateinit var  staffRemoveSelect : Spinner
 
 
     //pop up for delete staff
     private lateinit var staffDeleteSelect : Spinner
     private lateinit var deleteStaffCancel : Button
     private lateinit var  deleteStaffConfirm : Button
+
+    //buttons for deletion confirmation
+    private lateinit var conDeleteStaffCancel : Button
+    private lateinit var conDeleteStaffConfirm : Button
 
 
     //other
@@ -140,7 +150,8 @@ class MainActivity : AppCompatActivity() {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
                 staffSelect.adapter = adapter
                 // Handle item selection
-                var selectedItem = ""
+                var selectedStaff = ""
+                var selectedRide = ""
                 staffSelect.onItemSelectedListener =
                     object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(
@@ -149,7 +160,7 @@ class MainActivity : AppCompatActivity() {
                             position: Int,
                             id: Long
                         ) {
-                            selectedItem = staffMembers[position]
+                            selectedStaff = staffMembers[position]
 
                         }
 
@@ -159,23 +170,100 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 //do rides now
+                val rideList = mutableListOf<String>()
+                fh.getAllRides { rideArray ->
+                    rideList.add("Select Ride")
+                    for(ride in rideArray){
+                        rideList.add(ride.Name)
+                    }
+                    val adapterRide = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_spinner_item,  // Default spinner layout
+                        rideList
+                    )
+                    adapterRide.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
+                    rideSelect.adapter = adapterRide
 
+                    rideSelect.onItemSelectedListener =
+                        object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(
+                                parent: AdapterView<*>?,
+                                view: View?,
+                                position: Int,
+                                id: Long
+                            ) {
+                                selectedRide = rideList[position]
+
+                            }
+
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // Optional: Handle no selection
+                            }
+                        }
+
+                }
 
                 addStaffCancel.setOnClickListener {
                     dialog.dismiss()
                 }
                 addStaffConfirm.setOnClickListener{
-                    if (selectedItem != "Select Staff") {
-                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
+                    if (selectedStaff != "Select Staff" && selectedRide != "Select Ride") {
+
+
+                        //search for document with that name
+                        fh.getDocumentFromName(selectedStaff){staff ->
+                            if(staff!=null){
+                                val updatedRidesList: MutableList<Any> = staff.RidesTrained.toMutableList()
+                                updatedRidesList.add(selectedRide)
+
+                                val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+                                //create a ride object based on the one selected
+                                var foundRide : Ride? = null
+                                fh.getAllRides{ride ->
+                                    for(r in ride){
+                                        if(r.Name == selectedRide){
+                                            foundRide = r
+                                            break
+                                        }
+                                    }
+                                    if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB))
+                                    {
+                                        var alreadyTrained = false
+                                        for(r in staff.RidesTrained){
+                                            if(r.equals(selectedRide))
+                                            {
+                                                alreadyTrained = true
+                                            }
+
+                                        }
+                                        if(!alreadyTrained) {
+                                            db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                                Toast.makeText(this@MainActivity, "Added: $selectedStaff added to $selectedRide", Toast.LENGTH_SHORT).show()
+                                                dialog.dismiss()
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Toast.makeText(this@MainActivity, "$selectedStaff already trained on $selectedRide", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(this@MainActivity, "$selectedStaff not old enough to run $selectedRide", Toast.LENGTH_SHORT).show()
+
+                                    }
+                                }
+
+                            }
+                        }
                     }
-                    Toast.makeText(this@MainActivity, "Staff not selected", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
+                    else {
+                        Toast.makeText(this@MainActivity, "Staff or Ride not selected", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
                 }
                 dialog.show()
             }
-
-
 
         })
 
@@ -186,17 +274,123 @@ class MainActivity : AppCompatActivity() {
             // Initialize views in remove_staff_dialog layout
             removeStaffCancel = dialog.findViewById(R.id.RemoveStaffCancel)
             removeStaffConfirm = dialog.findViewById(R.id.RemoveStaffConfirm)
+            rideRemoveSelect = dialog.findViewById(R.id.rideRemoveSelect)
+            staffRemoveSelect = dialog.findViewById(R.id.staffRemoveSelect)
+            val staffMembers = mutableListOf<String>()
+            var selectedStaff = ""
+            var selectedRide = ""
+            fh.getAllStaff { staffArray ->
+                staffMembers.add("Select Staff")
+                for (s in staffArray) {
+                    staffMembers.add(s.Name)
+                }
+                // Set up the Adapter
+                val adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,  // Default spinner layout
+                    staffMembers
+                )
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
+                staffRemoveSelect.adapter = adapter
+                // Handle item selection
+
+                staffRemoveSelect.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            selectedStaff = staffMembers[position]
+
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            // Optional: Handle no selection
+                        }
+                    }
+
+                //do rides now
+                val rideList = mutableListOf<String>()
+                fh.getAllRides { rideArray ->
+                    rideList.add("Select Ride")
+                    for(ride in rideArray){
+                        rideList.add(ride.Name)
+                    }
+                    val adapterRide = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_spinner_item,  // Default spinner layout
+                        rideList
+                    )
+                    adapterRide.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
+                    rideRemoveSelect.adapter = adapterRide
+
+                    rideRemoveSelect.onItemSelectedListener =
+                        object : AdapterView.OnItemSelectedListener {
+                            override fun onItemSelected(
+                                parent: AdapterView<*>?,
+                                view: View?,
+                                position: Int,
+                                id: Long
+                            ) {
+                                selectedRide = rideList[position]
+
+                            }
+
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // Optional: Handle no selection
+                            }
+                        }
+
+                }
+            }
+
 
             removeStaffCancel.setOnClickListener {
                 dialog.dismiss()
             }
             removeStaffConfirm.setOnClickListener{
                 //delete Staff
-                Toast.makeText(this, "FAKE: staff Removed from Ride", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
+                var trained = false
+                fh.getDocumentFromName(selectedStaff){staff ->
+                    if(staff!=null){
+                        val updatedRidesList: MutableList<Any> = staff.RidesTrained.toMutableList()
+                        updatedRidesList.remove(selectedRide)
+                        val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+
+                        //create a ride object based on the one selected
+                        var foundRide : Ride? = null
+                        fh.getAllRides{ride ->
+                            for(r in ride){
+                                if(r.Name == selectedRide){
+                                    foundRide = r
+                                    break
+                                }
+                            }
+                                for(r in staff.RidesTrained){
+                                    if(r.equals(selectedRide))
+                                    {
+                                        trained = true
+                                    }
+
+                                }
+                                if(trained) {
+                                    db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                        Toast.makeText(this@MainActivity, "$selectedStaff removed from $selectedRide", Toast.LENGTH_SHORT).show()
+                                        dialog.dismiss()
+                                    }
+                                }
+                                else
+                                {
+                                    Toast.makeText(this@MainActivity, "$selectedStaff not trained on $selectedRide", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+
+                    }
+                }
             }
             dialog.show()
-
         })
 
         //create new staff button + pop up function
@@ -216,12 +410,40 @@ class MainActivity : AppCompatActivity() {
                 val name = nameInput.text.toString()
                 val dob = dobInput.text.toString()
 
-                if(name.isEmpty() || dob.isEmpty())
+
+                if(name.isEmpty() || dob.isEmpty() )
                 {
                     Toast.makeText(this, "Please fill in fields", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
+                if(!convertStrToTime(dob).toDate().before(Calendar.getInstance().time) || !dob.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$".toRegex() ))
+                {
+                    Toast.makeText(this, "Invalid Date", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 dialog.dismiss()
+                fh.getColectionSize("Staff") {
+                    val staffId = (it + 1).toString()
+                    val s = Staff(
+                        Id = staffId,
+                        Name = name,
+                        PreviousRide = "",
+                        DoB = convertStrToTime(dob),
+                        RidesTrained = ArrayList<String>(),
+                        Category = when {
+                            calculateAge(convertStrToTime(dob)) < 18 -> "Attendant"
+                            calculateAge(convertStrToTime(dob)) in 18..20 -> "Fairground"
+                            calculateAge(convertStrToTime(dob)) > 20 -> "SRO"
+                            else -> ""
+                        }
+                    )
+
+                    db.collection("Staff").document(staffId).set(s).addOnSuccessListener {
+
+                        Toast.makeText(this, "Staff added", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
 
             }
 
@@ -271,13 +493,39 @@ class MainActivity : AppCompatActivity() {
                     //are you sure you want to delete this staff
                     //close both
                     //show toast "staff deleted"
+                    dialog2 = Dialog(this)
+                    dialog2.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    dialog2.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+                    dialog2.setCancelable(false)
+                    dialog2.setContentView(R.layout.deletion_confirmation)
+                    conDeleteStaffCancel = dialog2.findViewById(R.id.ConDeleteStaffCancel)
+                    conDeleteStaffConfirm = dialog2.findViewById(R.id.ConDeleteStaffConfirm)
 
-                    if (selectedItem != "Select Staff") {
-                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    }
-                    Toast.makeText(this@MainActivity, "Staff not selected", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
+                    conDeleteStaffCancel.setOnClickListener(View.OnClickListener {
+                        dialog2.dismiss()
+                    })
+                    conDeleteStaffConfirm.setOnClickListener(View.OnClickListener {
+
+                        if (selectedItem != "Select Staff") {
+
+
+                            fh.getDocumentFromName(selectedItem){staff ->
+                                if(staff!=null) {
+                                    db.collection("Staff").document(staff.Id).delete().addOnSuccessListener {
+                                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                                        dialog.dismiss()
+                                        dialog2.dismiss()
+                                    }
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            Toast.makeText(this@MainActivity, "Staff not selected", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                    dialog2.show()
                 }
                 dialog.show()
             }
@@ -327,5 +575,31 @@ class MainActivity : AppCompatActivity() {
             }
             return true
         }
+    }
+
+    fun convertStrToTime(dateStr : String) : Timestamp{
+        val formatter = SimpleDateFormat("dd/MM/yyyy")
+        val date = formatter.parse(dateStr)
+        return Timestamp(date) // Returns a Firebase Timestamp object
+
+    }
+
+    fun calculateAge(birthDate: Timestamp): Int {
+        // Get the current date as a Calendar instance
+        val calendarNow = Calendar.getInstance()
+
+        // Convert the Firebase Timestamp to a Date and set it in a Calendar instance
+        val calendarBirth = Calendar.getInstance()
+        calendarBirth.time = birthDate.toDate() // Convert Timestamp to Date
+
+        // Calculate the age
+        var age = calendarNow.get(Calendar.YEAR) - calendarBirth.get(Calendar.YEAR)
+
+        // If their birthday hasn't occurred yet this year, subtract 1 from age
+        if (calendarNow.get(Calendar.DAY_OF_YEAR) < calendarBirth.get(Calendar.DAY_OF_YEAR)) {
+            age--
+        }
+
+        return age
     }
 }

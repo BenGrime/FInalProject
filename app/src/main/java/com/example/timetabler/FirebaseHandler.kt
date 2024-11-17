@@ -18,11 +18,11 @@ class FirebaseHandler {
         db.collection("Staff").get().addOnSuccessListener{result ->
 
             for (staff in result){
-                val Id = staff.getString("Id")
-                val Name = staff.getString("Name")
-                val prev = staff.getString("Previous Ride")
-                val dob = staff.getTimestamp("DoB")  ?: Timestamp.now()
-                val ridesTrained = staff.get("RidesTrained") as? ArrayList<String> ?: emptyList()
+                val Id = staff.getString("id")
+                val Name = staff.getString("name")
+                val prev = staff.getString("previous ride")
+                val dob = staff.getTimestamp("doB")  ?: Timestamp.now()
+                val ridesTrained = staff.get("ridesTrained") as? ArrayList<String> ?: emptyList()
 
                 val s = Staff(
                     Id = Id.toString(),
@@ -43,8 +43,55 @@ class FirebaseHandler {
         }
     }
 
+    fun getAllRides(callback: (List<Ride>) -> Unit){
+        val rideList = mutableListOf<Ride>()
+        db.collection("Rides").get().addOnSuccessListener{result ->
+
+            for (ride in result){
+                val id = ride.getString("Id")
+                val name = ride.getString("Ride Name")
+                val minAgeToOperate = ride.getLong("MinAgeOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                val minNumAtt = ride.getLong("MinNumAtt")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                val minNumOp = ride.getLong("MinNumOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                val open = ride.getBoolean("Open") ?: false // Retrieve as Boolean
+                val prefNumAtt = ride.getLong("PreferredNumAtt")?.toInt() ?: 0// Safely parse string to Int
+                val prefNumOp = ride.getLong("PreferredNumOp")?.toInt() ?: 0 // Safely parse string to Int
+                val staffTrained = ride.get("StaffTrained") as? ArrayList<String> ?: arrayListOf() // Retrieve list or default to empty
+
+                val r = Ride(
+                    Id = id.toString(),
+                    Name = name.toString(),
+                    minAgeToOperate = minAgeToOperate,
+                    minNumAtt = minNumAtt,
+                    minNumOp = minNumOp,
+                    open = open,
+                    prefNumAtt = prefNumAtt,
+                    prefNumOp = prefNumOp,
+                    staffTrained = ArrayList(staffTrained)
+                )
+                rideList.add(r)
+            }
+            callback(rideList)
+        }
+
+
+    }
+
+    fun getColectionSize(collection: String, callback: (Int) -> Unit){
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection(collection).get()
+            .addOnSuccessListener { result ->
+                val collectionSize = result.size() // Gets the number of documents in the collection
+                callback(collectionSize) // Pass the size to the callback
+            }
+            .addOnFailureListener { e ->
+                callback(-1) // Pass -1 to indicate an error
+            }
+    }
+
     // Function to calculate age
-    private fun calculateAge(birthDate: Date): Int {
+    fun calculateAge(birthDate: Date): Int {
         val calendarNow = Calendar.getInstance()
         val calendarBirth = Calendar.getInstance()
         calendarBirth.time = birthDate
@@ -57,5 +104,41 @@ class FirebaseHandler {
         }
 
         return age
+    }
+
+    fun getDocumentFromName(name: String, callback: (Staff?) -> Unit){
+        var s: Staff? = null
+        db.collection("Staff").get().addOnSuccessListener(){result ->
+            for (document in result) {
+                if (document.getString("name") == name) {
+                    // Found the matching document
+                    val Id = document.getString("id")
+                    val Name = document.getString("name")
+                    val prev = document.getString("previous ride")
+                    val dob = document.getTimestamp("doB")  ?: Timestamp.now()
+                    val ridesTrained = document.get("ridesTrained") as? ArrayList<String> ?: emptyList()
+
+                    s = Staff(
+                        Id = Id.toString(),
+                        Name = Name.toString(),
+                        PreviousRide = prev.toString(),
+                        DoB = dob,
+                        RidesTrained = ArrayList(ridesTrained),
+                        Category = when {
+                            calculateAge(dob.toDate()) < 18 -> "Attendant"
+                            calculateAge(dob.toDate()) in 18..20 -> "Fairground"
+                            calculateAge(dob.toDate()) > 20 -> "SRO"
+                            else -> ""
+                        }
+                    )
+                    break
+                }
+            }
+            callback(s)
+        } .addOnFailureListener { e ->
+            callback(null) // In case of error, pass null
+        }
+
+
     }
 }
