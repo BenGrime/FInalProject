@@ -44,6 +44,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var createNewStaff : Button
     private lateinit var deleteStaffbtn : Button
     private lateinit var viewStaffButton : Button
+    private lateinit var createRideBtn : Button
+    private lateinit var DeleteRideBtn : Button
+    private lateinit var viewRideBtn : Button
+
 
     //layouts for main menu
     private lateinit var staffPage : GridLayout
@@ -552,6 +556,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 dialog.show()
             }
+        })
+
+
+        createRideBtn = findViewById(R.id.createRideButton)
+        createRideBtn.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this, CreateNewRidePage::class.java)
+            startActivity(intent)
+
         })
     }
 

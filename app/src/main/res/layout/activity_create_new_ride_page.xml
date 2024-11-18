@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".CreateNewRidePage">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="Create New Ride"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Ride Name -->
+    <TextView
+        android:id="@+id/labelRideName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Ride Name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
+        app:layout_constraintEnd_toStartOf="@+id/rideNameInput"
+        android:layout_marginTop="16sp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/rideNameInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Enter Ride Name"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintStart_toEndOf="@+id/labelRideName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
+        android:layout_marginTop="8sp"/>
+
+    <!-- Minimum Operator Age -->
+    <TextView
+        android:id="@+id/labelMinOpAge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Minimum Operator Age"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rideNameInput"
+        app:layout_constraintEnd_toStartOf="@+id/rideMinOpInput"
+        android:layout_marginTop="8sp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/rideMinOpInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:inputType="number"
+        android:hint="e.g, 18"
+        app:layout_constraintStart_toEndOf="@+id/labelMinOpAge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rideNameInput"
+        android:layout_marginTop="8sp" />
+
+    <!-- Minimum Attendant Age -->
+    <TextView
+        android:id="@+id/labelMinAttAge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Minimum Attendant Age"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rideMinOpInput"
+        app:layout_constraintEnd_toStartOf="@+id/rideMinAttInput"
+        android:layout_marginTop="16sp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/rideMinAttInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:inputType="number"
+        android:hint="e.g, 16"
+        app:layout_constraintStart_toEndOf="@+id/labelMinAttAge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rideMinOpInput"
+        android:layout_marginTop="16sp" />
+
+    <!-- Minimum Number of Attendants -->
+    <TextView
+        android:id="@+id/labelMinNumAtt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Minimum No. of Attendants"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rideMinAttInput"
+        app:layout_constraintEnd_toStartOf="@+id/minAttNumInput"
+        android:layout_marginTop="16sp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/minAttNumInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:inputType="number"
+        android:hint="e.g, 2"
+        app:layout_constraintStart_toEndOf="@+id/labelMinNumAtt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rideMinAttInput"
+        android:layout_marginTop="16sp" />
+
+    <!-- Minimum Number of Operators -->
+    <TextView
+        android:id="@+id/labelMinNumOp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Minimum No. of Operators"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/minAttNumInput"
+        app:layout_constraintEnd_toStartOf="@+id/minOpNumInput"
+        android:layout_marginTop="16sp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/minOpNumInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:inputType="number"
+        android:hint="e.g, 1"
+        app:layout_constraintStart_toEndOf="@+id/labelMinNumOp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/minAttNumInput"
+        android:layout_marginTop="16sp" />
+
+
+    <TextView
+        android:id="@+id/prefNumAtt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Preferred No. of Attendants"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/minOpNumInput"
+        app:layout_constraintEnd_toStartOf="@+id/prefNumAttInput"
+        android:layout_marginTop="16sp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/prefNumAttInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:hint="e.g, 2"
+        android:inputType="number"
+        app:layout_constraintStart_toEndOf="@id/prefNumAtt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/minOpNumInput"
+        android:layout_marginTop="16sp" />
+
+    <TextView
+        android:id="@+id/prefNumOp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Preferred No. of Operators"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/prefNumAttInput"
+        app:layout_constraintEnd_toStartOf="@+id/prefNumOpInput"
+        android:layout_marginTop="16sp"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/prefNumOpInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:hint="e.g, 2"
+        android:inputType="number"
+        app:layout_constraintStart_toEndOf="@id/prefNumOp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/prefNumAttInput"
+        android:layout_marginTop="16sp" />
+
+    <TextView
+        android:id="@+id/openLbl"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Open"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/prefNumOpInput"
+        app:layout_constraintEnd_toStartOf="@+id/openInput"
+        android:layout_marginTop="16sp"/>
+
+    <Spinner
+        android:id="@+id/openInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="22sp"
+        app:layout_constraintStart_toEndOf="@id/openLbl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/prefNumOpInput"
+        android:layout_marginTop="16sp"
+
+        />
+
+
+
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/openInput">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createRideCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="8dp"
+            android:text="Cancel"
+            app:backgroundTint="@color/red" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createRideConfirm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="8dp"
+            android:text="Confirm"
+            app:backgroundTint="@color/green" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

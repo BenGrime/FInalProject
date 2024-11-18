@@ -51,6 +51,7 @@ class FirebaseHandler {
                 val id = ride.getString("Id")
                 val name = ride.getString("Ride Name")
                 val minAgeToOperate = ride.getLong("MinAgeOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                val minAgeToAttend = ride.getLong("MinAgeOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
                 val minNumAtt = ride.getLong("MinNumAtt")?.toInt() ?: 0 // Retrieve as Long and convert to Int
                 val minNumOp = ride.getLong("MinNumOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
                 val open = ride.getBoolean("Open") ?: false // Retrieve as Boolean
@@ -62,6 +63,7 @@ class FirebaseHandler {
                     Id = id.toString(),
                     Name = name.toString(),
                     minAgeToOperate = minAgeToOperate,
+                    minAgeToAttend = minAgeToAttend,
                     minNumAtt = minNumAtt,
                     minNumOp = minNumOp,
                     open = open,

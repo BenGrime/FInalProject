@@ -7,6 +7,7 @@ data class Ride(
     var Id: String  = "",
     var Name: String  = "",
     var minAgeToOperate : Int, //minimum age for operator to be, 16, 18, 21
+    var minAgeToAttend : Int,
     var minNumAtt : Int, //minimum number of attendants - could be 1, so 1 attendant of the age of attribute above. could be more
     var minNumOp : Int, //minimum number of operators - could be 1, so 1 operator of the age of attribute above. could be more
     var open : Boolean, //is the ride open or closed
