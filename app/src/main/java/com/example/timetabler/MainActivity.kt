@@ -446,32 +446,32 @@ class MainActivity : AppCompatActivity() {
                 }
                 dialog.dismiss()
                 fh.getColectionSize("Staff") {
-                    val staffId = (it + 1).toString()
-                    val s = Staff(
-                        Id = staffId,
-                        Name = name,
-                        PreviousRide = "",
-                        DoB = convertStrToTime(dob),
-                        RidesTrained = ArrayList<String>(),
-                        Category = when {
-                            calculateAge(convertStrToTime(dob)) < 18 -> "Attendant"
-                            calculateAge(convertStrToTime(dob)) in 18..20 -> "Fairground"
-                            calculateAge(convertStrToTime(dob)) > 20 -> "SRO"
-                            else -> ""
+                    //are we missing a document number? yes use that number, no use next number
+                    fh.missingDocNum {
+
+                        val staffId = it.toString()
+                        val s = Staff(
+                            Id = staffId,
+                            Name = name,
+                            PreviousRide = "",
+                            DoB = convertStrToTime(dob),
+                            RidesTrained = ArrayList<String>(),
+                            Category = when {
+                                calculateAge(convertStrToTime(dob)) < 18 -> "Attendant"
+                                calculateAge(convertStrToTime(dob)) in 18..20 -> "Fairground"
+                                calculateAge(convertStrToTime(dob)) > 20 -> "SRO"
+                                else -> ""
+                            }
+                        )
+
+                        db.collection("Staff").document(staffId).set(s).addOnSuccessListener {
+
+                            Toast.makeText(this, "Staff created", Toast.LENGTH_SHORT).show()
                         }
-                    )
-
-                    db.collection("Staff").document(staffId).set(s).addOnSuccessListener {
-
-                        Toast.makeText(this, "Staff created", Toast.LENGTH_SHORT).show()
                     }
                 }
-
-
             }
-
             dialog.show()
-
         })
 
 
@@ -535,27 +535,26 @@ class MainActivity : AppCompatActivity() {
                         dialog2.dismiss()
                     })
                     conDeleteConfirm.setOnClickListener(View.OnClickListener {
-
-                        if (selectedItem != "Select Staff") {
-
-
-                            fh.getDocumentFromName(selectedItem){staff ->
-                                if(staff!=null) {
-                                    db.collection("Staff").document(staff.Id).delete().addOnSuccessListener {
-                                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
-                                        dialog.dismiss()
-                                        dialog2.dismiss()
-                                    }
+                        fh.getDocumentFromName(selectedItem){staff ->
+                            if(staff!=null) {
+                                db.collection("Staff").document(staff.Id).delete().addOnSuccessListener {
+                                    Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                                    dialog.dismiss()
+                                    dialog2.dismiss()
                                 }
                             }
+                        }
 
-                        }
-                        else
-                        {
-                            Toast.makeText(this@MainActivity, "Staff not selected", Toast.LENGTH_SHORT).show()
-                        }
+
+
                     })
-                    dialog2.show()
+                    if (selectedItem != "Select Staff") {
+                        dialog2.show()
+                    }
+                    else
+                    {
+                        Toast.makeText(this@MainActivity, "Staff not selected", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 dialog.show()
             }
@@ -619,26 +618,24 @@ class MainActivity : AppCompatActivity() {
                     })
                     conDeleteConfirm.setOnClickListener(View.OnClickListener {
 
-                        if (selectedItem != "Select Ride") {
-
-
-                            fh.getRideFromName(selectedItem){ride ->
-                                if(ride!=null) {
-                                    db.collection("Rides").document(ride.Id).delete().addOnSuccessListener {
-                                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
-                                        dialog.dismiss()
-                                        dialog2.dismiss()
-                                    }
+                        fh.getRideFromName(selectedItem){ride ->
+                            if(ride!=null) {
+                                db.collection("Rides").document(ride.Id).delete().addOnSuccessListener {
+                                    Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                                    dialog.dismiss()
+                                    dialog2.dismiss()
                                 }
                             }
-
-                        }
-                        else
-                        {
-                            Toast.makeText(this@MainActivity, "Ride not selected", Toast.LENGTH_SHORT).show()
                         }
                     })
-                    dialog2.show()
+                    if(selectedItem != "Select Ride")
+                    {
+                        dialog2.show()
+                    }
+                    else
+                    {
+                        Toast.makeText(this@MainActivity, "Ride not selected", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 dialog.show()
             }
