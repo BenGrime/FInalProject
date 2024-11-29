@@ -96,6 +96,9 @@ class CreateNewRidePage : AppCompatActivity() {
                     db.collection("Rides").document(rideId).set(r).addOnSuccessListener {
 
                         Toast.makeText(this, "Ride created", Toast.LENGTH_SHORT).show()
+                        val intent  = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
                     }
                 }
 

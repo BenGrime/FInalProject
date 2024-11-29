@@ -78,8 +78,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var  deleteStaffConfirm : Button
 
     //buttons for deletion confirmation
-    private lateinit var conDeleteStaffCancel : Button
-    private lateinit var conDeleteStaffConfirm : Button
+    private lateinit var conDeleteCancel : Button
+    private lateinit var conDeleteConfirm : Button
+
+    //pop up for delete ride
+    private lateinit var deleteRideSpn : Spinner
+    private lateinit var conDeleteRideCancel : Button
+    private lateinit var conDeleteRideConfirm : Button
 
 
     //other
@@ -220,7 +225,7 @@ class MainActivity : AppCompatActivity() {
                                 // Optional: Handle no selection
                             }
                         }
-
+                    dialog.show()
                 }
 
                 addStaffCancel.setOnClickListener {
@@ -282,7 +287,6 @@ class MainActivity : AppCompatActivity() {
                         return@setOnClickListener
                     }
                 }
-                dialog.show()
             }
 
         })
@@ -362,7 +366,7 @@ class MainActivity : AppCompatActivity() {
                                 // Optional: Handle no selection
                             }
                         }
-
+                    dialog.show()
                 }
             }
 
@@ -410,7 +414,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            dialog.show()
         })
 
         //create new staff button + pop up function
@@ -525,13 +528,13 @@ class MainActivity : AppCompatActivity() {
                     dialog2.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
                     dialog2.setCancelable(false)
                     dialog2.setContentView(R.layout.deletion_confirmation)
-                    conDeleteStaffCancel = dialog2.findViewById(R.id.ConDeleteStaffCancel)
-                    conDeleteStaffConfirm = dialog2.findViewById(R.id.ConDeleteStaffConfirm)
+                    conDeleteCancel = dialog2.findViewById(R.id.ConDeleteStaffCancel)
+                    conDeleteConfirm = dialog2.findViewById(R.id.ConDeleteStaffConfirm)
 
-                    conDeleteStaffCancel.setOnClickListener(View.OnClickListener {
+                    conDeleteCancel.setOnClickListener(View.OnClickListener {
                         dialog2.dismiss()
                     })
-                    conDeleteStaffConfirm.setOnClickListener(View.OnClickListener {
+                    conDeleteConfirm.setOnClickListener(View.OnClickListener {
 
                         if (selectedItem != "Select Staff") {
 
@@ -563,6 +566,83 @@ class MainActivity : AppCompatActivity() {
         createRideBtn.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, CreateNewRidePage::class.java)
             startActivity(intent)
+
+        })
+
+        DeleteRideBtn = findViewById(R.id.deleteRideButton)
+        DeleteRideBtn.setOnClickListener(View.OnClickListener {
+            dialog.setContentView(R.layout.delete_ride_dialogue)
+            conDeleteRideCancel = dialog.findViewById(R.id.deleteRideCancel)
+            conDeleteRideConfirm = dialog.findViewById(R.id.deleteRideConfirm)
+            deleteRideSpn = dialog.findViewById(R.id.rideDeleteSelect)
+            val rides = mutableListOf<String>()
+            fh.getAllRides { rideArray ->
+                rides.add("Select Ride")
+                for(s in rideArray){
+                    rides.add(s.Name)
+                }
+                // Set up the Adapter
+                val adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_item,  // Default spinner layout
+                    rides
+                )
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
+                deleteRideSpn.adapter = adapter
+                // Handle item selection
+                var selectedItem = ""
+                deleteRideSpn.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        selectedItem = rides[position]
+
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // Optional: Handle no selection
+                    }
+                }
+
+                conDeleteRideCancel.setOnClickListener {
+                    dialog.dismiss()
+                }
+                conDeleteRideConfirm.setOnClickListener {
+                    dialog2 = Dialog(this)
+                    dialog2.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    dialog2.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+                    dialog2.setCancelable(false)
+                    dialog2.setContentView(R.layout.deletion_confirmation)
+                    conDeleteCancel = dialog2.findViewById(R.id.ConDeleteStaffCancel)
+                    conDeleteConfirm = dialog2.findViewById(R.id.ConDeleteStaffConfirm)
+
+                    conDeleteCancel.setOnClickListener(View.OnClickListener {
+                        dialog2.dismiss()
+                    })
+                    conDeleteConfirm.setOnClickListener(View.OnClickListener {
+
+                        if (selectedItem != "Select Ride") {
+
+
+                            fh.getRideFromName(selectedItem){ride ->
+                                if(ride!=null) {
+                                    db.collection("Rides").document(ride.Id).delete().addOnSuccessListener {
+                                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                                        dialog.dismiss()
+                                        dialog2.dismiss()
+                                    }
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            Toast.makeText(this@MainActivity, "Ride not selected", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                    dialog2.show()
+                }
+                dialog.show()
+            }
+
 
         })
     }

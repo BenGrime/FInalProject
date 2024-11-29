@@ -140,7 +140,43 @@ class FirebaseHandler {
         } .addOnFailureListener { e ->
             callback(null) // In case of error, pass null
         }
+    }
 
+    fun getRideFromName(name: String, callback: (Ride?) -> Unit){
+        var r : Ride? = null
+        db.collection("Rides").get().addOnSuccessListener(){result ->
+            for (ride in result){
+                if(ride.getString("name") == name)
+                {
+                    val id = ride.getString("id")
+                    val name = ride.getString("name")
+                    val minAgeToOperate = ride.getLong("minAgeOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                    val minAgeToAttend = ride.getLong("minAgeOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                    val minNumAtt = ride.getLong("minNumAtt")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                    val minNumOp = ride.getLong("minNumOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                    val open = ride.getBoolean("open") ?: false // Retrieve as Boolean
+                    val prefNumAtt = ride.getLong("preferredNumAtt")?.toInt() ?: 0// Safely parse string to Int
+                    val prefNumOp = ride.getLong("preferredNumOp")?.toInt() ?: 0 // Safely parse string to Int
+                    val staffTrained = ride.get("staffTrained") as? ArrayList<String> ?: arrayListOf() // Retrieve list or default to empty
 
+                    r = Ride(
+                        Id = id.toString(),
+                        Name = name.toString(),
+                        minAgeToOperate = minAgeToOperate,
+                        minAgeToAttend = minAgeToAttend,
+                        minNumAtt = minNumAtt,
+                        minNumOp = minNumOp,
+                        open = open,
+                        prefNumAtt = prefNumAtt,
+                        prefNumOp = prefNumOp,
+                        staffTrained = ArrayList(staffTrained)
+                    )
+                    break
+                }
+
+            }
+            callback(r)
+
+        }
     }
 }
