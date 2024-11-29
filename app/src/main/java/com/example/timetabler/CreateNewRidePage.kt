@@ -38,7 +38,6 @@ class CreateNewRidePage : AppCompatActivity() {
 
         cancelBtn = findViewById(R.id.createRideCancel)
         cancelBtn.setOnClickListener(View.OnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
             finish()
         })
 
@@ -79,27 +78,30 @@ class CreateNewRidePage : AppCompatActivity() {
                 val selectedItem = openInput.selectedItem.toString()
                 var openBool = selectedItem == "Yes"
                 fh.getColectionSize("Rides"){
-                    val rideId = (it+1).toString()
-                    val r = Ride(
-                        Id = rideId,
-                        Name =rideNameInput.text.toString(),
-                        minAgeToOperate = rideMinOpInput.text.toString().toInt(),
-                        minAgeToAttend = rideMinAttInput.text.toString().toInt(),
-                        minNumAtt= minAttNumInput.text.toString().toInt(),
-                        minNumOp= minOpNumInput.text.toString().toInt(),
-                        open = openBool,
-                        prefNumAtt= prefNumAttInput.text.toString().toInt(),
-                        prefNumOp= prefNumOpInput.text.toString().toInt(),
-                        staffTrained = ArrayList<String>()
-                    )
+                    fh.missingDocNum("Rides") {
 
-                    db.collection("Rides").document(rideId).set(r).addOnSuccessListener {
+                        val rideId = it.toString()
+                        val r = Ride(
+                            Id = rideId,
+                            Name =rideNameInput.text.toString(),
+                            minAgeToOperate = rideMinOpInput.text.toString().toInt(),
+                            minAgeToAttend = rideMinAttInput.text.toString().toInt(),
+                            minNumAtt= minAttNumInput.text.toString().toInt(),
+                            minNumOp= minOpNumInput.text.toString().toInt(),
+                            open = openBool,
+                            prefNumAtt= prefNumAttInput.text.toString().toInt(),
+                            prefNumOp= prefNumOpInput.text.toString().toInt(),
+                            staffTrained = ArrayList<String>()
+                        )
 
-                        Toast.makeText(this, "Ride created", Toast.LENGTH_SHORT).show()
-                        val intent  = Intent(this, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                        db.collection("Rides").document(rideId).set(r).addOnSuccessListener {
+
+                            Toast.makeText(this, "Ride created", Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+
                     }
+
                 }
 
             }

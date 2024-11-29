@@ -97,12 +97,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val ridePage = intent.getStringExtra("RidePage")
+
+
         //THIS IS FOR THE TOGGLE
 
         staffPage = findViewById(R.id.staffPage)
         ridesPage = findViewById(R.id.ridesPage)
         toggleGroup = findViewById(R.id.toggleGroup)
         gestureDetector = GestureDetectorCompat(this, SwipeGestureListener())
+
+        if(ridePage != null && ridePage == "true")
+        {
+            staffPage.visibility = View.GONE
+            ridesPage.visibility = View.VISIBLE
+        }
 
         val toggleGroup = findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
         val staffViewButton = findViewById<MaterialButton>(R.id.staffViewButton)
@@ -447,7 +456,7 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
                 fh.getColectionSize("Staff") {
                     //are we missing a document number? yes use that number, no use next number
-                    fh.missingDocNum {
+                    fh.missingDocNum("Staff") {
 
                         val staffId = it.toString()
                         val s = Staff(
@@ -463,7 +472,6 @@ class MainActivity : AppCompatActivity() {
                                 else -> ""
                             }
                         )
-
                         db.collection("Staff").document(staffId).set(s).addOnSuccessListener {
 
                             Toast.makeText(this, "Staff created", Toast.LENGTH_SHORT).show()

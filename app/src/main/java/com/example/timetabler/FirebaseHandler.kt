@@ -180,21 +180,18 @@ class FirebaseHandler {
         }
     }
 
-    fun missingDocNum(callback: (Int?) -> Unit){
-        db.collection("Staff").get().addOnSuccessListener { result ->
+    fun missingDocNum(collection : String, callback: (Int?) -> Unit){
+        db.collection(collection).get().addOnSuccessListener { result ->
             val numList = mutableListOf<Int>()
-            for (staff in result) {
-                numList.add(staff.id.toInt())
+            for (document in result) {
+                numList.add(document.id.toInt())
             }
             numList.sort()
-
             var missingNumber : Int
-
             if(numList.size == 0){
                 missingNumber = 1
             }
             else{
-
                 missingNumber = numList.size + 1 // Default to the next number after the end of the list
                 for (i in 1..numList.size) { // Expected sequence: 1 to numList.size
                     if (i != numList[i - 1]) { // Compare expected number with actual number
@@ -203,8 +200,6 @@ class FirebaseHandler {
                     }
                 }
             }
-
-
             callback(missingNumber)
         }
     }
