@@ -17,6 +17,7 @@ import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -36,6 +37,7 @@ class Staff_Selection : AppCompatActivity() {
     private var allStaff = ArrayList<Staff>()
     private var filteredNameList = ArrayList<String>()
     private val buttons = mutableListOf<Button>() // List to keep references to all buttons
+    private val selectedStaff = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,6 +125,7 @@ class Staff_Selection : AppCompatActivity() {
 
     private fun filterAndDisplayStaff(selectedCategory: String) {
         filteredNameList.clear()
+        buttons.clear()
 
         val formattedCategory = if (selectedCategory == "Attendants") {
             selectedCategory.dropLast(1).trim() // Normalize to lowercase
@@ -160,16 +163,19 @@ class Staff_Selection : AppCompatActivity() {
                 maxLines = 2 // Limit text to 2 lines
                 setEllipsize(TextUtils.TruncateAt.END)
                 // Set initial background color to white
-                setBackgroundColor(Color.WHITE)
-                background = ContextCompat.getDrawable(this@Staff_Selection, R.drawable.rounded_rectangle)
+                // Set initial background color based on selection state
+                if (selectedStaff.contains(name)) {
+                    background = ContextCompat.getDrawable(this@Staff_Selection, R.drawable.selected_green)
+                } else {
+                    background = ContextCompat.getDrawable(this@Staff_Selection, R.drawable.rounded_rectangle)
+                }
             }
             button.setOnClickListener {
-                // Toggle the button color
-                if (button.background is Drawable && button.background.constantState == ContextCompat.getDrawable(this, R.drawable.selected_green)?.constantState) {
-                    // Current drawable is 'selected_green'
+                if (selectedStaff.contains(name)) {
+                    selectedStaff.remove(name) // Deselect staff
                     button.setBackgroundResource(R.drawable.rounded_rectangle)
                 } else {
-                    // Current drawable is not 'selected_green', set it to 'selected_green'
+                    selectedStaff.add(name) // Select staff
                     button.setBackgroundResource(R.drawable.selected_green)
                 }
             }
