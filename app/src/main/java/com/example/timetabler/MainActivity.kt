@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     //set dialog
     private lateinit var dialog : Dialog
     private lateinit var  dialog2 : Dialog
+    private lateinit var loadingDialog: Dialog
 
     //main menu buttons
     private lateinit var addStaffButton : Button
@@ -169,6 +170,8 @@ class MainActivity : AppCompatActivity() {
 
         //adding staff to ride button + pop up function
         addStaffButton.setOnClickListener(View.OnClickListener {
+
+            showLoading()
             dialog.setContentView(R.layout.add_staff_dialogue)
             addStaffCancel = dialog.findViewById(R.id.AddStaffCancel)
             addStaffConfirm = dialog.findViewById(R.id.AddStaffConfirm)
@@ -240,6 +243,7 @@ class MainActivity : AppCompatActivity() {
                                 // Optional: Handle no selection
                             }
                         }
+                    hideLoading()
                     dialog.show()
                 }
 
@@ -319,6 +323,7 @@ class MainActivity : AppCompatActivity() {
 
         //removing staff from ride button + popup function
         removeStaffButton.setOnClickListener(View.OnClickListener {
+            showLoading()
             dialog.setContentView(R.layout.remove_staff_dialog)
 
             // Initialize views in remove_staff_dialog layout
@@ -392,6 +397,7 @@ class MainActivity : AppCompatActivity() {
                                 // Optional: Handle no selection
                             }
                         }
+                    hideLoading()
                     dialog.show()
                 }
             }
@@ -786,5 +792,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         return age
+    }
+
+    private fun showLoading() {
+        // Create and show the dialog
+        loadingDialog = Dialog(this)
+        loadingDialog.setContentView(R.layout.loading_overlay)
+        loadingDialog.setCancelable(false) // Prevent dismissal by tapping outside
+        loadingDialog.window?.setBackgroundDrawableResource(android.R.color.transparent) // Make dialog background transparent
+        loadingDialog.show()
+    }
+
+    private fun hideLoading() {
+        // Hide the dialog when the task is done
+        if (::loadingDialog.isInitialized && loadingDialog.isShowing) {
+            loadingDialog.dismiss()
+        }
     }
 }
