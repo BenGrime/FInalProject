@@ -55,7 +55,7 @@ class Staff_Selection : AppCompatActivity() {
         nextBtn = findViewById(R.id.StaffSelectConfirm)
         nextBtn.setOnClickListener(View.OnClickListener {
             //go to next page, pass list of chosen staff through
-            val selectedStaffNames = ArrayList<Staff>() // List to store the names of selected staff
+            val selectedStaffNames = ArrayList<String>() // List to store the names of selected staff
 
             for (button in buttons) {
                 // Check if the button's background matches the green drawable
@@ -63,7 +63,7 @@ class Staff_Selection : AppCompatActivity() {
                     for(staff in allStaff)
                     {
                         if(staff.Name == button.text.toString()){
-                            selectedStaffNames.add(staff)
+                            selectedStaffNames.add(staff.Name)
                         }
 
                     }
@@ -71,12 +71,10 @@ class Staff_Selection : AppCompatActivity() {
                 }
 
             }
-//            selectedStaffNames.forEach { name ->
-//                println("Selected staff: $name")
-//            }
-//            val intent = Intent(this, NEXTACTIVITY::class.java)
-//            intent.putExtra("staffSelected", selectedStaffNames)  // Pass the list of Staff
-//            startActivity(intent)
+            val intent = Intent(this, RequirementsScreen::class.java)
+            intent.putExtra("staffSelected", selectedStaffNames)  // Pass the list of Staff
+            startActivity(intent)
+            finish()
         })
 
         // Spinner setup
