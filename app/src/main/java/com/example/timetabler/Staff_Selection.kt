@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.Spinner
 import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
@@ -106,9 +107,11 @@ class Staff_Selection : AppCompatActivity() {
                     // Optional: Handle no selection
                 }
             }
+        showLoading()
 
         // Fetch staff from Firebase
         fh.getAllStaff { result ->
+            hideLoading()
             for (staff in result) {
                 allStaff.add(staff)
                 nameList.add(staff.Name)
@@ -175,5 +178,13 @@ class Staff_Selection : AppCompatActivity() {
             buttons.add(button) // Add button to the list
             gridLayout.addView(button)
         }
+    }
+
+    private fun showLoading() {
+        findViewById<RelativeLayout>(R.id.loadingOverlay).visibility = View.VISIBLE
+    }
+
+    private fun hideLoading() {
+        findViewById<RelativeLayout>(R.id.loadingOverlay).visibility = View.GONE
     }
 }
