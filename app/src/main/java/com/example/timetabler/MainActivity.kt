@@ -169,7 +169,6 @@ class MainActivity : AppCompatActivity() {
         })
 
 
-        //adding staff to ride button + pop up function
         addStaffButton.setOnClickListener(View.OnClickListener {
 
             showLoading()
@@ -179,13 +178,18 @@ class MainActivity : AppCompatActivity() {
             staffSelect = dialog.findViewById(R.id.staffSelect)
             rideSelect = dialog.findViewById(R.id.rideSelect)
 
+            var selectedStaff = ""
+            var selectedRide = ""
+
+            // Initialize the staff members list
             val staffMembers = mutableListOf<String>()
             fh.getAllStaff { staffArray ->
                 staffMembers.add("Select Staff")
                 for (s in staffArray) {
                     staffMembers.add(s.Name)
                 }
-                // Set up the Adapter
+
+                // Set up the Adapter for staffSelect spinner
                 val adapter = ArrayAdapter(
                     this,
                     android.R.layout.simple_spinner_item,  // Default spinner layout
@@ -193,177 +197,167 @@ class MainActivity : AppCompatActivity() {
                 )
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
                 staffSelect.adapter = adapter
-                // Handle item selection
-                var selectedStaff = ""
-                var selectedRide = ""
-                staffSelect.onItemSelectedListener =
-                    object : AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(
-                            parent: AdapterView<*>?,
-                            view: View?,
-                            position: Int,
-                            id: Long
-                        ) {
-                            selectedStaff = staffMembers[position]
 
-                        }
+                // Initialize a variable to hold the selected staff
+                val untrainedRides = mutableListOf<String>()
 
-                        override fun onNothingSelected(parent: AdapterView<*>?) {
-                            // Optional: Handle no selection
-                        }
-                    }
+                staffSelect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        selectedStaff = staffMembers[position]
+                        if (selectedStaff != "Select Staff") {
+                            // Fetch the selected staff's details
+                            fh.getDocumentFromName(selectedStaff) { staff ->
+                                if (staff != null) {
+                                    // Get the list of rides the staff is already trained on
+                                    val trainedRides = staff.RidesTrained
 
-                //do rides now
-                val rideList = mutableListOf<String>()
-                fh.getAllRides { rideArray ->
-                    rideList.add("Select Ride")
-                    for(ride in rideArray){
-                        rideList.add(ride.Name)
-                    }
-                    val adapterRide = ArrayAdapter(
-                        this,
-                        android.R.layout.simple_spinner_item,  // Default spinner layout
-                        rideList
-                    )
-                    adapterRide.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
-                    rideSelect.adapter = adapterRide
+                                    // Get all rides and filter the ones the staff is not trained on
 
-                    rideSelect.onItemSelectedListener =
-                        object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(
-                                parent: AdapterView<*>?,
-                                view: View?,
-                                position: Int,
-                                id: Long
-                            ) {
-                                selectedRide = rideList[position]
-
-                            }
-
-                            override fun onNothingSelected(parent: AdapterView<*>?) {
-                                // Optional: Handle no selection
-                            }
-                        }
-                    hideLoading()
-                    dialog.show()
-                }
-
-                addStaffCancel.setOnClickListener {
-                    dialog.dismiss()
-                }
-                addStaffConfirm.setOnClickListener{
-                    if (selectedStaff != "Select Staff" && selectedRide != "Select Ride") {
-
-
-                        //search for document with that name
-                        fh.getDocumentFromName(selectedStaff){staff ->
-                            if(staff!=null){
-                                val updatedRidesList: MutableList<Any> = staff.RidesTrained.toMutableList()
-//                                updatedRidesList.add(selectedRide)
-//
-//                                val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
-                                //create a ride object based on the one selected
-                                var foundRide : Ride? = null
-                                fh.getAllRides{ride ->
-                                    for(r in ride){
-                                        if(r.Name == selectedRide){
-                                            foundRide = r
-                                            break
-                                        }
-                                    }
-
-                                    //at this point you have a Staff and Ride object
-
-                                    if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB))
-                                    {
-                                        var alreadyTrained = false
-                                        for(r in staff.RidesTrained){
-                                            if(r.equals(selectedRide + " Op"))
-                                            {
-                                                alreadyTrained = true
-                                            }
-
-                                        }
-                                        if(!alreadyTrained) {
-                                            updatedRidesList.add(selectedRide + " Op")
-
-                                            val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
-                                            db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {//update staff list
-                                                fh.getRideFromName(selectedRide){//get document from ride name
-                                                    if(it!=null) {
-                                                        var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
-                                                        updatedStaffTrained.add(selectedStaff + " Op")
-                                                        val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
-                                                        db.collection("Rides").document(it.Id.toString()).update(currentRideMap).addOnSuccessListener {
-                                                            Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
-                                                            dialog.dismiss()
-                                                            }
-                                                    }
-
+                                    fh.getAllRides { rideArray ->
+                                        untrainedRides.add("Select Ride")
+                                        for (ride in rideArray) {
+                                            if (!trainedRides.contains(ride.Name + " Op") && !trainedRides.contains(ride.Name + " Att")) {
+                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate || (calculateAge(staff.DoB) > ride.minAgeToAttend) && ride.prefNumAtt > 0){
+                                                    untrainedRides.add(ride.Name)
                                                 }
 
                                             }
                                         }
-                                        else
+
+                                        // Update the ride spinner with the untrained rides
+                                        val rideAdapter = ArrayAdapter(
+                                            this@MainActivity,
+                                            android.R.layout.simple_spinner_item,
+                                            untrainedRides
+                                        )
+                                        rideAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                                        rideSelect.adapter = rideAdapter
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // Optional: Handle no selection
+                    }
+                }
+
+                // Now handle the ride selection
+                rideSelect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        selectedRide = untrainedRides[position]
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // Optional: Handle no selection
+                    }
+                }
+
+                hideLoading()
+                dialog.show()
+            }
+
+            addStaffCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            addStaffConfirm.setOnClickListener {
+                if (selectedStaff != "Select Staff" && selectedRide != "Select Ride") {
+                    // Proceed with adding the staff to the ride
+                    fh.getDocumentFromName(selectedStaff) { staff ->
+                        if (staff != null) {
+                            val updatedRidesList: MutableList<Any> = staff.RidesTrained.toMutableList()
+                            var foundRide: Ride? = null
+                            fh.getAllRides { rideArray ->
+                                for (ride in rideArray) {
+                                    if (ride.Name == selectedRide) {
+                                        foundRide = ride
+                                        break
+                                    }
+                                }
+
+                                // At this point you have a Staff and Ride object
+                                if (foundRide != null && foundRide!!.minAgeToOperate <= calculateAge(staff.DoB)) {
+                                    var alreadyTrained = false
+                                    for (r in staff.RidesTrained) {
+                                        if (r.equals(selectedRide + " Op")) {
+                                            alreadyTrained = true
+                                        }
+                                    }
+                                    if (!alreadyTrained) {
+                                        updatedRidesList.add(selectedRide + " Op")
+                                        if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB) && foundRide!!.prefNumAtt > 0)
                                         {
-                                            Toast.makeText(this@MainActivity, "$selectedStaff is already trained on $selectedRide", Toast.LENGTH_SHORT).show()
+                                            updatedRidesList.add(selectedRide + " Att")
+                                        }
+                                        val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+                                        db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                            fh.getRideFromName(selectedRide) { ride ->
+                                                if (ride != null) {
+                                                    var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
+                                                    updatedStaffTrained.add(selectedStaff + " Op")
+                                                    if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB) && foundRide!!.prefNumAtt > 0)
+                                                    {
+                                                        updatedStaffTrained.add(selectedStaff + " Att")
+                                                    }
+                                                    val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
+                                                    db.collection("Rides").document(ride.Id).update(currentRideMap).addOnSuccessListener {
+                                                        Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
+                                                        dialog.dismiss()
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        if(foundRide!!.minAgeToAttend <= calculateAge(staff.DoB))
-                                        {
-                                            var alreadyTrained = false
-                                            for(r in staff.RidesTrained){
-                                                if(r.equals(selectedRide + " Att"))
-                                                {
-                                                    alreadyTrained = true
-                                                }
+                                        Toast.makeText(this@MainActivity, "$selectedStaff is already trained on $selectedRide", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                else
+                                {
+                                    if(foundRide != null && foundRide!!.minAgeToAttend <= calculateAge(staff.DoB) && foundRide!!.prefNumAtt > 0)
+                                    {
+                                        updatedRidesList.add(selectedRide + " Att")
 
-                                            }
-                                            if(!alreadyTrained) {
-                                                updatedRidesList.add(selectedRide + " Att")
-
-                                                val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
-                                                db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {//update staff list
-                                                    fh.getRideFromName(selectedRide){//get document from ride name
-                                                        if(it!=null) {
-                                                            var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
-                                                            updatedStaffTrained.add(selectedStaff + " Att")
-                                                            val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
-                                                            db.collection("Rides").document(it.Id.toString()).update(currentRideMap).addOnSuccessListener {
-                                                                Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
-                                                                dialog.dismiss()
-                                                            }
-                                                        }
-
+                                        val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+                                        db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                            fh.getRideFromName(selectedRide) { ride ->
+                                                if (ride != null) {
+                                                    var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
+                                                    updatedStaffTrained.add(selectedStaff + " Att")
+                                                    val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
+                                                    db.collection("Rides").document(ride.Id.toString()).update(currentRideMap).addOnSuccessListener {
+                                                        Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
+                                                        dialog.dismiss()
                                                     }
-
                                                 }
                                             }
-                                            else{
-                                                Toast.makeText(this@MainActivity, "$selectedStaff is already trained on $selectedRide", Toast.LENGTH_SHORT).show()
-                                            }
                                         }
-                                        else
-                                        {
-                                            Toast.makeText(this@MainActivity, "$selectedStaff is not old enough to run $selectedRide", Toast.LENGTH_SHORT).show()
-                                        }
-
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(this@MainActivity, "$selectedStaff isn't old enough to be on $selectedRide", Toast.LENGTH_SHORT).show()
 
                                     }
                                 }
-
                             }
                         }
                     }
-                    else {
-                        Toast.makeText(this@MainActivity, "Staff or Ride not selected", Toast.LENGTH_SHORT).show()
-                        return@setOnClickListener
-                    }
+                } else {
+                    Toast.makeText(this@MainActivity, "Staff or Ride not selected", Toast.LENGTH_SHORT).show()
                 }
             }
-
         })
 
         //removing staff from ride button + popup function
@@ -379,7 +373,6 @@ class MainActivity : AppCompatActivity() {
 
             val staffMembers = mutableListOf<String>()
             var selectedStaff: Staff? = null
-
                 fh.getAllStaff { staffArray ->
                     staffMembers.add("Select Staff")
                     for (s in staffArray) {
@@ -472,6 +465,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
             }
+
+
         })
 
         //create new staff button + pop up function

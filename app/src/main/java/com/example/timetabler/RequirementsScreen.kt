@@ -85,17 +85,17 @@ class RequirementsScreen : AppCompatActivity() {
                     //create TextView with ride 1
                     for(ride in rides)
                     {
-                        var iterator = 1
+                        if(ride.open) {
+                            var iterator = 1
 
-                        for(i in 1..ride.prefNumOp)
-                        {
-                            createRow(ride, iterator)
-                            iterator++
-                        }
-                        for(i in 1..ride.prefNumAtt)
-                        {
-                            createRow(ride, iterator)
-                            iterator++
+                            for (i in 1..ride.prefNumOp) {
+                                createRow(ride, iterator)
+                                iterator++
+                            }
+                            for (i in 1..ride.prefNumAtt) {
+                                createRow(ride, iterator)
+                                iterator++
+                            }
                         }
                     }
                 }
