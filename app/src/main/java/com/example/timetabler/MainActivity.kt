@@ -304,7 +304,39 @@ class MainActivity : AppCompatActivity() {
                                     }
                                     else
                                     {
-                                        Toast.makeText(this@MainActivity, "$selectedStaff is not old enough to run $selectedRide", Toast.LENGTH_SHORT).show()
+                                        if(foundRide!!.minAgeToAttend <= calculateAge(staff.DoB))
+                                        {
+                                            var alreadyTrained = false
+                                            for(r in staff.RidesTrained){
+                                                if(r.equals(selectedRide))
+                                                {
+                                                    alreadyTrained = true
+                                                }
+
+                                            }
+                                            if(!alreadyTrained) {
+                                                db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {//update staff list
+                                                    fh.getRideFromName(selectedRide){//get document from ride name
+                                                        if(it!=null) {
+                                                            var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
+                                                            updatedStaffTrained.add(selectedStaff)
+                                                            val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
+                                                            db.collection("Rides").document(it.Id.toString()).update(currentRideMap).addOnSuccessListener {
+                                                                Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
+                                                                dialog.dismiss()
+                                                            }
+                                                        }
+
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Toast.makeText(this@MainActivity, "$selectedStaff is not old enough to run $selectedRide", Toast.LENGTH_SHORT).show()
+                                        }
+
 
                                     }
                                 }
