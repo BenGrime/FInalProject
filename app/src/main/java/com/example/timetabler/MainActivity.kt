@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetectorCompat
     private lateinit var settingsBtn : ImageView
     private lateinit var notificationBtn : ImageView
+    var selectedRide =""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -258,9 +259,9 @@ class MainActivity : AppCompatActivity() {
                         fh.getDocumentFromName(selectedStaff){staff ->
                             if(staff!=null){
                                 val updatedRidesList: MutableList<Any> = staff.RidesTrained.toMutableList()
-                                updatedRidesList.add(selectedRide)
-
-                                val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+//                                updatedRidesList.add(selectedRide)
+//
+//                                val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
                                 //create a ride object based on the one selected
                                 var foundRide : Ride? = null
                                 fh.getAllRides{ride ->
@@ -270,22 +271,28 @@ class MainActivity : AppCompatActivity() {
                                             break
                                         }
                                     }
+
+                                    //at this point you have a Staff and Ride object
+
                                     if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB))
                                     {
                                         var alreadyTrained = false
                                         for(r in staff.RidesTrained){
-                                            if(r.equals(selectedRide))
+                                            if(r.equals(selectedRide + " Op"))
                                             {
                                                 alreadyTrained = true
                                             }
 
                                         }
                                         if(!alreadyTrained) {
+                                            updatedRidesList.add(selectedRide + " Op")
+
+                                            val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
                                             db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {//update staff list
                                                 fh.getRideFromName(selectedRide){//get document from ride name
                                                     if(it!=null) {
                                                         var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
-                                                        updatedStaffTrained.add(selectedStaff)
+                                                        updatedStaffTrained.add(selectedStaff + " Op")
                                                         val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
                                                         db.collection("Rides").document(it.Id.toString()).update(currentRideMap).addOnSuccessListener {
                                                             Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
@@ -308,18 +315,21 @@ class MainActivity : AppCompatActivity() {
                                         {
                                             var alreadyTrained = false
                                             for(r in staff.RidesTrained){
-                                                if(r.equals(selectedRide))
+                                                if(r.equals(selectedRide + " Att"))
                                                 {
                                                     alreadyTrained = true
                                                 }
 
                                             }
                                             if(!alreadyTrained) {
+                                                updatedRidesList.add(selectedRide + " Att")
+
+                                                val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
                                                 db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {//update staff list
                                                     fh.getRideFromName(selectedRide){//get document from ride name
                                                         if(it!=null) {
                                                             var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
-                                                            updatedStaffTrained.add(selectedStaff)
+                                                            updatedStaffTrained.add(selectedStaff + " Att")
                                                             val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
                                                             db.collection("Rides").document(it.Id.toString()).update(currentRideMap).addOnSuccessListener {
                                                                 Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
@@ -330,6 +340,9 @@ class MainActivity : AppCompatActivity() {
                                                     }
 
                                                 }
+                                            }
+                                            else{
+                                                Toast.makeText(this@MainActivity, "$selectedStaff is already trained on $selectedRide", Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                         else
@@ -363,34 +376,43 @@ class MainActivity : AppCompatActivity() {
             removeStaffConfirm = dialog.findViewById(R.id.RemoveStaffConfirm)
             rideRemoveSelect = dialog.findViewById(R.id.rideRemoveSelect)
             staffRemoveSelect = dialog.findViewById(R.id.staffRemoveSelect)
-            val staffMembers = mutableListOf<String>()
-            var selectedStaff = ""
-            var selectedRide = ""
-            fh.getAllStaff { staffArray ->
-                staffMembers.add("Select Staff")
-                for (s in staffArray) {
-                    staffMembers.add(s.Name)
-                }
-                // Set up the Adapter
-                val adapter = ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,  // Default spinner layout
-                    staffMembers
-                )
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
-                staffRemoveSelect.adapter = adapter
-                // Handle item selection
 
-                staffRemoveSelect.onItemSelectedListener =
-                    object : AdapterView.OnItemSelectedListener {
+            val staffMembers = mutableListOf<String>()
+            var selectedStaff: Staff? = null
+
+                fh.getAllStaff { staffArray ->
+                    staffMembers.add("Select Staff")
+                    for (s in staffArray) {
+                        staffMembers.add(s.Name)
+                    }
+
+                    // Set up staff spinner adapter
+                    val staffAdapter = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        staffMembers
+                    )
+                    staffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    staffRemoveSelect.adapter = staffAdapter
+
+                    // Handle staff selection
+                    staffRemoveSelect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                         override fun onItemSelected(
                             parent: AdapterView<*>?,
                             view: View?,
                             position: Int,
                             id: Long
                         ) {
-                            selectedStaff = staffMembers[position]
-
+                            if (position == 0) {
+                                // Reset selected staff and clear the ride spinner
+                                selectedStaff = null
+                                updateRideSpinner(emptyList())
+                            } else {
+                                // Update selected staff and fetch their rides
+                                selectedStaff = staffArray[position - 1] // Account for "Select Staff" at index 0
+                                val ridesTrained = selectedStaff?.RidesTrained?.map { it.toString() } ?: emptyList()
+                                updateRideSpinner(ridesTrained)
+                            }
                         }
 
                         override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -398,99 +420,57 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                //do rides now
-                val rideList = mutableListOf<String>()
-                fh.getAllRides { rideArray ->
-                    rideList.add("Select Ride")
-                    for(ride in rideArray){
-                        rideList.add(ride.Name)
-                    }
-                    val adapterRide = ArrayAdapter(
-                        this,
-                        android.R.layout.simple_spinner_item,  // Default spinner layout
-                        rideList
-                    )
-                    adapterRide.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
-                    rideRemoveSelect.adapter = adapterRide
-
-                    rideRemoveSelect.onItemSelectedListener =
-                        object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(
-                                parent: AdapterView<*>?,
-                                view: View?,
-                                position: Int,
-                                id: Long
-                            ) {
-                                selectedRide = rideList[position]
-
-                            }
-
-                            override fun onNothingSelected(parent: AdapterView<*>?) {
-                                // Optional: Handle no selection
-                            }
-                        }
                     hideLoading()
                     dialog.show()
                 }
-            }
-
 
             removeStaffCancel.setOnClickListener {
                 dialog.dismiss()
             }
-            removeStaffConfirm.setOnClickListener{
-                //delete Staff
-                var trained = false
-                fh.getDocumentFromName(selectedStaff){staff ->
-                    if(staff!=null){
-                        val updatedRidesList: MutableList<Any> = staff.RidesTrained.toMutableList()
-                        updatedRidesList.remove(selectedRide)
-                        val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
 
-                        //create a ride object based on the one selected
-                        var foundRide : Ride? = null
-                        fh.getAllRides{ride ->
-                            for(r in ride){
-                                if(r.Name == selectedRide){
-                                    foundRide = r
-                                    break
-                                }
+            removeStaffConfirm.setOnClickListener {
+                // Add logic to handle staff and ride removal
+                if (selectedStaff == null || selectedRide.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "Please select both staff and a ride.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                // Confirm removal (to be implemented in the next steps)
+
+                val rideNameWithType = selectedRide // Assuming selectedRide is the ride name with " Op" or " Att" at the end
+
+                var rideBaseName = rideNameWithType
+                var rideType = ""
+
+                if (rideNameWithType.endsWith(" Op", ignoreCase = true)) {
+                    rideBaseName = rideNameWithType.replace(" Op", "").trim()
+                    rideType = " Op"
+                } else if (rideNameWithType.endsWith(" Att", ignoreCase = true)) {
+                    rideBaseName = rideNameWithType.replace(" Att", "").trim()
+                    rideType = " Att"
+                }
+
+                fh.getRideFromName(rideBaseName){RideObj ->
+                    if(RideObj != null){
+                        //remove ride from STAFF list
+                        val ridesTrained = selectedStaff?.RidesTrained?.toMutableList() ?: mutableListOf() // Get a mutable copy of RidesTrained
+                        ridesTrained.remove(rideNameWithType)
+                        val updatedRidesMap = hashMapOf<String, Any>("ridesTrained" to ridesTrained)
+                        db.collection("Staff").document(selectedStaff!!.Id).update(updatedRidesMap).addOnSuccessListener {
+
+                            val staffToRemove = selectedStaff!!.Name + rideType
+                            val updatedStaffTrained = RideObj.staffTrained.toMutableList()
+                            updatedStaffTrained.remove(staffToRemove)
+                            val updatedRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
+                            db.collection("Rides").document(RideObj.Id).update(updatedRideMap).addOnSuccessListener {
+                                // Handle success (e.g., show a message, dismiss dialog)
+                                Toast.makeText(this@MainActivity, "Removed ${selectedStaff!!.Name} from $selectedRide", Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
                             }
-                                for(r in staff.RidesTrained){
-                                    if(r.equals(selectedRide))
-                                    {
-                                        trained = true
-                                    }
-
-                                }
-                                if(trained) {
-                                    db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
-
-                                        fh.getRideFromName(selectedRide){//get document from ride name
-                                            if(it!=null) {
-                                                var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
-                                                updatedStaffTrained.remove(selectedStaff)
-                                                val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
-                                                db.collection("Rides").document(it.Id).update(currentRideMap).addOnSuccessListener {
-                                                    Toast.makeText(this@MainActivity, "Removed $selectedStaff from $selectedRide", Toast.LENGTH_SHORT).show()
-                                                    dialog.dismiss()
-                                                }
-                                            }
-
-                                        }
-
-                                        Toast.makeText(this@MainActivity, "$selectedStaff removed from $selectedRide", Toast.LENGTH_SHORT).show()
-                                        dialog.dismiss()
-                                    }
-                                }
-                                else
-                                {
-                                    Toast.makeText(this@MainActivity, "$selectedStaff is not trained on $selectedRide", Toast.LENGTH_SHORT).show()
-                                }
                         }
-
                     }
                 }
+
             }
         })
 
@@ -841,4 +821,34 @@ class MainActivity : AppCompatActivity() {
             loadingDialog.dismiss()
         }
     }
+    fun updateRideSpinner(rides: List<String>) {
+        val rideList = mutableListOf<String>()
+        rideList.add("Select Ride") // Default entry
+        rideList.addAll(rides)
+
+        val rideAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            rideList
+        )
+        rideAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        rideRemoveSelect.adapter = rideAdapter
+
+        // Handle ride selection
+        rideRemoveSelect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selectedRide = if (position == 0) "" else rideList[position]
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Optional: Handle no selection
+            }
+        }
+    }
+
 }
