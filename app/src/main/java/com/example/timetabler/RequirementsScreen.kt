@@ -109,20 +109,64 @@ class RequirementsScreen : AppCompatActivity() {
             if(ride.prefNumOp >= iterator)
             {
                 if(ride.minAgeToOperate == 18){
-                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, adultList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                    val trainedList : ArrayList<String> = ArrayList()
+                    for(staff in staffList)
+                    {
+                        for(r in staff.RidesTrained)
+                        {
+                            if(ride.Name == r && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
+                            {
+                                trainedList.add(staff.Name)
+                            }
+                        }
+                    }
+                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
                 else{
-                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sroList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                    val trainedList : ArrayList<String> = ArrayList()
+                    for(staff in staffList)
+                    {
+                        for(r in staff.RidesTrained)
+                        {
+                            if(ride.Name == r && staff.Category.equals("SRO"))
+                            {
+                                trainedList.add(staff.Name)
+                            }
+                        }
+                    }
+                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
                 rideName = ride.Name + " Op"
             }
             else{
                 rideName = ride.Name + " Att"
                 if(ride.minAgeToAttend == 18 && ride.prefNumOp <= 1){
-                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                    val trainedList : ArrayList<String> = ArrayList()
+                    for(staff in staffList)
+                    {
+                        for(r in staff.RidesTrained)
+                        {
+                            if(ride.Name == r && staff.Category.equals("Fairground"))
+                            {
+                                trainedList.add(staff.Name)
+                            }
+                        }
+                    }
+                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
                 else{
-                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, attList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                    val trainedList : ArrayList<String> = ArrayList()
+                    for(staff in staffList)
+                    {
+                        for(r in staff.RidesTrained)
+                        {
+                            if(ride.Name == r && staff.Category.equals("Attendant"))
+                            {
+                                trainedList.add(staff.Name)
+                            }
+                        }
+                    }
+                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
             }
         }
@@ -130,20 +174,64 @@ class RequirementsScreen : AppCompatActivity() {
         {
             rideName = ride.Name
             if(ride.prefNumOp != 0){
-                adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, adultList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                val trainedList : ArrayList<String> = ArrayList()
+                for(staff in staffList)
+                {
+                    for(r in staff.RidesTrained)
+                    {
+                        if(ride.Name == r && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
+                        {
+                            trainedList.add(staff.Name)
+                        }
+                    }
+                }
+                adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
             }
             else
             {
                 if(ride.minAgeToOperate == 18){
                     if(ride.prefNumOp > 0){
-                        adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                        val trainedList : ArrayList<String> = ArrayList()
+                        for(staff in staffList)
+                        {
+                            for(r in staff.RidesTrained)
+                            {
+                                if(ride.Name == r && staff.Category.equals("Fairground"))
+                                {
+                                    trainedList.add(staff.Name)
+                                }
+                            }
+                        }
+                        adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                     }
                     else{
-                        adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, attList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                        val trainedList : ArrayList<String> = ArrayList()
+                        for(staff in staffList)
+                        {
+                            for(r in staff.RidesTrained)
+                            {
+                                if(ride.Name == r && staff.Category.equals("Attendant"))
+                                {
+                                    trainedList.add(staff.Name)
+                                }
+                            }
+                        }
+                        adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                     }
                 }
                 else{
-                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sroList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+                    val trainedList : ArrayList<String> = ArrayList()
+                    for(staff in staffList)
+                    {
+                        for(r in staff.RidesTrained)
+                        {
+                            if(ride.Name == r && staff.Category.equals("SRO"))
+                            {
+                                trainedList.add(staff.Name)
+                            }
+                        }
+                    }
+                    adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
             }
         }
