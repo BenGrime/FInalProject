@@ -1,5 +1,6 @@
 package com.example.timetabler
 
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
@@ -50,13 +51,13 @@ class FirebaseHandler {
             for (ride in result){
                 val id = ride.getString("id")
                 val name = ride.getString("name")
-                val minAgeToOperate = ride.getLong("minAgeOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
-                val minAgeToAttend = ride.getLong("minAgeOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                val minAgeToOperate = ride.getLong("minAgeToOperate")?.toInt() ?: 0 // Retrieve as Long and convert to Int
+                val minAgeToAttend = ride.getLong("minAgeToAttend")?.toInt() ?: 0 // Retrieve as Long and convert to Int
                 val minNumAtt = ride.getLong("minNumAtt")?.toInt() ?: 0 // Retrieve as Long and convert to Int
                 val minNumOp = ride.getLong("minNumOp")?.toInt() ?: 0 // Retrieve as Long and convert to Int
                 val open = ride.getBoolean("open") ?: false // Retrieve as Boolean
-                val prefNumAtt = ride.getLong("preferredNumAtt")?.toInt() ?: 0// Safely parse string to Int
-                val prefNumOp = ride.getLong("preferredNumOp")?.toInt() ?: 0 // Safely parse string to Int
+                val prefNumAtt = ride.getLong("prefNumAtt")?.toInt() ?: 0// Safely parse string to Int
+                val prefNumOp = ride.getLong("prefNumOp")?.toInt() ?: 0 // Safely parse string to Int
                 val staffTrained = ride.get("staffTrained") as? ArrayList<String> ?: arrayListOf() // Retrieve list or default to empty
 
                 val r = Ride(
@@ -202,5 +203,45 @@ class FirebaseHandler {
             }
             callback(missingNumber)
         }
+    }
+
+    fun getSelectedStaffObjs(selected : ArrayList<String>, callback: (ArrayList<Staff>) -> Unit){
+        db.collection("Staff").get().addOnSuccessListener(OnSuccessListener {
+            val staffList = ArrayList<Staff>()
+            db.collection("Staff").get().addOnSuccessListener{result ->
+
+                for (staff in result)
+                {
+                    for(name in selected)
+                    {
+                        if(staff.getString("name").equals(name)) {
+                            val Id = staff.getString("id")
+                            val Name = staff.getString("name")
+                            val prev = staff.getString("previous ride")
+                            val dob = staff.getTimestamp("doB") ?: Timestamp.now()
+                            val ridesTrained =
+                                staff.get("ridesTrained") as? ArrayList<String> ?: emptyList()
+
+                            val s = Staff(
+                                Id = Id.toString(),
+                                Name = Name.toString(),
+                                PreviousRide = prev.toString(),
+                                DoB = dob,
+                                RidesTrained = ArrayList(ridesTrained),
+                                Category = when {
+                                    calculateAge(dob.toDate()) < 18 -> "Attendant"
+                                    calculateAge(dob.toDate()) in 18..20 -> "Fairground"
+                                    calculateAge(dob.toDate()) > 20 -> "SRO"
+                                    else -> ""
+                                }
+                            )
+                            staffList.add(s)
+                        }
+                    }
+
+                }
+                callback(staffList)
+            }
+        })
     }
 }
