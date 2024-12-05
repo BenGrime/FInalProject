@@ -127,7 +127,12 @@ class RequirementsScreen : AppCompatActivity() {
                     {
                         for(r in staff.RidesTrained)
                         {
-                            if(ride.Name == r && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
+                            val strippedR = when{
+                                r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                                r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                                else -> r
+                            }
+                            if(ride.Name == strippedR && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
                             {
                                 trainedList.add(staff.Name)
                             }
@@ -142,7 +147,12 @@ class RequirementsScreen : AppCompatActivity() {
                     {
                         for(r in staff.RidesTrained)
                         {
-                            if(ride.Name == r && staff.Category.equals("SRO"))
+                            val strippedR = when{
+                                r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                                r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                                else -> r
+                            }
+                            if(ride.Name == strippedR && staff.Category.equals("SRO"))
                             {
                                 trainedList.add(staff.Name)
                             }
@@ -161,7 +171,12 @@ class RequirementsScreen : AppCompatActivity() {
                     {
                         for(r in staff.RidesTrained)
                         {
-                            if(ride.Name == r && staff.Category.equals("Fairground"))
+                            val strippedR = when{
+                                r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                                r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                                else -> r
+                            }
+                            if(ride.Name == strippedR && staff.Category.equals("Fairground"))
                             {
                                 trainedList.add(staff.Name)
                             }
@@ -176,7 +191,12 @@ class RequirementsScreen : AppCompatActivity() {
                     {
                         for(r in staff.RidesTrained)
                         {
-                            if(ride.Name == r && staff.Category.equals("Attendant"))
+                            val strippedR = when{
+                                r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                                r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                                else -> r
+                            }
+                            if(ride.Name == strippedR && staff.Category.equals("Attendant"))
                             {
                                 trainedList.add(staff.Name)
                             }
@@ -196,7 +216,12 @@ class RequirementsScreen : AppCompatActivity() {
                 {
                     for(r in staff.RidesTrained)
                     {
-                        if(ride.Name == r && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
+                        val strippedR = when{
+                            r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                            r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                            else -> r
+                        }
+                        if(ride.Name == strippedR && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
                         {
                             trainedList.add(staff.Name)
                         }
@@ -214,7 +239,12 @@ class RequirementsScreen : AppCompatActivity() {
                         {
                             for(r in staff.RidesTrained)
                             {
-                                if(ride.Name == r && staff.Category.equals("Fairground"))
+                                val strippedR = when{
+                                    r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                                    r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                                    else -> r
+                                }
+                                if(ride.Name == strippedR && staff.Category.equals("Fairground"))
                                 {
                                     trainedList.add(staff.Name)
                                 }
@@ -229,7 +259,12 @@ class RequirementsScreen : AppCompatActivity() {
                         {
                             for(r in staff.RidesTrained)
                             {
-                                if(ride.Name == r && staff.Category.equals("Attendant"))
+                                val strippedR = when{
+                                    r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                                    r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                                    else -> r
+                                }
+                                if(ride.Name == strippedR && staff.Category.equals("Attendant"))
                                 {
                                     trainedList.add(staff.Name)
                                 }
@@ -245,7 +280,12 @@ class RequirementsScreen : AppCompatActivity() {
                     {
                         for(r in staff.RidesTrained)
                         {
-                            if(ride.Name == r && staff.Category.equals("SRO"))
+                            val strippedR = when{
+                                r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
+                                r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
+                                else -> r
+                            }
+                            if(ride.Name == strippedR && staff.Category.equals("SRO"))
                             {
                                 trainedList.add(staff.Name)
                             }
