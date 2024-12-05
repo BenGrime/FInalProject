@@ -42,6 +42,18 @@ class RequirementsScreen : AppCompatActivity() {
         CancelBtn.setOnClickListener(View.OnClickListener {
             finish()
         })
+        NextBtn.setOnClickListener(View.OnClickListener {
+            val selectedStaffMap = mutableMapOf<String, String>()
+            for (spinner in spinnerList) {
+                val selectedStaff = spinner.selectedItem?.toString() ?: "No staff selected"
+                val tag = spinner.tag?.toString() ?: "No tag set"
+                selectedStaffMap[tag] = selectedStaff
+                println("Tag: $tag, Selected Staff: $selectedStaff")
+            }
+
+        })
+
+
         nameList.add("Select Staff")
 
         if (staffSelected != null) {
@@ -110,6 +122,7 @@ class RequirementsScreen : AppCompatActivity() {
             {
                 if(ride.minAgeToOperate == 18){
                     val trainedList : ArrayList<String> = ArrayList()
+                    trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
                         for(r in staff.RidesTrained)
@@ -124,6 +137,7 @@ class RequirementsScreen : AppCompatActivity() {
                 }
                 else{
                     val trainedList : ArrayList<String> = ArrayList()
+                    trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
                         for(r in staff.RidesTrained)
@@ -142,6 +156,7 @@ class RequirementsScreen : AppCompatActivity() {
                 rideName = ride.Name + " Att"
                 if(ride.minAgeToAttend == 18 && ride.prefNumOp <= 1){
                     val trainedList : ArrayList<String> = ArrayList()
+                    trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
                         for(r in staff.RidesTrained)
@@ -156,6 +171,7 @@ class RequirementsScreen : AppCompatActivity() {
                 }
                 else{
                     val trainedList : ArrayList<String> = ArrayList()
+                    trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
                         for(r in staff.RidesTrained)
@@ -175,6 +191,7 @@ class RequirementsScreen : AppCompatActivity() {
             rideName = ride.Name
             if(ride.prefNumOp != 0){
                 val trainedList : ArrayList<String> = ArrayList()
+                trainedList.add("Select Staff")
                 for(staff in staffList)
                 {
                     for(r in staff.RidesTrained)
@@ -192,6 +209,7 @@ class RequirementsScreen : AppCompatActivity() {
                 if(ride.minAgeToOperate == 18){
                     if(ride.prefNumOp > 0){
                         val trainedList : ArrayList<String> = ArrayList()
+                        trainedList.add("Select Staff")
                         for(staff in staffList)
                         {
                             for(r in staff.RidesTrained)
@@ -206,6 +224,7 @@ class RequirementsScreen : AppCompatActivity() {
                     }
                     else{
                         val trainedList : ArrayList<String> = ArrayList()
+                        trainedList.add("Select Staff")
                         for(staff in staffList)
                         {
                             for(r in staff.RidesTrained)
@@ -221,6 +240,7 @@ class RequirementsScreen : AppCompatActivity() {
                 }
                 else{
                     val trainedList : ArrayList<String> = ArrayList()
+                    trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
                         for(r in staff.RidesTrained)
@@ -262,7 +282,7 @@ class RequirementsScreen : AppCompatActivity() {
                 setBackgroundColor(ContextCompat.getColor(this@RequirementsScreen, R.color.white))
             }
 
-            tag = rideName + "Staff"
+            tag = rideName
         }
         spinnerList.add(staffSpinner)
         staffSpinner.adapter = adapter
