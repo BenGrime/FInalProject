@@ -8,6 +8,7 @@ import android.graphics.drawable.StateListDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.AdapterView
@@ -61,20 +62,22 @@ class Staff_Selection : AppCompatActivity() {
 
             for (button in buttons) {
                 // Check if the button's background matches the green drawable
-                if (button.background.constantState == ContextCompat.getDrawable(this, R.drawable.selected_green)?.constantState) {
-                    for(staff in allStaff)
-                    {
-                        if(staff.Name == button.text.toString()){
-                            selectedStaffNames.add(staff.Name)
-                        }
-
-                    }
-
-                }
+                println(selectedStaff.size)
+//                if (button.background.constantState == ContextCompat.getDrawable(this, R.drawable.selected_green)?.constantState) {
+//                    for(staff in allStaff)
+//                    {
+//                        if(staff.Name == button.text.toString()){
+//                            selectedStaffNames.add(staff.Name)
+//                        }
+//
+//                    }
+//
+//                }
 
             }
             val intent = Intent(this, RequirementsScreen::class.java)
-            intent.putExtra("staffSelected", selectedStaffNames)  // Pass the list of Staff
+//            intent.putExtra("staffSelected", selectedStaffNames)  // Pass the list of Staff
+            intent.putExtra("staffSelected", ArrayList(selectedStaff))  // Pass the list of Staff
             startActivity(intent)
             finish()
         })
