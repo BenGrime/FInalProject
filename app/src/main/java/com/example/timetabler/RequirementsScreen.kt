@@ -265,6 +265,10 @@ class RequirementsScreen : AppCompatActivity() {
                         {
                             trainedList.add(staff.Name)//add them to the list
                         }
+                        else if(ride.Name == strippedR && ride.minAgeToOperate == 16)
+                        {
+                            trainedList.add(staff.Name)
+                        }
                     }
                 }
                 adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
