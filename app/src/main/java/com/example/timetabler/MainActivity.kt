@@ -224,7 +224,7 @@ class MainActivity : AppCompatActivity() {
                                         for (ride in rideArray) {
                                             if (!trainedRides.contains(ride.Name + " Op") && !trainedRides.contains(ride.Name + " Att")) {
                                                 // if it doesnt contain the ride name
-                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate || (calculateAge(staff.DoB) > ride.minAgeToAttend) && ride.prefNumAtt > 0)
+                                                if(calculateAge(staff.DoB) >= ride.minAgeToOperate || ((calculateAge(staff.DoB) >= ride.minAgeToAttend) && ride.prefNumAtt > 0))
                                                 {//if they are old enough to operate OR old enough to attend AND the ride needs attendants
 
                                                     //this add attendant rides to 18+
@@ -242,7 +242,7 @@ class MainActivity : AppCompatActivity() {
                                             //what if they are only the Att or Op and we want to add the other to a ride that has the option for the other
                                             else if(trainedRides.contains(ride.Name + " Op") && !trainedRides.contains(ride.Name + " Att"))
                                             {
-                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate && ride.prefNumAtt > 0){
+                                                if(calculateAge(staff.DoB) >= ride.minAgeToOperate && ride.prefNumAtt > 0){
                                                     untrainedRides.add(ride.Name + " Att")
                                                 }
 
@@ -250,7 +250,7 @@ class MainActivity : AppCompatActivity() {
                                             }
                                             else if(!trainedRides.contains(ride.Name + " Op") && trainedRides.contains(ride.Name + " Att"))
                                             {
-                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate && ride.prefNumAtt > 0){
+                                                if(calculateAge(staff.DoB) >= ride.minAgeToOperate && ride.prefNumAtt > 0){
                                                     untrainedRides.add(ride.Name + " Op")
                                                 }
                                             }

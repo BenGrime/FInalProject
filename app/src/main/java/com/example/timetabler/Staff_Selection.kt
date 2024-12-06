@@ -88,7 +88,7 @@ class Staff_Selection : AppCompatActivity() {
             this,
             android.R.layout.simple_spinner_item,  // Default spinner layout
             spinnerList
-        )
+        ).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
         staffViewSpinner.adapter = adapter
 
