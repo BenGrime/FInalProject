@@ -1,5 +1,6 @@
 package com.example.timetabler
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -49,6 +50,14 @@ class RequirementsScreen : AppCompatActivity() {
                 val tag = spinner.tag?.toString() ?: "No tag set"
                 selectedStaffMap[tag] = selectedStaff
                 println("Tag: $tag, Selected Staff: $selectedStaff")
+
+                val hashMap = HashMap(selectedStaffMap)
+
+                // Create an Intent to navigate to the next activity
+                val intent = Intent(this, timetableOverridePage::class.java)
+                intent.putExtra("selectedStaffMap", hashMap) // Pass the HashMap through the Intent
+                startActivity(intent)
+                finish()
             }
 
         })
