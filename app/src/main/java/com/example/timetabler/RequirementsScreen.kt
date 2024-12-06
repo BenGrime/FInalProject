@@ -60,10 +60,10 @@ class RequirementsScreen : AppCompatActivity() {
             //change strings to objects
             fh.getSelectedStaffObjs(staffSelected){
 
-                for(staff in it)
+                for(staff in it)//get all staff objects from names from previous page
                 {
-                    staffList.add(staff)
-                    nameList.add(staff.Name)
+                    staffList.add(staff)//add objects to list
+                    nameList.add(staff.Name)//add the names to this list
                     when (staff.Category) {
                         "Attendant" -> {
                             attList.add(staff.Name)
@@ -116,7 +116,7 @@ class RequirementsScreen : AppCompatActivity() {
     {
         var adapter: ArrayAdapter<String>
         var rideName : String
-        if(ride.prefNumOp + ride.prefNumAtt > 1 && ride.prefNumOp != 0)//if true then we need to add Op or Att at the end
+        if(ride.prefNumOp + ride.prefNumAtt > 1)//if true then we need to add Op or Att at the end
         {
             if(ride.prefNumOp >= iterator)
             {
@@ -125,6 +125,7 @@ class RequirementsScreen : AppCompatActivity() {
                     trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
+                        var repeater = 0
                         for(r in staff.RidesTrained)
                         {
                             val strippedR = when{
@@ -134,7 +135,11 @@ class RequirementsScreen : AppCompatActivity() {
                             }
                             if(ride.Name == strippedR && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
                             {
-                                trainedList.add(staff.Name)
+                                if(repeater == 0)
+                                {
+                                    trainedList.add(staff.Name)
+                                    repeater += 1
+                                }
                             }
                         }
                     }
@@ -145,6 +150,7 @@ class RequirementsScreen : AppCompatActivity() {
                     trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
+                        var repeater = 0
                         for(r in staff.RidesTrained)
                         {
                             val strippedR = when{
@@ -152,7 +158,17 @@ class RequirementsScreen : AppCompatActivity() {
                                 r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                                 else -> r
                             }
+
                             if(ride.Name == strippedR && staff.Category.equals("SRO"))
+                            {
+                                if(repeater == 0)
+                                {
+                                    trainedList.add(staff.Name)
+                                    repeater += 1
+                                }
+
+                            }
+                            else if(ride.Name == strippedR && ride.minAgeToOperate == 16)
                             {
                                 trainedList.add(staff.Name)
                             }
@@ -160,7 +176,13 @@ class RequirementsScreen : AppCompatActivity() {
                     }
                     adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
-                rideName = ride.Name + " Op"
+                if(ride.minAgeToOperate <18)
+                {
+                    rideName = ride.Name
+                }
+                else{
+                    rideName = ride.Name + " Op"
+                }
             }
             else{
                 rideName = ride.Name + " Att"
@@ -169,6 +191,7 @@ class RequirementsScreen : AppCompatActivity() {
                     trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
+                        var repeater = 0
                         for(r in staff.RidesTrained)
                         {
                             val strippedR = when{
@@ -176,9 +199,11 @@ class RequirementsScreen : AppCompatActivity() {
                                 r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                                 else -> r
                             }
-                            if(ride.Name == strippedR && staff.Category.equals("Fairground"))
-                            {
-                                trainedList.add(staff.Name)
+                            if(ride.Name == strippedR ) {
+                                if(repeater == 0){
+                                    trainedList.add(staff.Name)
+                                    repeater++
+                                }
                             }
                         }
                     }
@@ -189,6 +214,7 @@ class RequirementsScreen : AppCompatActivity() {
                     trainedList.add("Select Staff")
                     for(staff in staffList)
                     {
+                        var repeater = 0
                         for(r in staff.RidesTrained)
                         {
                             val strippedR = when{
@@ -196,9 +222,14 @@ class RequirementsScreen : AppCompatActivity() {
                                 r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                                 else -> r
                             }
-                            if(ride.Name == strippedR && staff.Category.equals("Attendant"))
+                            if(ride.Name == strippedR )
                             {
-                                trainedList.add(staff.Name)
+                                if(repeater == 0)
+                                {
+                                    trainedList.add(staff.Name)
+                                    repeater++
+                                }
+//                                        && staff.Category.equals("Attendant")
                             }
                         }
                     }
@@ -220,10 +251,10 @@ class RequirementsScreen : AppCompatActivity() {
                             r.toString().endsWith(" Op", ignoreCase = true) -> r.toString().removeSuffix(" Op")
                             r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                             else -> r
-                        }
-                        if(ride.Name == strippedR && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
+                        }//strip ride name to remove Op or Att
+                        if(ride.Name == strippedR && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))//if its the correct ride and the staff in old enough
                         {
-                            trainedList.add(staff.Name)
+                            trainedList.add(staff.Name)//add them to the list
                         }
                     }
                 }

@@ -33,7 +33,7 @@ class Notifications_Page : AppCompatActivity() {
         })
     }
 
-    fun assignStaffToRidesInBulk() {
+    private fun assignStaffToRidesInBulk() {
         val rideList = mutableListOf<Ride>()
         val staffList = mutableListOf<Staff>()
 
@@ -48,110 +48,104 @@ class Notifications_Page : AppCompatActivity() {
                 for (rideinList in rideList) {
                     // Get a random number of staff (between 10 and 20)
                     val staffCount = Random.nextInt(10, 21) // Generates a number between 10 and 20
-                    val selectedStaff = staffList.shuffled().take(1) // Randomly select 'staffCount' number of staff
+                    val selectedStaff = staffList.shuffled().take(staffCount) // Randomly select 'staffCount' number of staff
 
                     // Loop through selected staff and check if they meet the requirements
                     for (staff in selectedStaff) {
                         //val staffAge = calculateAge(staff.DoB) // Get staff's age
 
-                        fh.getDocumentFromName(staff.Name){staff ->
-                            if(staff!=null){
+                        fh.getDocumentFromName(staff.Name) { staff ->
+                            if (staff != null) {
                                 val updatedRidesList: MutableList<Any> = staff.RidesTrained.toMutableList()
-                                var foundRide : Ride? = null
-                                fh.getAllRides{ride ->
-                                    for(r in ride){
-                                        if(r.Name == rideinList.Name){
-                                            foundRide = r
+                                var foundRide: Ride? = null
+                                fh.getAllRides { rideArray ->
+                                    for (ride in rideArray) {
+                                        if (ride.Name == rideinList.Name) {
+                                            foundRide = ride
                                             break
                                         }
                                     }
 
-                                    //at this point you have a Staff and Ride object
-
-                                    if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB))
-                                    {
+                                    // At this point you have a Staff and Ride object
+                                    if (foundRide != null && foundRide!!.minAgeToOperate <= calculateAge(staff.DoB)) {
                                         var alreadyTrained = false
-                                        for(r in staff.RidesTrained){
-                                            if(r.equals(rideinList.Name + " Op"))
-                                            {
+                                        for (r in staff.RidesTrained) {
+                                            if (r.equals(rideinList.Name + " Op")) {
                                                 alreadyTrained = true
                                             }
-
                                         }
-                                        if(!alreadyTrained) {
+                                        if (!alreadyTrained) {
                                             updatedRidesList.add(rideinList.Name + " Op")
-
+                                            if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB) && foundRide!!.prefNumAtt > 0)
+                                            {
+                                                updatedRidesList.add(rideinList.Name + " Att")
+                                            }
                                             val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
-                                            db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {//update staff list
-                                                fh.getRideFromName(rideinList.Name){//get document from ride name
-                                                    if(it!=null) {
-                                                        var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
-                                                        updatedStaffTrained.add(selectedStaff + " Op")
-                                                        val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
-                                                        db.collection("Rides").document(it.Id.toString()).update(currentRideMap).addOnSuccessListener {
-                                                            //Toast.makeText(this@Notifications_Page, "Added $selectedStaff to $rideinList.Name", Toast.LENGTH_SHORT).show()
+                                            db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                                Log.d("Debug", "Updated ridesTrained successfully:")
+                                                fh.getRideFromName(rideinList.Name) { ride ->
+                                                    if (ride != null) {
+                                                        var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
+                                                        updatedStaffTrained.add(staff.Name + " Op")
+                                                        if(foundRide!!.minAgeToOperate <= calculateAge(staff.DoB) && foundRide!!.prefNumAtt > 0)
+                                                        {
+                                                            updatedStaffTrained.add(staff.Name + " Att")
+                                                        }
+                                                        val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
+                                                        db.collection("Rides").document(ride.Id).update(currentRideMap).addOnSuccessListener {
+//                                                            Toast.makeText(this@Notifications_Page, "Added $selectedStaff to $rideinList.Name", Toast.LENGTH_SHORT).show()
+//                                                            dialog.dismiss()
+                                                            Log.d("Debug", "Updated staffTrained successfully:")
                                                         }
                                                     }
-
                                                 }
-
                                             }
                                         }
                                         else
                                         {
-                                            //Toast.makeText(this@Notifications_Page, "$selectedStaff is already trained on $selectedRide", Toast.LENGTH_SHORT).show()
+//                                            Toast.makeText(this@MainActivity, "$selectedStaff is already trained on $selectedRide", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                     else
                                     {
-                                        if(foundRide!!.minAgeToAttend <= calculateAge(staff.DoB))
+                                        if(foundRide != null && foundRide!!.minAgeToAttend <= calculateAge(staff.DoB) && foundRide!!.prefNumAtt > 0)
                                         {
-                                            var alreadyTrained = false
-                                            for(r in staff.RidesTrained){
-                                                if(r.equals(rideinList.Name + " Att"))
-                                                {
-                                                    alreadyTrained = true
-                                                }
+                                            updatedRidesList.add(rideinList.Name + " Att")
 
-                                            }
-                                            if(!alreadyTrained) {
-                                                updatedRidesList.add(rideinList.Name + " Att")
-
-                                                val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
-                                                db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {//update staff list
-                                                    fh.getRideFromName(rideinList.Name){//get document from ride name
-                                                        if(it!=null) {
-                                                            var updatedStaffTrained: MutableList<Any> = it.staffTrained.toMutableList()
-                                                            updatedStaffTrained.add(selectedStaff + " Att")
-                                                            val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
-                                                            db.collection("Rides").document(it.Id.toString()).update(currentRideMap).addOnSuccessListener {
-//                                                                Toast.makeText(this@Notifications_Page, "Added $selectedStaff to $rideinList.Name", Toast.LENGTH_SHORT).show()
-//                                                                dialog.dismiss()
-                                                            }
+                                            val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+                                            db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                                Log.d("Debug", "Updated ridesTrained successfully:")
+                                                fh.getRideFromName(rideinList.Name) { ride ->
+                                                    if (ride != null) {
+                                                        var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
+                                                        updatedStaffTrained.add(selectedStaff + " Att")
+                                                        val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
+                                                        db.collection("Rides").document(ride.Id.toString()).update(currentRideMap).addOnSuccessListener {
+//                                                            Toast.makeText(this@Notifications_Page, "Added $selectedStaff to $rideinList.Name", Toast.LENGTH_SHORT).show()
+//                                                            dialog.dismiss()
+                                                            Log.d("Debug", "Updated staffTrained successfully:")
                                                         }
-
                                                     }
-
                                                 }
-                                            }
-                                            else{
-                                                Toast.makeText(this@Notifications_Page, "$selectedStaff is already trained on $rideinList.Name", Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                         else
                                         {
-                                            Toast.makeText(this@Notifications_Page, "$selectedStaff is not old enough to run $rideinList.Name", Toast.LENGTH_SHORT).show()
+//                                            Toast.makeText(this@MainActivity, "$selectedStaff isn't old enough to be on $selectedRide", Toast.LENGTH_SHORT).show()
+
                                         }
                                     }
                                 }
-
                             }
                         }
+//                        break
                     }
+                    break
                 }
             }
         }
     }
+
 
 
 

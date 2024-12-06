@@ -209,6 +209,7 @@ class MainActivity : AppCompatActivity() {
                         id: Long
                     ) {
                         selectedStaff = staffMembers[position]
+                        untrainedRides.clear()
                         if (selectedStaff != "Select Staff") {
                             // Fetch the selected staff's details
                             fh.getDocumentFromName(selectedStaff) { staff ->
@@ -222,10 +223,36 @@ class MainActivity : AppCompatActivity() {
                                         untrainedRides.add("Select Ride")
                                         for (ride in rideArray) {
                                             if (!trainedRides.contains(ride.Name + " Op") && !trainedRides.contains(ride.Name + " Att")) {
-                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate || (calculateAge(staff.DoB) > ride.minAgeToAttend) && ride.prefNumAtt > 0){
-                                                    untrainedRides.add(ride.Name)
+                                                // if it doesnt contain the ride name
+                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate || (calculateAge(staff.DoB) > ride.minAgeToAttend) && ride.prefNumAtt > 0)
+                                                {//if they are old enough to operate OR old enough to attend AND the ride needs attendants
+
+                                                    //this add attendant rides to 18+
+                                                    if(!staff.Category.equals("Attendant") && ride.minAgeToOperate == 16)
+                                                    {
+
+                                                    }
+                                                    else
+                                                    {
+                                                        untrainedRides.add(ride.Name)
+                                                    }
                                                 }
 
+                                            }
+                                            //what if they are only the Att or Op and we want to add the other to a ride that has the option for the other
+                                            else if(trainedRides.contains(ride.Name + " Op") && !trainedRides.contains(ride.Name + " Att"))
+                                            {
+                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate && ride.prefNumAtt > 0){
+                                                    untrainedRides.add(ride.Name + " Att")
+                                                }
+
+
+                                            }
+                                            else if(!trainedRides.contains(ride.Name + " Op") && trainedRides.contains(ride.Name + " Att"))
+                                            {
+                                                if(calculateAge(staff.DoB) > ride.minAgeToOperate && ride.prefNumAtt > 0){
+                                                    untrainedRides.add(ride.Name + " Op")
+                                                }
                                             }
                                         }
 
@@ -287,7 +314,7 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 // At this point you have a Staff and Ride object
-                                if (foundRide != null && foundRide!!.minAgeToOperate <= calculateAge(staff.DoB)) {
+                                if (foundRide != null && foundRide!!.minAgeToOperate <= calculateAge(staff.DoB)) {//if staff able to operate
                                     var alreadyTrained = false
                                     for (r in staff.RidesTrained) {
                                         if (r.equals(selectedRide + " Op")) {
@@ -337,7 +364,7 @@ class MainActivity : AppCompatActivity() {
                                                     var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
                                                     updatedStaffTrained.add(selectedStaff + " Att")
                                                     val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
-                                                    db.collection("Rides").document(ride.Id.toString()).update(currentRideMap).addOnSuccessListener {
+                                                    db.collection("Rides").document(ride.Id).update(currentRideMap).addOnSuccessListener {
                                                         Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
                                                         dialog.dismiss()
                                                     }
@@ -347,10 +374,66 @@ class MainActivity : AppCompatActivity() {
                                     }
                                     else
                                     {
-                                        Toast.makeText(this@MainActivity, "$selectedStaff isn't old enough to be on $selectedRide", Toast.LENGTH_SHORT).show()
+                                        for (ride in rideArray) {
+                                            if (selectedRide.contains(ride.Name)) {
+                                                if(ride.prefNumAtt > 0)
+                                                {
+                                                    if(selectedRide.contains("Op"))
+                                                    {
+                                                        //add the op to both lists
+                                                        updatedRidesList.add(selectedRide)
 
+                                                        val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+                                                        db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                                            val strippedRide = selectedRide.removeSuffix(" Op")
+
+                                                            fh.getRideFromName(strippedRide) { ride ->
+                                                                if (ride != null) {
+                                                                    var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
+                                                                    updatedStaffTrained.add(selectedStaff + " Op")
+                                                                    val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
+                                                                    db.collection("Rides").document(ride.Id).update(currentRideMap).addOnSuccessListener {
+                                                                        Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
+                                                                        dialog.dismiss()
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        break
+
+
+                                                        Toast.makeText(this, "ADDING OP", Toast.LENGTH_SHORT).show()
+                                                        break
+                                                    }
+                                                    else if(selectedRide.contains("Att"))
+                                                    {
+                                                        updatedRidesList.add(selectedRide)
+
+                                                        val currentMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesList)
+                                                        db.collection("Staff").document(staff.Id).update(currentMap).addOnSuccessListener {
+                                                            val strippedRide = selectedRide.removeSuffix(" Att")
+
+                                                            fh.getRideFromName(strippedRide) { ride ->
+                                                                if (ride != null) {
+                                                                    var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
+                                                                    updatedStaffTrained.add(selectedStaff + " Att")
+                                                                    val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)
+                                                                    db.collection("Rides").document(ride.Id).update(currentRideMap).addOnSuccessListener {
+                                                                        Toast.makeText(this@MainActivity, "Added $selectedStaff to $selectedRide", Toast.LENGTH_SHORT).show()
+                                                                        dialog.dismiss()
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        break
+                                                    }
+                                                }
+
+                                            }
+                                        }
                                     }
                                 }
+
                             }
                         }
                     }
