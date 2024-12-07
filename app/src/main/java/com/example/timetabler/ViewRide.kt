@@ -1,6 +1,7 @@
 package com.example.timetabler
 
 import android.app.Dialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -13,6 +14,7 @@ import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -64,8 +66,9 @@ class ViewRide : AppCompatActivity() {
 
         editBtnRide.setOnClickListener {
             selectedRide?.let {
-                // Navigate to edit page if a ride is selected
-                // You can start an Activity here for editing
+                val intent = Intent(this@ViewRide, editRide::class.java)
+                intent.putExtra("rideObject", selectedRide)
+                startActivity(intent)
             } ?: run {
                 Toast.makeText(this, "Please select a ride to edit", Toast.LENGTH_SHORT).show()
             }
@@ -95,7 +98,6 @@ class ViewRide : AppCompatActivity() {
                     selectedRide?.let { ride ->
                         rideNameTxt.text = ride.Name
                         minAgeToAttTxt.text = "Min age to Att :\n" + ride.minAgeToAttend
-                        minAgeToAttTxt.text = "Min age to Att :\n" + ride.minAgeToAttend
                         minAgeToOpTxt.text = "Min age to Op :\n" + ride.minAgeToOperate
                         minNumAttTxt.text = "Min Num of Att :\n" + ride.minNumAtt
                         minNumOpTxt.text = "Min Num of Op :\n" + ride.minNumOp
@@ -124,7 +126,7 @@ class ViewRide : AppCompatActivity() {
                             val rideTextView = TextView(this@ViewRide).apply {
                                 text = staffName
                                 textSize = 16f
-                                setTextColor(resources.getColor(android.R.color.white))
+                                setTextColor(ContextCompat.getColor(this@ViewRide, android.R.color.white))
                                 setPadding(16, 8, 16, 8)
                                 maxLines = 2 // This ensures that the text will wrap to the next line if it's too long
                                 ellipsize = android.text.TextUtils.TruncateAt.END // This will add ellipsis if the text exceeds two lines
