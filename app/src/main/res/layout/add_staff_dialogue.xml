@@ -26,6 +26,15 @@
             app:layout_constraintTop_toTopOf="parent"
             android:padding="15dp"/>
 
+        <Spinner
+            android:id="@+id/filterForAdd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@+id/textView"
+            app:layout_constraintStart_toStartOf="@+id/textView"
+            app:layout_constraintTop_toBottomOf="@+id/textView"
+            android:textAlignment="center" />
+
         <LinearLayout
             android:id="@+id/dropdownText"
             android:layout_width="wrap_content"
@@ -33,9 +42,9 @@
             android:layout_marginTop="32dp"
             android:layout_marginBottom="32dp"
             android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="@+id/textView"
-            app:layout_constraintStart_toStartOf="@+id/textView"
-            app:layout_constraintTop_toBottomOf="@+id/textView">
+            app:layout_constraintEnd_toEndOf="@+id/filterForAdd"
+            app:layout_constraintStart_toStartOf="@+id/filterForAdd"
+            app:layout_constraintTop_toBottomOf="@+id/filterForAdd">
 
             <TextView
                 android:layout_width="match_parent"

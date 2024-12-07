@@ -66,12 +66,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var addStaffConfirm : Button
     private lateinit var rideSelect : Spinner
     private lateinit var staffSelect : Spinner
+    private lateinit var filterForAdd : Spinner
 
     //pop up for removing staff from ride
     private lateinit var removeStaffCancel : Button
     private lateinit var removeStaffConfirm : Button
     private lateinit var  rideRemoveSelect : Spinner
     private lateinit var  staffRemoveSelect : Spinner
+    private lateinit var filterForRemove : Spinner
 
 
     //pop up for delete staff
@@ -177,6 +179,12 @@ class MainActivity : AppCompatActivity() {
             addStaffConfirm = dialog.findViewById(R.id.AddStaffConfirm)
             staffSelect = dialog.findViewById(R.id.staffSelect)
             rideSelect = dialog.findViewById(R.id.rideSelect)
+            filterForAdd = dialog.findViewById(R.id.filterForAdd)
+            val filters =  listOf("All Staff", "SRO", "Fairground", "Attendant")
+            val addFilterAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, filters)
+            addFilterAdapter.setDropDownViewResource(R.layout.spinner_custom_dropdown)
+            filterForAdd.adapter = addFilterAdapter
+
 
             var selectedStaff = ""
             var selectedRide = ""
@@ -197,6 +205,34 @@ class MainActivity : AppCompatActivity() {
                 )
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
                 staffSelect.adapter = adapter
+
+                // Observe filter changes
+                filterForAdd.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        val selectedFilter = filters[position]
+                        val filteredStaff = mutableListOf("Select Staff")
+
+                        if (selectedFilter == "All Staff") {
+                            filteredStaff.addAll(staffArray.map { it.Name })
+                        } else {
+                            // Apply filter based on the category
+                            filteredStaff.addAll(staffArray.filter { it.Category == selectedFilter }.map { it.Name })
+                        }
+
+                        // Update staffSelect adapter with filtered list
+                        val filteredAdapter = ArrayAdapter(
+                            this@MainActivity,
+                            android.R.layout.simple_spinner_item,
+                            filteredStaff
+                        )
+                        filteredAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                        staffSelect.adapter = filteredAdapter
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // Optional: Handle no selection
+                    }
+                }
 
                 // Initialize a variable to hold the selected staff
                 val untrainedRides = mutableListOf<String>()
@@ -453,6 +489,14 @@ class MainActivity : AppCompatActivity() {
             removeStaffConfirm = dialog.findViewById(R.id.RemoveStaffConfirm)
             rideRemoveSelect = dialog.findViewById(R.id.rideRemoveSelect)
             staffRemoveSelect = dialog.findViewById(R.id.staffRemoveSelect)
+            filterForRemove = dialog.findViewById(R.id.filterForRemove)
+            val filters =  listOf("All Staff", "SRO", "Fairground", "Attendant")
+            val removeFilterAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, filters)
+            removeFilterAdapter.setDropDownViewResource(R.layout.spinner_custom_dropdown)
+            filterForRemove.adapter = removeFilterAdapter
+            // Observe filter changes
+
+
 
             val staffMembers = mutableListOf<String>()
             var selectedStaff: Staff? = null
@@ -470,6 +514,38 @@ class MainActivity : AppCompatActivity() {
                     )
                     staffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     staffRemoveSelect.adapter = staffAdapter
+
+                    filterForRemove.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            val selectedFilter = filters[position]
+                            val filteredStaff = mutableListOf("Select Staff")
+
+                            if (selectedFilter == "All Staff") {
+                                // Show all staff members
+                                filteredStaff.addAll(staffArray.map { it.Name })
+                            } else {
+                                // Apply filter based on the category
+                                filteredStaff.addAll(staffArray.filter { it.Category == selectedFilter }.map { it.Name })
+                            }
+
+                            // Update the staff spinner with the filtered list
+                            val filteredAdapter = ArrayAdapter(
+                                this@MainActivity,
+                                android.R.layout.simple_spinner_item,
+                                filteredStaff
+                            )
+                            filteredAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            staffRemoveSelect.adapter = filteredAdapter
+
+                            // Reset selected staff
+                            selectedStaff = null
+                            updateRideSpinner(emptyList())
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            // Optional: Handle no selection
+                        }
+                    }
 
                     // Handle staff selection
                     staffRemoveSelect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
