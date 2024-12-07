@@ -496,8 +496,6 @@ class MainActivity : AppCompatActivity() {
             filterForRemove.adapter = removeFilterAdapter
             // Observe filter changes
 
-
-
             val staffMembers = mutableListOf<String>()
             var selectedStaff: Staff? = null
                 fh.getAllStaff { staffArray ->
@@ -656,28 +654,41 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Invalid Date", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
-                dialog.dismiss()
-                fh.getColectionSize("Staff") {
-                    //are we missing a document number? yes use that number, no use next number
-                    fh.missingDocNum("Staff") {
+                fh.getAllStaff { result ->
+                    for(staff in result)
+                    {
+                        if(name.equals(staff.Name))
+                        {
+                            Toast.makeText(this, "Staff name already used, make this different", Toast.LENGTH_SHORT).show()
+                            break
+                        }
+                        else
+                        {
+                            dialog.dismiss()
+                            fh.getColectionSize("Staff") {
+                                //are we missing a document number? yes use that number, no use next number
+                                fh.missingDocNum("Staff") {
 
-                        val staffId = it.toString()
-                        val s = Staff(
-                            Id = staffId,
-                            Name = name,
-                            PreviousRide = "",
-                            DoB = convertStrToTime(dob),
-                            RidesTrained = ArrayList<String>(),
-                            Category = when {
-                                calculateAge(convertStrToTime(dob)) < 18 -> "Attendant"
-                                calculateAge(convertStrToTime(dob)) in 18..20 -> "Fairground"
-                                calculateAge(convertStrToTime(dob)) > 20 -> "SRO"
-                                else -> ""
+                                    val staffId = it.toString()
+                                    val s = Staff(
+                                        Id = staffId,
+                                        Name = name,
+                                        PreviousRide = "",
+                                        DoB = convertStrToTime(dob),
+                                        RidesTrained = ArrayList<String>(),
+                                        Category = when {
+                                            calculateAge(convertStrToTime(dob)) < 18 -> "Attendant"
+                                            calculateAge(convertStrToTime(dob)) in 18..20 -> "Fairground"
+                                            calculateAge(convertStrToTime(dob)) > 20 -> "SRO"
+                                            else -> ""
+                                        }
+                                    )
+                                    db.collection("Staff").document(staffId).set(s).addOnSuccessListener {
+
+                                        Toast.makeText(this, "Staff created", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             }
-                        )
-                        db.collection("Staff").document(staffId).set(s).addOnSuccessListener {
-
-                            Toast.makeText(this, "Staff created", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
