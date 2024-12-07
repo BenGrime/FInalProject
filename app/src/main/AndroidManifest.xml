@@ -31,7 +31,10 @@
             android:name=".Settings_Page"
             android:exported="false" />
         <activity
-            android:name=".ViewStaffRide"
+            android:name=".ViewStaff"
+            android:exported="false" />
+        <activity
+            android:name=".ViewRide"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

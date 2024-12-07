@@ -17,12 +17,11 @@ import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class ViewStaffRide : AppCompatActivity() {
+class ViewStaff : AppCompatActivity() {
 
     private lateinit var backBtnViewStaff: ImageView
     private lateinit var staffSelectView: Spinner
@@ -46,7 +45,7 @@ class ViewStaffRide : AppCompatActivity() {
     var selectedStaff: Staff? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_view_staff_ride)
+        setContentView(R.layout.activity_view_staff)
 
         // Initialize views using findViewById
         backBtnViewStaff = findViewById(R.id.backBtnViewStaff)
@@ -227,7 +226,7 @@ class ViewStaffRide : AppCompatActivity() {
                         }
 
                         // Create a new TextView for the ride name
-                        val rideTextView = TextView(this@ViewStaffRide).apply {
+                        val rideTextView = TextView(this@ViewStaff).apply {
                             text = rideToAdd // Set the text for the ride
                             textSize = 16f // Set text size (you can adjust this)
                             setTextColor(resources.getColor(android.R.color.white)) // Set text color

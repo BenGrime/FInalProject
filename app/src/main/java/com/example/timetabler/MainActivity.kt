@@ -26,7 +26,6 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 
 
 class MainActivity : AppCompatActivity() {
@@ -699,7 +698,13 @@ class MainActivity : AppCompatActivity() {
 
         viewStaffButton = findViewById(R.id.viewStaffButton)
         viewStaffButton.setOnClickListener(View.OnClickListener {
-            val intent = Intent(this, ViewStaffRide::class.java)
+            val intent = Intent(this, ViewStaff::class.java)
+            startActivity(intent)
+        })
+
+        viewRideBtn = findViewById(R.id.viewRideButton)
+        viewRideBtn.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this, ViewRide::class.java)
             startActivity(intent)
         })
 
