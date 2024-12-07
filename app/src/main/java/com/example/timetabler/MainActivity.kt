@@ -752,21 +752,21 @@ class MainActivity : AppCompatActivity() {
                                     fh.getAllRides { result ->
                                         for(ride in result)
                                         {
+                                            var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
                                             for(nameListed in ride.staffTrained)
                                             {
-                                                if(nameListed.equals(selectedItem))
+                                                if(nameListed.toString().contains(selectedItem))
                                                 {
-                                                    var updatedStaffTrained: MutableList<Any> = ride.staffTrained.toMutableList()
-                                                    updatedStaffTrained.remove(selectedItem)
-                                                    val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
-                                                    db.collection("Rides").document(ride.Id).update(currentRideMap).addOnSuccessListener {
-                                                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
-                                                        dialog.dismiss()
-                                                        dialog2.dismiss()
-                                                    }
+                                                    updatedStaffTrained.remove(nameListed)
                                                 }
                                             }
+                                            val currentRideMap = hashMapOf<String, Any>("staffTrained" to updatedStaffTrained)//create the map to update
+                                            db.collection("Rides").document(ride.Id).update(currentRideMap).addOnSuccessListener {
+                                                Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                                            }
                                         }
+                                        dialog.dismiss()
+                                        dialog2.dismiss()
                                     }
                                 }
                             }
@@ -848,26 +848,24 @@ class MainActivity : AppCompatActivity() {
                         fh.getRideFromName(selectedItem){ride ->
                             if(ride!=null) {
                                 db.collection("Rides").document(ride.Id).delete().addOnSuccessListener {
-
                                     fh.getAllStaff { result->
                                         for(staff in result)
                                         {
+                                            var updatedRidesTrained: MutableList<Any> = staff.RidesTrained.toMutableList()
                                             for(staffList in staff.RidesTrained)
                                             {
-                                                if(staffList.equals(selectedItem))
+                                                if(staffList.toString().contains(selectedItem))
                                                 {
-                                                    var updatedRidesTrained: MutableList<Any> = staff.RidesTrained.toMutableList()
-                                                    updatedRidesTrained.remove(selectedItem)
-                                                    val currentStaffMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesTrained)//create the map to update
-                                                    db.collection("Staff").document(staff.Id).update(currentStaffMap).addOnSuccessListener {
-                                                        Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
-                                                        dialog.dismiss()
-                                                        dialog2.dismiss()
-
-                                                    }
+                                                    updatedRidesTrained.remove(staffList)
                                                 }
                                             }
+                                            val currentStaffMap = hashMapOf<String, Any>("ridesTrained" to updatedRidesTrained)//create the map to update
+                                            db.collection("Staff").document(staff.Id).update(currentStaffMap).addOnSuccessListener {
+                                                Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                                            }
                                         }
+                                        dialog.dismiss()
+                                        dialog2.dismiss()
                                     }
                                 }
                             }
