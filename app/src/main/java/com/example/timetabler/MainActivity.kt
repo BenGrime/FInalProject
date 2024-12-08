@@ -205,11 +205,13 @@ class MainActivity : AppCompatActivity() {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Dropdown style
                 staffSelect.adapter = adapter
 
+
+                var filteredStaff = mutableListOf<String>()
                 // Observe filter changes
                 filterForAdd.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         val selectedFilter = filters[position]
-                        val filteredStaff = mutableListOf("Select Staff")
+                        filteredStaff = mutableListOf("Select Staff")
 
                         if (selectedFilter == "All Staff") {
                             filteredStaff.addAll(staffArray.map { it.Name })
@@ -243,7 +245,7 @@ class MainActivity : AppCompatActivity() {
                         position: Int,
                         id: Long
                     ) {
-                        selectedStaff = staffMembers[position]
+                        selectedStaff = filteredStaff[position]
                         untrainedRides.clear()
                         if (selectedStaff != "Select Staff") {
                             // Fetch the selected staff's details
@@ -292,11 +294,7 @@ class MainActivity : AppCompatActivity() {
                                         }
 
                                         // Update the ride spinner with the untrained rides
-                                        val rideAdapter = ArrayAdapter(
-                                            this@MainActivity,
-                                            android.R.layout.simple_spinner_item,
-                                            untrainedRides
-                                        )
+                                        val rideAdapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, untrainedRides)
                                         rideAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                                         rideSelect.adapter = rideAdapter
                                     }
@@ -512,10 +510,11 @@ class MainActivity : AppCompatActivity() {
                 staffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 staffRemoveSelect.adapter = staffAdapter
 
+                val filteredStaff = mutableListOf("Select Staff")
                 filterForRemove.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         val selectedFilter = filters[position]
-                        val filteredStaff = mutableListOf("Select Staff")
+//                        val filteredStaff = mutableListOf("Select Staff")
 
                         if (selectedFilter == "All Staff") {
                             // Show all staff members
@@ -558,7 +557,8 @@ class MainActivity : AppCompatActivity() {
                             updateRideSpinner(emptyList())
                         } else {
                             // Update selected staff and fetch their rides
-                            selectedStaff = staffArray[position - 1] // Account for "Select Staff" at index 0
+                            val selectedName = filteredStaff[position]
+                            selectedStaff = staffArray.firstOrNull { it.Name == selectedName }
                             val ridesTrained = selectedStaff?.RidesTrained?.map { it.toString() } ?: emptyList()
                             updateRideSpinner(ridesTrained)
                         }
