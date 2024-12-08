@@ -15,6 +15,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.marginBottom
+import androidx.core.view.size
 import com.github.javafaker.Bool
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -43,7 +44,7 @@ class ViewStaff : AppCompatActivity() {
     private lateinit var dobInput : TextInputEditText
 
 
-    // Declare lateinit variables
+    private lateinit var loadingDialog: Dialog
     private lateinit var textViewBulk: TextView
     private lateinit var dropdownsBulk: GridLayout
     private lateinit var addStaffCancel: MaterialButton
@@ -100,104 +101,26 @@ class ViewStaff : AppCompatActivity() {
                 addStaffConfirm = dialog.findViewById(R.id.AddStaffConfirmBulk)
                 //on it, have a add another ride which adds a textView and Spinner to grid layout
 
+                textViewBulk.text = "Add Rides to " + selectedStaff!!.Name
+
                 addRideToListBtn.setOnClickListener {
-                    addRideElement()
+                    if(dropdownsBulk.size <= 26){
+                        addRideElement()
+                    }
+                    else
+                    {
+                        addRideToListBtn.alpha = 0.5f
+                        addRideToListBtn.isEnabled = false
+                        Toast.makeText(this, "Max amount of rides reached", Toast.LENGTH_SHORT).show()
+                    }
+
                 }
                 addStaffCancel.setOnClickListener{
                     dialog.dismiss()
                 }
-//                addStaffConfirm.setOnClickListener {
-//                    // List to store selected items from the spinners
-//                    val selectedItems = mutableSetOf<String>()
-//
-//                    // Boolean to track duplicates
-//                    var hasDuplicates = false
-//
-//                    // Iterate through the GridLayout's children
-//                    for (i in 0 until dropdownsBulk.childCount) {
-//                        val view = dropdownsBulk.getChildAt(i)
-//                        if (view is Spinner) { // Check if the view is a Spinner
-//                            val selectedItem = view.selectedItem?.toString()
-//                            if (!selectedItem.isNullOrEmpty() || selectedItem.toString() != "Select Ride") {
-//                                // Check if the item is already in the set
-//                                if (!selectedItems.add(selectedItem.toString())) {
-//                                    hasDuplicates = true
-//                                    break
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    // Handle result
-//                    if (hasDuplicates) {
-//                        Toast.makeText(this, "Each ride must be unique. Please select different rides.", Toast.LENGTH_SHORT).show()
-//                    } else {
-//                        //create map to update firebase, currently staff.ridesTrained
-//                        val currentStaff : MutableList<Any> = selectedStaff?.RidesTrained!!.toMutableList()
-//                        var allRideUpdated = false
-//                        for(item in selectedItems)
-//                        {
-//                            var carryOn = true
-//                            if(carryOn)
-//                            {
-//                                carryOn = false
-//                                fh.getRideFromName(item){ride ->
-//                                    val currentRides : MutableList<Any> = ride?.staffTrained!!.toMutableList()
-//                                    if(selectedStaff?.Category == "SRO")
-//                                    {
-//                                        currentRides.add(selectedStaff?.Name + " Op")
-//                                        currentStaff.add(ride.Name + " Op")
-//                                        if(ride.prefNumAtt > 0)
-//                                        {
-//                                            currentRides.add(selectedStaff?.Name + " Att")
-//                                            currentStaff.add(ride.Name + " Att")
-//                                        }
-//                                    }
-//                                    else if(selectedStaff?.Category == "Fairground")
-//                                    {
-//                                        currentRides.add(selectedStaff?.Name + " Op")
-//                                        currentStaff.add(ride.Name + " Op")
-//                                        if(ride.prefNumAtt > 0 && ride.minAgeToAttend > calculateAge(selectedStaff!!.DoB))
-//                                        {
-//                                            currentRides.add(selectedStaff?.Name + " Att")
-//                                            currentStaff.add(ride.Name + " Att")
-//                                        }
-//                                    }
-//                                    else
-//                                    {
-//                                        if(ride.minAgeToOperate == 16)//if attendant ride, and they are an attendant, just add Op at the end
-//                                        {
-//                                            currentRides.add(selectedStaff?.Name+" Op")
-//                                            currentStaff.add(ride.Name + " Op")
-//                                        }
-//                                        else
-//                                        {
-//                                            currentRides.add(selectedStaff?.Name+" Att")
-//                                            currentStaff.add(ride.Name + " Att")
-//                                        }
-//                                    }
-//                                    var updateRideMap =  hashMapOf<String, Any>("staffTrained" to currentRides)
-//                                    db.collection("Rides").document(ride.Id).update(updateRideMap).addOnSuccessListener {
-//                                        carryOn = true
-//                                    }
-//                                }
-//
-//                            }
-//
-//                        }
-//
-//                        if(allRideUpdated)
-//                        {
-//                            var updateMap =  hashMapOf<String, Any>("ridesTrained" to currentStaff)
-//                            db.collection("Staff").document(selectedStaff!!.Id).update(updateMap).addOnSuccessListener {
-//                                Toast.makeText(this, "All updated", Toast.LENGTH_SHORT).show()
-//                                dialog.dismiss()
-//                            }
-//                        }
-//
-//                    }
-//                }
+
                 addStaffConfirm.setOnClickListener {
+                    showLoading()
                     // List to store selected items from the spinners
                     val selectedItems = mutableSetOf<String>()
 
@@ -216,13 +139,20 @@ class ViewStaff : AppCompatActivity() {
                                     break
                                 }
                             }
+                            else
+                            {
+                                Toast.makeText(this, "Please select rides.", Toast.LENGTH_SHORT).show()
+                                break
+                            }
                         }
                     }
 
                     // Handle result
                     if (hasDuplicates) {
                         Toast.makeText(this, "Each ride must be unique. Please select different rides.", Toast.LENGTH_SHORT).show()
-                    } else {
+                    }
+                    else
+                    {
                         val currentStaff: MutableList<Any> = selectedStaff?.RidesTrained!!.toMutableList()
                         var completedRides = 0
                         val totalRides = selectedItems.size
@@ -236,6 +166,9 @@ class ViewStaff : AppCompatActivity() {
                                 db.collection("Staff").document(selectedStaff!!.Id).update(updateMap).addOnSuccessListener {
                                     Toast.makeText(this, "All updated", Toast.LENGTH_SHORT).show()
                                     dialog.dismiss()
+                                    hideLoading()
+                                    recreate()
+
                                 }
                             }
                         }
@@ -255,9 +188,11 @@ class ViewStaff : AppCompatActivity() {
                                             }
                                         }
                                         "Fairground" -> {
-                                            currentRides.add("${selectedStaff?.Name} Op")
-                                            currentStaff.add("${ride.Name} Op")
-                                            if (ride.prefNumAtt > 0 && ride.minAgeToAttend < calculateAge(selectedStaff!!.DoB)) {
+                                            if (ride.minAgeToOperate <= calculateAge(selectedStaff!!.DoB)) {
+                                                currentRides.add("${selectedStaff?.Name} Op")
+                                                currentStaff.add("${ride.Name} Op")
+                                            }
+                                            if (ride.prefNumAtt > 0 && ride.minAgeToAttend <= calculateAge(selectedStaff!!.DoB)) {
                                                 currentRides.add("${selectedStaff?.Name} Att")
                                                 currentStaff.add("${ride.Name} Att")
                                             }
@@ -284,11 +219,8 @@ class ViewStaff : AppCompatActivity() {
                             }
                         }
                     }
+
                 }
-
-
-
-
             }
             dialog.show()
 
@@ -610,5 +542,20 @@ class ViewStaff : AppCompatActivity() {
         // Add the new TextView and Spinner to the GridLayout
         dropdownsBulk.addView(textView)
         dropdownsBulk.addView(spinner)
+    }
+    private fun showLoading() {
+        // Create and show the dialog
+        loadingDialog = Dialog(this)
+        loadingDialog.setContentView(R.layout.loading_overlay)
+        loadingDialog.setCancelable(false) // Prevent dismissal by tapping outside
+        loadingDialog.window?.setBackgroundDrawableResource(android.R.color.transparent) // Make dialog background transparent
+        loadingDialog.show()
+    }
+
+    private fun hideLoading() {
+        // Hide the dialog when the task is done
+        if (::loadingDialog.isInitialized && loadingDialog.isShowing) {
+            loadingDialog.dismiss()
+        }
     }
 }

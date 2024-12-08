@@ -493,45 +493,37 @@ class MainActivity : AppCompatActivity() {
             filterForRemove.adapter = removeFilterAdapter
             // Observe filter changes
 
-            val staffMembers = mutableListOf<String>()
+            var allStaff: List<Staff> = listOf()
+            var filteredStaff: MutableList<Staff> = mutableListOf() // To store the filtered staff
+            var filteredStaffNames: MutableList<String> = mutableListOf() // To store names for display
             var selectedStaff: Staff? = null
             fh.getAllStaff { staffArray ->
-                staffMembers.add("Select Staff")
-                for (s in staffArray) {
-                    staffMembers.add(s.Name)
-                }
-
-                // Set up staff spinner adapter
-                val staffAdapter = ArrayAdapter(
-                    this,
-                    android.R.layout.simple_spinner_item,
-                    staffMembers
-                )
-                staffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                staffRemoveSelect.adapter = staffAdapter
-
-                val filteredStaff = mutableListOf("Select Staff")
+                allStaff = staffArray // Store all staff members
                 filterForRemove.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         val selectedFilter = filters[position]
-//                        val filteredStaff = mutableListOf("Select Staff")
+                        filteredStaff.clear()
+                        filteredStaffNames.clear()
+                        filteredStaffNames.add("Select Staff") // Default option
 
+                        // Apply filter
                         if (selectedFilter == "All Staff") {
-                            // Show all staff members
-                            filteredStaff.addAll(staffArray.map { it.Name })
+                            filteredStaff.addAll(allStaff)
                         } else {
-                            // Apply filter based on the category
-                            filteredStaff.addAll(staffArray.filter { it.Category == selectedFilter }.map { it.Name })
+                            filteredStaff.addAll(allStaff.filter { it.Category == selectedFilter })
                         }
 
-                        // Update the staff spinner with the filtered list
-                        val filteredAdapter = ArrayAdapter(
+                        // Populate names for the spinner
+                        filteredStaffNames.addAll(filteredStaff.map { it.Name })
+
+                        // Update the staff spinner
+                        val staffAdapter = ArrayAdapter(
                             this@MainActivity,
                             android.R.layout.simple_spinner_item,
-                            filteredStaff
+                            filteredStaffNames
                         )
-                        filteredAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                        staffRemoveSelect.adapter = filteredAdapter
+                        staffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                        staffRemoveSelect.adapter = staffAdapter
 
                         // Reset selected staff
                         selectedStaff = null
@@ -545,20 +537,14 @@ class MainActivity : AppCompatActivity() {
 
                 // Handle staff selection
                 staffRemoveSelect.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         if (position == 0) {
-                            // Reset selected staff and clear the ride spinner
+                            // No staff selected
                             selectedStaff = null
                             updateRideSpinner(emptyList())
                         } else {
-                            // Update selected staff and fetch their rides
-                            val selectedName = filteredStaff[position]
-                            selectedStaff = staffArray.firstOrNull { it.Name == selectedName }
+                            // Get the selected staff object
+                            selectedStaff = filteredStaff[position - 1] // Adjust for "Select Staff"
                             val ridesTrained = selectedStaff?.RidesTrained?.map { it.toString() } ?: emptyList()
                             updateRideSpinner(ridesTrained)
                         }
