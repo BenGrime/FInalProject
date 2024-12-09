@@ -317,7 +317,7 @@ class ViewStaff : AppCompatActivity() {
             for(staff in staffList){
                 staffNames.add(staff.Name)
             }
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, staffNames)
+            val adapter = ArrayAdapter(this, R.layout.spinner_white_text, staffNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             staffSelectView.adapter = adapter
         }
