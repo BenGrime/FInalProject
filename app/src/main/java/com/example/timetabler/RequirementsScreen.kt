@@ -216,6 +216,13 @@ class RequirementsScreen : AppCompatActivity() {
                             }
                         }
                     }
+                    if (ride.minAgeToOperate == 16) {
+                        trainedList.sortBy { name ->
+                            val category = staffList.firstOrNull { it.Name == name }?.Category
+                            // Assign 0 to "Attendant", 1 to others
+                            if (category == "Attendant") 0 else 1
+                        }
+                    }
                     adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
                 else{
@@ -240,6 +247,13 @@ class RequirementsScreen : AppCompatActivity() {
                                 }
 //                                        && staff.Category.equals("Attendant")
                             }
+                        }
+                    }
+                    if (ride.minAgeToOperate == 16) {
+                        trainedList.sortBy { name ->
+                            val category = staffList.firstOrNull { it.Name == name }?.Category
+                            // Assign 0 to "Attendant", 1 to others
+                            if (category == "Attendant") 0 else 1
                         }
                     }
                     adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
@@ -271,6 +285,13 @@ class RequirementsScreen : AppCompatActivity() {
                         }
                     }
                 }
+                if (ride.minAgeToOperate == 16) {
+                    trainedList.sortBy { name ->
+                        val category = staffList.firstOrNull { it.Name == name }?.Category
+                        // Assign 0 to "Attendant", 1 to others
+                        if (category == "Attendant") 0 else 1
+                    }
+                }
                 adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
             }
             else
@@ -294,6 +315,13 @@ class RequirementsScreen : AppCompatActivity() {
                                 }
                             }
                         }
+                        if (ride.minAgeToOperate == 16) {
+                            trainedList.sortBy { name ->
+                                val category = staffList.firstOrNull { it.Name == name }?.Category
+                                // Assign 0 to "Attendant", 1 to others
+                                if (category == "Attendant") 0 else 1
+                            }
+                        }
                         adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                     }
                     else{
@@ -312,6 +340,13 @@ class RequirementsScreen : AppCompatActivity() {
                                 {
                                     trainedList.add(staff.Name)
                                 }
+                            }
+                        }
+                        if (ride.minAgeToOperate == 16) {
+                            trainedList.sortBy { name ->
+                                val category = staffList.firstOrNull { it.Name == name }?.Category
+                                // Assign 0 to "Attendant", 1 to others
+                                if (category == "Attendant") 0 else 1
                             }
                         }
                         adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
@@ -335,6 +370,16 @@ class RequirementsScreen : AppCompatActivity() {
                             }
                         }
                     }
+
+                    //order trained list so attendants are first
+                    if (ride.minAgeToOperate == 16) {
+                        trainedList.sortBy { name ->
+                            val category = staffList.firstOrNull { it.Name == name }?.Category
+                            // Assign 0 to "Attendant", 1 to others
+                            if (category == "Attendant") 0 else 1
+                        }
+                    }
+
                     adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
             }
