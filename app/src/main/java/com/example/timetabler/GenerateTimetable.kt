@@ -21,8 +21,8 @@ class GenerateTimetable {
 
     fun timetable1(map : HashMap<String, String> , callback: (HashMap<String, String>) -> Unit)
     {
-        var anyRequirements = setRequirements(map)
-
+        var anyRequirements = setRequirements(map) // are there any requirements
+        
     }
 
 
