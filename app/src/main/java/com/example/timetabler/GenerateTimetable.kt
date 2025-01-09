@@ -29,57 +29,48 @@ class GenerateTimetable {
     }
 
     fun getRandomStaff(staffSelected: ArrayList<String>, currentRide: String, staffObjList : ArrayList<Staff>, rides : ArrayList<Ride>) : String {
-        var randomStaff: String? = null
+        val staffForRide = ArrayList<Staff>()
 
-
-        do {
-            val staffForRide = ArrayList<Staff>()
-            for(r in staffObjList)
-            {
-                for(i in r.RidesTrained)
-                {
-                    if(i.toString().contains(currentRide)){
-                        staffForRide.add(r)
-                    }
+        // Filter staff trained for the current ride
+        for (r in staffObjList) {
+            for (i in r.RidesTrained) {
+                if (i.toString().contains(currentRide)) {
+                    staffForRide.add(r)
                 }
             }
-            if(staffForRide.size >= 1) {
+        }
 
+        while (staffForRide.isNotEmpty()) {
+            val randomIndex = getRandomNumber(ArrayList(staffForRide.map { it.Name }))
+            val randomStaff = staffForRide[randomIndex]
 
-                val staffNames = staffForRide.map { it.Name }
-                val randomIndex = getRandomNumber(ArrayList(staffNames))
-                randomStaff = staffNames[randomIndex]
-
-                for (s in staffForRide) {
-                    if (s.Name == randomStaff) {
-
-                        if (s.PreviousRide != currentRide)//were they on it before
-                        {
-                            for (r in s.RidesTrained)//
+            // Check if the selected staff meets the conditions
+            if (!currentRide.contains(randomStaff.PreviousRide) || randomStaff.PreviousRide == "")
+            { // Were they on it before?
+                for (r in randomStaff.RidesTrained)
+                {
+                    if (r.toString().contains(currentRide))
+                    { // Are they trained for the ride?
+                        if (r.toString().contains("Op"))
+                        { // Check if it's an "Op"
+                            return randomStaff.Name
+                        }
+                        else if (r.toString().contains("Att"))
+                        { // Check if it's an "Att"
+                            val strippedRide = currentRide.replace(Regex("(Op|Att)\$"), "").trim()
+                            if (!randomStaff.RidesTrained.any { it.toString().contains(strippedRide) && it.toString().contains("Op") })
                             {
-                                if (r.toString().contains(currentRide))//are they trained as Op or Att
-                                {
-                                    //we only want the ops on the operate rides and the Atts on rides where its an attendant labelled
-                                    if (r.toString().contains("Op")
-                                    )//are the extensions Op or Att the same
-                                    {
-                                        return s.Name
-                                    } else if (r.toString().contains("Att")) {
-                                        return s.Name
-                                    }
-                                }
+                                return randomStaff.Name
                             }
-                            randomStaff = null // Retry if the staff is invalid
-                        } else {
-                            randomStaff = null // Retry if the staff is invalid
                         }
                     }
                 }
             }
-
-        } while (randomStaff == null  && staffForRide.size != 0)
-
-        return randomStaff ?: ""
+            // If the staff member doesn't meet the conditions, remove them
+            staffForRide.removeAt(randomIndex)
+        }
+        // Return an empty string if no valid staff member is found
+        return ""
     }
 
     fun timetable1(list : ArrayList<ArrayList<String>>, staffSelected : ArrayList<String> , staffObjList : ArrayList<Staff>, rides : ArrayList<Ride>, callback: (ArrayList<ArrayList<String>>) -> Unit) //THIS WILL FOCUS ON .......
@@ -158,19 +149,52 @@ class GenerateTimetable {
 
         if(unassignedRides.size != 0)//BE AWARE OF STAFF SHORTAGES
         {
-            //assign to car park
-            //currently no one is assigned to car park since they arent trained
-            //so, lets say we have a limit of 8 for Ops + SRO's, 5 for attendants.
+            if(spareStaff.size == 0)//i did not run out of staff - meaning no spare staff WITH spare rides
+            {
+                //start taking people off rides we can afford. but using the minimum op/att number
 
-            //check the spare are trained on that amount
+                //how many op rides left
 
-            //if they are assign them
-            //if not, swap them RANDOMLY with a RANDOM ride they are trained on, and see if that person can do car park
-            //if they can, swap them, if they cant find someone else
+                //how many att rides left
+
+                //EXCLUDE CAR PARK FROM THE 2 ABOVE
+
+
+            }
+            else//spare rides and staff - go and check and assign
+            {
+                completeBoard.forEach{row ->
+                    val ride = row[0]
+                    val staff = row[1]
+
+                    if(staff == "Select Staff" && ride != "Car park")
+                    {
+                        //are there any rides that haven't been assigned
+
+                        //INVOLVES MOVING STAFF AROUND
+                    }
+                }
+                completeBoard.forEachIndexed{index, row ->
+                    val ride = row[0]
+                    val staff = row[1]
+
+                    if(ride == "Car Park" && staffSelected.size > 0)
+                    {
+                        //are there any rides that havent been assigned
+                        completeBoard[index][1] = staffSelected[0]
+                        assignedStaff.add(staffSelected[0])
+                        newStaffObjList.removeIf { it.Name == staffSelected[0] }
+                        staffSelected.remove(staffSelected[0])
+                    }
+                }
+
+            }
+
+
         }
         if(spareStaff.size != 0)
         {
-            //deal with them
+            //deal with the spares
         }
 
         //all sorted

@@ -21,7 +21,7 @@ class FirebaseHandler {
             for (staff in result){
                 val Id = staff.getString("id")
                 val Name = staff.getString("name")
-                val prev = staff.getString("previous ride")
+                val prev = staff.getString("previousRide")
                 val dob = staff.getTimestamp("doB")  ?: Timestamp.now()
                 val ridesTrained = staff.get("ridesTrained") as? ArrayList<String> ?: emptyList()
 
@@ -117,7 +117,7 @@ class FirebaseHandler {
                     // Found the matching document
                     val Id = document.getString("id")
                     val Name = document.getString("name")
-                    val prev = document.getString("previous ride")
+                    val prev = document.getString("previousRide")
                     val dob = document.getTimestamp("doB")  ?: Timestamp.now()
                     val ridesTrained = document.get("ridesTrained") as? ArrayList<String> ?: emptyList()
 
@@ -217,7 +217,7 @@ class FirebaseHandler {
                         if(staff.getString("name").equals(name)) {
                             val Id = staff.getString("id")
                             val Name = staff.getString("name")
-                            val prev = staff.getString("previous ride")
+                            val prev = staff.getString("previousRide")
                             val dob = staff.getTimestamp("doB") ?: Timestamp.now()
                             val ridesTrained =
                                 staff.get("ridesTrained") as? ArrayList<String> ?: emptyList()
