@@ -3,6 +3,7 @@ package com.example.timetabler
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.google.firebase.Firebase
@@ -15,22 +16,26 @@ class timetableOverridePage : AppCompatActivity() {
     private val db = Firebase.firestore
     private var generateTimetable = GenerateTimetable()
     private lateinit var textView: TextView
+    private lateinit var loadingText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timetable_override_page)
         val selectedStaffList = intent.getSerializableExtra("RideStaffList") as? ArrayList<ArrayList<String>>
         val staffSelected = intent.getSerializableExtra("staffSelected") as? ArrayList<String>
+        textView = findViewById(R.id.label)
+        loadingText = findViewById(R.id.loadingText)
         showLoading()
 
 
-        textView = findViewById(R.id.label)
+
 
         if(selectedStaffList != null && staffSelected!= null)
         {
             fh.getSelectedStaffObjs(staffSelected) { staffList ->
                 fh.getAllRides { rides ->
                     (rides as? ArrayList<Ride>)?.let {
+                        loadingText.text = "Generating the board"
                         generateTimetable.timetable1(selectedStaffList, staffSelected, staffList,
                             it
                         ){ result ->
@@ -42,7 +47,6 @@ class timetableOverridePage : AppCompatActivity() {
                             }
                             val copy = ArrayList(result)
                             updateStaff(copy)
-//                            hideLoading()
                         }
                     }
                 }
@@ -74,9 +78,11 @@ class timetableOverridePage : AppCompatActivity() {
 //        }
 //        hideLoading()
 //    }
-    private fun updateStaff(list: ArrayList<ArrayList<String>>) {
+    private fun updateStaff(list: ArrayList<ArrayList<String>>)
+    {
         val validStaffList = list.filter { it[1] != "Select Staff" }
         val pendingTasks = AtomicInteger(validStaffList.size) // Track pending tasks
+        loadingText.text = "Generating the board"
 
         fun processNext() {
             if (list.isNotEmpty()) {
@@ -87,13 +93,14 @@ class timetableOverridePage : AppCompatActivity() {
 
                 // Process the current element
                 fh.getDocumentFromName(staff) { staffObj ->
-                    if (staffObj != null) {
+                    if (staffObj != null) {//if name is "Select Staff" it'll return null
                         val strippedRide = ride.replace(Regex("(Op|Att)\$"), "").trim()
                         val updateMap = mapOf("previousRide" to strippedRide)
                         db.collection("Staff").document(staffObj.Id).update(updateMap)
                             .addOnSuccessListener {
                                 // Decrease the pending task count and process next task
                                 if (pendingTasks.decrementAndGet() == 0) {
+
                                     hideLoading() // All tasks are complete, hide loading
                                 } else {
                                     println("Task completed. Remaining tasks: $pendingTasks")
