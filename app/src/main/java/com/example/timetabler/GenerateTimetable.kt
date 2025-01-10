@@ -106,7 +106,7 @@ class GenerateTimetable {
             completeBoard.add(arrayListOf(ride, staff))
 
         }
-
+        //The first go at setting as many rides as possible
         completeBoard.forEachIndexed { index, row ->
             val ride = row[0]
             val staff = row[1]
@@ -130,7 +130,7 @@ class GenerateTimetable {
             }
         }
 
-        //deal with missing values and spares.
+        //get missing values and spares if any
         var spareStaff : ArrayList<String> = ArrayList()
         for (name in staffSelected) {
             if (!assignedStaff.contains(name)) {
@@ -141,50 +141,107 @@ class GenerateTimetable {
         completeBoard.forEach { row ->
             val ride = row[0]
             val staff = row[1]
-            if(staff.equals("Select Staff"))
+            if(staff == "Select Staff")
             {
                 unassignedRides.add(ride)
             }
         }
 
-        if(unassignedRides.size != 0)//BE AWARE OF STAFF SHORTAGES
+
+
+        //deal with them
+        if (unassignedRides.size != 0)//BE AWARE OF STAFF SHORTAGES
         {
-            if(spareStaff.size == 0)//i did not run out of staff - meaning no spare staff WITH spare rides
+            if (spareStaff.size == 0)
             {
-                //start taking people off rides we can afford. but using the minimum op/att number
-
-                //how many op rides left
-
-                //how many att rides left
-
-                //EXCLUDE CAR PARK FROM THE 2 ABOVE
-
-
+                //STAFF SHORTAGE
             }
             else//spare rides and staff - go and check and assign
             {
-                completeBoard.forEach{row ->
-                    val ride = row[0]
-                    val staff = row[1]
-
-                    if(staff == "Select Staff" && ride != "Car park")
+                //use the list of unassigned rides
+                for(u in unassignedRides)
+                {
+                    if(u != "Car Park") //as no one is trained skip
                     {
-                        //are there any rides that haven't been assigned
+                        var ride = u
+                        var staffTrained: ArrayList<String> = ArrayList()
+                        var role = "Op" // Default value
+                        if (u.contains("Op") || u.contains("Att")) {
+                            // Remove "Op" or "Att" from the string and set the role
+                            role = u.split(" ").last { it == "Op" || it == "Att" }
+                            ride = u.replace(Regex("(Op|Att)\$"), "").trim()
+                        }
+                        for (r in rides) {
+                            if (r.Name == ride) {
+                                for (s in r.staffTrained) {
+                                    if (s.toString().contains(role)) {
+                                        staffTrained.add(s.toString())
+                                    }
+                                }
 
-                        //INVOLVES MOVING STAFF AROUND
+                            }
+                        }
+                        //now I have a list of staff that are trained on the unassigned ride
+
+
+                        staffTrained.shuffle()//to make this random
+                        completeBoard.forEachIndexed() { index, row ->
+
+                            val ride = row[0]
+                            val staff = row[1]
+
+                            if (staff == staffTrained[0])//is this staff trained on the unassigned ride?
+                            {
+                                //is the spare trained on the ride
+                                for (s in spareStaff) {
+                                    for (a in staffObjList) {
+                                        if (s == a.Name)//get the object of that SPARE staff name
+                                        {
+                                            for (t in a.RidesTrained) {
+                                                if (t == ride) {
+                                                    //THE SPARE IS TRAINED ON THE RIDE AND THE STAFF ON THIS RIDE IS TRAINED ON THE UNASSIGNED ONE
+
+                                                    //swap them
+                                                    completeBoard[index][1] = s
+
+                                                    // Assign the current staff to the unassigned ride
+                                                    val unassignedIndex =
+                                                        completeBoard.indexOfFirst { it[0] == u }
+                                                    if (unassignedIndex != -1) {
+                                                        completeBoard[unassignedIndex][1] = staff
+                                                    }
+
+                                                    // Update spareStaff and assignedStaff lists
+                                                    spareStaff.remove(s)
+                                                    assignedStaff.add(s)
+                                                    staffSelected.remove(s)
+                                                    newStaffObjList.removeIf { it.Name == s }
+
+                                                    break
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                completeBoard.forEachIndexed{index, row ->
+
+
+
+                //put the rest on car park
+                completeBoard.forEachIndexed { index, row ->
                     val ride = row[0]
                     val staff = row[1]
 
-                    if(ride == "Car Park" && staffSelected.size > 0)
-                    {
+                    if (ride == "Car Park" && spareStaff.size > 0) {
                         //are there any rides that havent been assigned
-                        completeBoard[index][1] = staffSelected[0]
-                        assignedStaff.add(staffSelected[0])
-                        newStaffObjList.removeIf { it.Name == staffSelected[0] }
-                        staffSelected.remove(staffSelected[0])
+                        completeBoard[index][1] = spareStaff[0]
+                        assignedStaff.add(spareStaff[0])
+                        newStaffObjList.removeIf { it.Name == spareStaff[0] }
+                        staffSelected.remove(spareStaff[0])
+                        spareStaff.remove(spareStaff[0])
                     }
                 }
 
@@ -192,8 +249,7 @@ class GenerateTimetable {
 
 
         }
-        if(spareStaff.size != 0)
-        {
+        if (spareStaff.size != 0) {
             //deal with the spares
         }
 
@@ -207,8 +263,9 @@ class GenerateTimetable {
         completeBoard.forEach { row ->
             val ride = row[0]
             val staff = row[1]
-            println("Ride: "+ride +" ,Staff: "+staff)
+            println("Ride: " + ride + " ,Staff: " + staff)
         }
         callback(completeBoard)
+
     }
 }

@@ -46,7 +46,8 @@ class timetableOverridePage : AppCompatActivity() {
                                 textView.text = textView.text.toString() + "\nRide: " + ride + " ,Staff: " + staff //obviously this will be changed
                             }
                             val copy = ArrayList(result)
-                            updateStaff(copy)
+                            //updateStaff(copy)
+                            hideLoading()
                         }
                     }
                 }
@@ -82,7 +83,7 @@ class timetableOverridePage : AppCompatActivity() {
     {
         val validStaffList = list.filter { it[1] != "Select Staff" }
         val pendingTasks = AtomicInteger(validStaffList.size) // Track pending tasks
-        loadingText.text = "Generating the board"
+        loadingText.text = "Generating the board..."
 
         fun processNext() {
             if (list.isNotEmpty()) {
