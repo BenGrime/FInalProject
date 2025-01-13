@@ -36,6 +36,7 @@ class RequirementsScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_requirements_screen)
         val staffSelected = intent.getSerializableExtra("staffSelected") as? ArrayList<String>
+        val staffCopy = staffSelected
         gridLayout = findViewById(R.id.gridRequirementLayout)
         NextBtn = findViewById(R.id.requirementConfirm)
         CancelBtn = findViewById(R.id.requirementCancel)
@@ -57,7 +58,7 @@ class RequirementsScreen : AppCompatActivity() {
             staffSelected?.removeFirst()
             // Pass the list to the next activity
             val intent = Intent(this, timetableOverridePage::class.java)
-            intent.putExtra("staffSelected", staffSelected)
+            intent.putExtra("staffSelected", staffCopy)
             intent.putExtra("RideStaffList", ArrayList(selectedStaffList)) // Convert to ArrayList before passing
             startActivity(intent)
             finish()
