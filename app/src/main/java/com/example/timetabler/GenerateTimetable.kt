@@ -6,6 +6,11 @@ import kotlin.random.Random
 class GenerateTimetable {
 
     var fh = FirebaseHandler()
+    var shortBoardUsed = false
+
+    fun getShortBoardUsed(callback: (Boolean) -> Unit){
+        callback(shortBoardUsed)
+    }
     private fun anyRequirements(list : ArrayList<ArrayList<String>>): Boolean {
         list.forEach{row ->
             val staff = row[1]
@@ -214,6 +219,7 @@ class GenerateTimetable {
                         }
                     }
                 }
+                shortBoardUsed = true
                 completeBoard = shortBoard//override it
             }
 
@@ -323,6 +329,10 @@ class GenerateTimetable {
             //deal with the spares
 
             //make more car park slots and assign
+            while (spareStaff.size != 0) {
+                completeBoard.add(arrayListOf("Car Park", spareStaff[0]))
+                spareStaff.removeAt(0)
+            }
         }
 
         //all sorted

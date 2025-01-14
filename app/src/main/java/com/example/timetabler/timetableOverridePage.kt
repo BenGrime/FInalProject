@@ -34,6 +34,8 @@ class timetableOverridePage : AppCompatActivity() {
 
     private var finishedBoard = ArrayList<ArrayList<String>>()
 
+    private var skipped = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timetable_override_page)
@@ -107,12 +109,12 @@ class timetableOverridePage : AppCompatActivity() {
                                             }
                                         }
                                     }
-
+                                    var rideNumber = 0
                                     fh.getAllRides { rides ->
-                                        hideLoading()
+//                                        hideLoading()
                                         staffSelected.add(0, "Select Staff")
                                         //create TextView with ride 1
-                                        var rideNumber = 0
+
                                         for(ride in rides) {
                                             if(ride.open) {
                                                 var iterator = 1
@@ -129,6 +131,17 @@ class timetableOverridePage : AppCompatActivity() {
                                                 }
                                             }
                                         }
+                                        var carParkNumber = 0
+                                        result.forEach { row ->
+                                            if(row[0] == "Car Park"){
+                                                carParkNumber++
+                                            }
+                                        }
+                                        repeat(carParkNumber){
+                                            carParkSection(rideNumber, result)
+                                            rideNumber++
+                                        }
+
                                     }
                                 }
                             }
@@ -199,7 +212,7 @@ class timetableOverridePage : AppCompatActivity() {
         }
     }
 
-    private fun createRow(ride:Ride, iterator: Int, board : ArrayList<ArrayList<String>>, rideNumber : Int )
+    private fun createRow(ride:Ride, iterator: Int, board : ArrayList<ArrayList<String>>, rideNumber : Int)
     {
         var adapter: ArrayAdapter<String>
         var rideName : String
@@ -450,11 +463,77 @@ class timetableOverridePage : AppCompatActivity() {
         }
         spinnerList.add(staffSpinner)
         staffSpinner.adapter = adapter
-        val position = trainedList.indexOf(board.get(rideNumber)[1])
+
+        var used = false
+        generateTimetable.getShortBoardUsed { sbu ->
+            used = sbu
+        }
+        if(used)
+        {
+            if(rideName == board.get(rideNumber-skipped)[0])
+            {
+                val position = trainedList.indexOf(board.get(rideNumber-skipped)[1])
+                if (position != -1) {
+                    staffSpinner.setSelection(position) // Set the personOnRide as the selected item
+                }
+            }
+            else
+            {
+                skipped++
+            }
+
+        }
+        else
+        {
+            val position = trainedList.indexOf(board.get(rideNumber)[1])
+            if (position != -1) {
+                staffSpinner.setSelection(position) // Set the personOnRide as the selected item
+            }
+        }
+
+
+
+        gridLayout.addView(staffSpinner)
+    }
+
+    private fun carParkSection(rideNumber : Int, board : ArrayList<ArrayList<String>>)
+    {
+        val rideTextView = TextView(this).apply {
+            text = "Car Park"
+            textSize = 16f
+            setTextColor(ContextCompat.getColor(this@timetableOverridePage, R.color.black))
+            setBackgroundColor(ContextCompat.getColor(this@timetableOverridePage, R.color.white))
+            setPadding(16, 16, 16, 16) // Padding inside the TextView
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = 0 // Equal distribution
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(0, 1f) // Occupy first column
+                rowSpec = GridLayout.spec(GridLayout.UNDEFINED) // Dynamic row position
+                setMargins(8, 20, 8, 20) // Add margins between elements
+            }
+        }
+        gridLayout.addView(rideTextView)
+
+        val staffSpinner = Spinner(this).apply {
+            setPadding(16, 16, 16, 16)
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = 0 // Equal distribution
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(1, 1f) // Occupy second column
+                rowSpec = GridLayout.spec(GridLayout.UNDEFINED) // Dynamic row position
+                setMargins(8, 20, 8, 20) // Add margins between elements
+                setBackgroundColor(ContextCompat.getColor(this@timetableOverridePage, R.color.white))
+            }
+
+            tag = "Car Park"
+        }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, nameList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
+        spinnerList.add(staffSpinner)
+        staffSpinner.adapter = adapter
+        val position = nameList.indexOf(board.get(rideNumber)[1])
         if (position != -1) {
             staffSpinner.setSelection(position) // Set the personOnRide as the selected item
         }
-
 
         gridLayout.addView(staffSpinner)
     }
