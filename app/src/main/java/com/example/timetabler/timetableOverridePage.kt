@@ -1,5 +1,6 @@
 package com.example.timetabler
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -10,9 +11,11 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
 
 class timetableOverridePage : AppCompatActivity() {
@@ -33,6 +36,7 @@ class timetableOverridePage : AppCompatActivity() {
     private lateinit var CancelBtn : Button
 
     private var finishedBoard = ArrayList<ArrayList<String>>()
+    private var failedToUpdateList = ArrayList<ArrayList<String>>()
 
     private var skipped = 0
 
@@ -52,17 +56,35 @@ class timetableOverridePage : AppCompatActivity() {
 
 
         CancelBtn.setOnClickListener(View.OnClickListener {
-
             finish()
         })
         NextBtn.setOnClickListener(View.OnClickListener {
-
+            showLoading()
             //check the spinners, update previous rides.
-            //store board in firebase
-            //back to main activity
+            var checkList : ArrayList<String> = ArrayList()
+            var carryOn = true
+            for(s in spinnerList)
+            {
+                if(!checkList.contains(s.selectedItem.toString()))
+                {
+                    checkList.add(s.selectedItem.toString())
+                    break
+                }
+                else
+                {
+                    Toast.makeText(this, s.selectedItem.toString()+" has been Selected Twice", Toast.LENGTH_SHORT).show()
+                    carryOn = false
+                    break
+                }
 
+            }
+            if(carryOn)
+            {
+                //store board in firebase
+                updateStaff(finishedBoard)
+                //back to main activity
+            }
 
-            //updateStaff(finishedBoard)
         })
 
 
@@ -75,14 +97,6 @@ class timetableOverridePage : AppCompatActivity() {
                     (rides as? ArrayList<Ride>)?.let {
                         loadingText.text = "Generating the board"
                         generateTimetable.timetable1(selectedStaffList, staffSelected, staffListObj, it){ result ->
-
-//                            result.forEach { row ->
-//                                val ride = row[0]
-//                                val staff = row[1]
-////                                textView.text = textView.text.toString() + "\nRide: " + ride + " ,Staff: " + staff //obviously this will be changed
-//
-//                            }
-
                             nameList.add("Select Staff")
 
                             //change strings to objects
@@ -141,15 +155,13 @@ class timetableOverridePage : AppCompatActivity() {
                                             carParkSection(rideNumber, result)
                                             rideNumber++
                                         }
+                                        finishedBoard = ArrayList(result)
+                                        hideLoading()
 
                                     }
+
                                 }
                             }
-
-
-                            finishedBoard = ArrayList(result)
-                            //updateStaff(copy)
-                            hideLoading()
                         }
                     }
                 }
@@ -158,14 +170,15 @@ class timetableOverridePage : AppCompatActivity() {
     }
     private fun updateStaff(list: ArrayList<ArrayList<String>>)
     {
+        val tempList = ArrayList(list)
         val validStaffList = list.filter { it[1] != "Select Staff" }
         val pendingTasks = AtomicInteger(validStaffList.size) // Track pending tasks
         loadingText.text = "Saving to Database..."
 
         fun processNext() {
-            if (list.isNotEmpty()) {
+            if (tempList.isNotEmpty()) {
                 // Get the first element from the list
-                val row = list.removeAt(0)
+                val row = tempList.removeAt(0)
                 val ride = row[0]
                 val staff = row[1]
 
@@ -177,18 +190,28 @@ class timetableOverridePage : AppCompatActivity() {
                         db.collection("Staff").document(staffObj.Id).update(updateMap)
                             .addOnSuccessListener {
                                 // Decrease the pending task count and process next task
-                                if (pendingTasks.decrementAndGet() == 0) {
-
-                                    hideLoading() // All tasks are complete, hide loading
-                                } else {
+                                if (pendingTasks.decrementAndGet() == 0)
+                                {
+                                    println("Task completed. Remaining tasks: $pendingTasks")
+                                    println("Task completed. Skipped tasks: "+failedToUpdateList.size)
+                                    saving()
+                                }
+                                else
+                                {
                                     println("Task completed. Remaining tasks: $pendingTasks")
                                     processNext() // Continue processing the next task
                                 }
                             }
                             .addOnFailureListener {
                                 // Handle failure if necessary
+                                val tempList = ArrayList<String>()
+                                tempList.add(staffObj.Name)
+                                tempList.add(strippedRide)
+                                failedToUpdateList.add(tempList)
                                 if (pendingTasks.decrementAndGet() == 0) {
-                                    hideLoading() // All tasks are complete, hide loading
+                                     // All tasks are complete, hide loading
+                                    println("Task completed. Skipped tasks: "+failedToUpdateList.size)
+                                    saving()
                                 } else {
                                     println("Task completed. Remaining tasks: $pendingTasks")
                                     processNext() // Continue despite failure
@@ -200,15 +223,17 @@ class timetableOverridePage : AppCompatActivity() {
                 }
             } else if (pendingTasks.decrementAndGet() == 0) {
                 println("Task completed. Remaining tasks: $pendingTasks")
-                hideLoading() // Call hideLoading when all tasks are complete
+                println("Task completed. Skipped tasks: "+failedToUpdateList.size)
+                saving()
+
             }
         }
 
         // Start processing the list
-        if (list.isNotEmpty()) {
+        if (tempList.isNotEmpty()) {
             processNext()
         } else {
-            hideLoading() // If the list is empty from the start
+            saving()
         }
     }
 
@@ -536,6 +561,24 @@ class timetableOverridePage : AppCompatActivity() {
         }
 
         gridLayout.addView(staffSpinner)
+    }
+
+    private fun saving()
+    {
+        println("Storing Board Now")
+        //store board on firebase
+        val firebaseBoard = finishedBoard.map { innerList -> mapOf("ride" to innerList[0], "staff" to innerList[1]) } as ArrayList<Map<String, String>>
+        firebaseBoard.forEach { row -> println("Row: $row, Type: ${row::class.simpleName}") }
+        db.collection("Board").document("completeBoard").set(mapOf("Board" to firebaseBoard)).addOnSuccessListener{
+            hideLoading() // Call hideLoading when all tasks are complete
+            Toast.makeText(this, "Board Successfully saved", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("failedToUpdateList", failedToUpdateList as Serializable)
+            startActivity(intent)
+            finish()
+        }
+
+
     }
 
 

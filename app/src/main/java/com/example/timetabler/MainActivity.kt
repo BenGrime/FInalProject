@@ -102,6 +102,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val ridePage = intent.getStringExtra("RidePage")
+        val failedToUpdateList = intent.getSerializableExtra("failedToUpdateList") as? ArrayList<ArrayList<String>>
+        if (!failedToUpdateList.isNullOrEmpty()) {
+            // check
+        }
+
 
 
         //THIS IS FOR THE TOGGLE
