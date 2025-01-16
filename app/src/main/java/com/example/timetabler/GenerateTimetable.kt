@@ -113,26 +113,54 @@ class GenerateTimetable {
 
         }
         //The first go at setting as many rides as possible
-        completeBoard.forEachIndexed { index, row ->
+//        completeBoard.forEachIndexed { index, row ->
+//            val ride = row[0]
+//            val staff = row[1]
+//            if (staff == "Select Staff")//check its already been set, if it has go to next one
+//            {
+//                if(staffSelected.size != 0 || newStaffObjList.size != 0)
+//                {
+//                    var staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides)
+//                    if(staffName != "") {
+//                        while (assignedStaff.contains(staffName)) {
+//                            staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides)
+//
+//                        }
+//                        completeBoard[index][1] = staffName
+//                        assignedStaff.add(staffName)
+//                        staffSelected.remove(staffName)
+//                        newStaffObjList.removeIf { it.Name == staffName }
+//                    }
+//                }
+//
+//            }
+//        }
+
+        val indices = completeBoard.indices.shuffled() // Shuffle indices to randomize order
+        val usedIndices = mutableSetOf<Int>() // Keep track of used indices
+
+        indices.forEach { index ->
+            if (usedIndices.contains(index)) return@forEach // Skip if already processed
+
+            val row = completeBoard[index]
             val ride = row[0]
             val staff = row[1]
-            if (staff == "Select Staff")//check its already been set, if it has go to next one
-            {
-                if(staffSelected.size != 0 || newStaffObjList.size != 0)
-                {
+
+            if (staff == "Select Staff") {
+                if (staffSelected.isNotEmpty() || newStaffObjList.isNotEmpty()) {
                     var staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides)
-                    if(staffName != "") {
+                    if (staffName.isNotEmpty()) {
                         while (assignedStaff.contains(staffName)) {
                             staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides)
-
                         }
+                        // Update the board with the selected staff
                         completeBoard[index][1] = staffName
                         assignedStaff.add(staffName)
                         staffSelected.remove(staffName)
                         newStaffObjList.removeIf { it.Name == staffName }
+                        usedIndices.add(index) // Mark this index as processed
                     }
                 }
-
             }
         }
 

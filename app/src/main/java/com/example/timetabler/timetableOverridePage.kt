@@ -1,9 +1,11 @@
 package com.example.timetabler
 
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.GridLayout
@@ -13,6 +15,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import java.io.Serializable
@@ -38,6 +41,14 @@ class timetableOverridePage : AppCompatActivity() {
     private var finishedBoard = ArrayList<ArrayList<String>>()
     private var failedToUpdateList = ArrayList<ArrayList<String>>()
 
+    private lateinit var dialog : Dialog
+    private lateinit var dialogGrid : GridLayout
+    private lateinit var closeBtn : MaterialButton
+
+    private lateinit var dialogGridRides : GridLayout
+    private lateinit var cancelDialogBtn : MaterialButton
+    private lateinit var confirmlDialogBtn : MaterialButton
+
     private var skipped = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,38 +64,119 @@ class timetableOverridePage : AppCompatActivity() {
         gridLayout = findViewById(R.id.gridOverrideLayout)
         NextBtn = findViewById(R.id.OverrideConfirm)
         CancelBtn = findViewById(R.id.OverrideCancel)
+        dialog = Dialog(this)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+        dialog.setCancelable(true)
 
 
         CancelBtn.setOnClickListener(View.OnClickListener {
             finish()
         })
         NextBtn.setOnClickListener(View.OnClickListener {
-            showLoading()
             //check the spinners, update previous rides.
-            var checkList : ArrayList<String> = ArrayList()
+            var checkList : ArrayList<Pair<String, String>> = ArrayList()
+            var duplicateList : ArrayList<Pair<String, String>> = ArrayList()
+            var emptyRides : ArrayList<String> = ArrayList()
             var carryOn = true
             for(s in spinnerList)
             {
-                if(!checkList.contains(s.selectedItem.toString()))
+                if(s.selectedItem.toString() != "Select Staff")
                 {
-                    checkList.add(s.selectedItem.toString())
-                    break
+                    if (checkList.any { it.first == s.selectedItem.toString() })
+                    {
+                        // Find the matching item in checkList
+                        val matchingItem = checkList.first { it.first == s.selectedItem.toString() }
+
+                        // Add both the new duplicate and the matching item to duplicateList
+                        duplicateList.add(matchingItem)
+                        duplicateList.add(Pair(s.selectedItem.toString(), s.tag.toString()))
+                        carryOn = false
+                    }
+                    else
+                    {
+                        // Add the new name-tag pair to the list
+                        checkList.add(Pair(s.selectedItem.toString(), s.tag.toString()))
+                    }
+
                 }
                 else
                 {
-                    Toast.makeText(this, s.selectedItem.toString()+" has been Selected Twice", Toast.LENGTH_SHORT).show()
-                    carryOn = false
-                    break
+                    emptyRides.add(s.tag.toString())
                 }
-
             }
             if(carryOn)
             {
-                //store board in firebase
-                updateStaff(finishedBoard)
-                //back to main activity
-            }
+                if(emptyRides.size != 0)
+                {
+                    dialog.setContentView(R.layout.empty_ride_dialog)
+                    dialogGridRides = dialog.findViewById(R.id.emptyRidesList)
+                    confirmlDialogBtn = dialog.findViewById(R.id.confirmDialogBtn)
+                    cancelDialogBtn= dialog.findViewById(R.id.cancelDialogBtn)
+                    cancelDialogBtn.setOnClickListener{
+                        dialog.dismiss()
+                    }
+                    confirmlDialogBtn.setOnClickListener{
+                        showLoading()
+                        //store board in firebase
+                        updateStaff(finishedBoard)
+                        //back to main activity
+                    }
+                    for(r in emptyRides)
+                    {
+                        val firstTextView = TextView(this).apply {
+                            text = r // First part of the pair
+                            textSize = 16f
+                            setTextColor(ContextCompat.getColor(context, R.color.black))
+                            setPadding(8, 8, 8, 8) // Add padding if needed
+                        }
+                        dialogGridRides.addView(firstTextView)
+                    }
+                    dialog.show()
+                }
+                else
+                {
+                    showLoading()
+                    //store board in firebase
+                    updateStaff(finishedBoard)
+                    //back to main activity
+                }
 
+            }
+            else
+            {
+                dialog.setContentView(R.layout.duplicate_names_chosen)
+
+                closeBtn = dialog.findViewById<MaterialButton>(R.id.closeBtn)
+                closeBtn.setOnClickListener{
+                    dialog.dismiss()
+                }
+
+                dialogGrid = dialog.findViewById<GridLayout>(R.id.namesDuplicatedList)
+                dialog.show()
+                for (pair in duplicateList) {
+                    // Create the first TextView for the first string in the pair
+                    val firstTextView = TextView(this).apply {
+                        text = pair.first // First part of the pair
+                        textSize = 16f
+                        setTextColor(ContextCompat.getColor(context, R.color.black))
+                        setPadding(8, 8, 8, 8) // Add padding if needed
+                    }
+
+                    // Create the second TextView for the second string in the pair
+                    val secondTextView = TextView(this).apply {
+                        text = "-> " + pair.second // Second part of the pair
+                        textSize = 16f
+                        setTextColor(ContextCompat.getColor(context, R.color.black))
+                        setPadding(8, 8, 8, 8) // Add padding if needed
+                    }
+
+                    // Add both TextViews to the GridLayout
+                    dialogGrid.addView(firstTextView)
+                    dialogGrid.addView(secondTextView)
+                }
+                dialog.show()
+            }
         })
 
 
