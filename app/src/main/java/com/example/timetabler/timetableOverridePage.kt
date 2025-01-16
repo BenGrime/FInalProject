@@ -102,7 +102,8 @@ class timetableOverridePage : AppCompatActivity() {
                 }
                 else
                 {
-                    emptyRides.add(s.tag.toString())
+                    s.tag.takeIf { it.toString() != "Car Park" }?.let { emptyRides.add(it.toString()) }
+
                 }
             }
             if(carryOn)
@@ -117,6 +118,7 @@ class timetableOverridePage : AppCompatActivity() {
                         dialog.dismiss()
                     }
                     confirmlDialogBtn.setOnClickListener{
+                        dialog.dismiss()
                         showLoading()
                         //store board in firebase
                         updateStaff(finishedBoard)

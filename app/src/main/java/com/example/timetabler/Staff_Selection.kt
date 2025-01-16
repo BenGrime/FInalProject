@@ -60,9 +60,9 @@ class Staff_Selection : AppCompatActivity() {
             //go to next page, pass list of chosen staff through
             val selectedStaffNames = ArrayList<String>() // List to store the names of selected staff
 
-            for (button in buttons) {
-                // Check if the button's background matches the green drawable
-                println(selectedStaff.size)
+//            for (button in buttons) {
+//                // Check if the button's background matches the green drawable
+//                println(selectedStaff.size)
 //                if (button.background.constantState == ContextCompat.getDrawable(this, R.drawable.selected_green)?.constantState) {
 //                    for(staff in allStaff)
 //                    {
@@ -74,35 +74,35 @@ class Staff_Selection : AppCompatActivity() {
 //
 //                }
 
-            }
-
-            //section below is the limit of staff needed. UNCOMMENT BELOW WHEN ALGORITHMS DONE
-
-//            fh.getAllRides { result->
-//                var boundary = 0
-//                for(r in result)
-//                {
-//                    if(r.open)
-//                    {
-//                        boundary += (r.minNumOp + r.minNumAtt)//get all number of staff needed with 0 spares
-//                    }
-//                }
-//                if(selectedStaff.size <= boundary)//check you have enough staff to open every ride
-//                {
-//                    Toast.makeText(this , "Not enough Staff for ALL rides to be used. Please close some.", Toast.LENGTH_SHORT).show()
-//                }
-//                else
-//                {
-//                    val intent = Intent(this, RequirementsScreen::class.java)
-//                    intent.putExtra("staffSelected", ArrayList(selectedStaff))  // Pass the list of Staff
-//                    startActivity(intent)
-//                    finish()
-//                }
 //            }
-            val intent = Intent(this, RequirementsScreen::class.java)
-            intent.putExtra("staffSelected", ArrayList(selectedStaff))  // Pass the list of Staff
-            startActivity(intent)
-            finish()
+
+//            section below is the limit of staff needed. UNCOMMENT BELOW WHEN ALGORITHMS DONE
+
+            fh.getAllRides { result->
+                var boundary = 0
+                for(r in result)
+                {
+                    if(r.open)
+                    {
+                        boundary += (r.minNumOp + r.minNumAtt)//get all number of staff needed with 0 spares
+                    }
+                }
+                if(selectedStaff.size <= boundary)//check you have enough staff to open every ride
+                {
+                    Toast.makeText(this , "Not enough Staff for ALL rides to be used. Please close some.", Toast.LENGTH_LONG).show()
+                }
+                else
+                {
+                    val intent = Intent(this, RequirementsScreen::class.java)
+                    intent.putExtra("staffSelected", ArrayList(selectedStaff))  // Pass the list of Staff
+                    startActivity(intent)
+                    finish()
+                }
+            }
+//            val intent = Intent(this, RequirementsScreen::class.java)
+//            intent.putExtra("staffSelected", ArrayList(selectedStaff))  // Pass the list of Staff
+//            startActivity(intent)
+//            finish()
         })
 
         // Spinner setup
