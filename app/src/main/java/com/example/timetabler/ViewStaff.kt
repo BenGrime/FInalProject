@@ -1,9 +1,11 @@
 package com.example.timetabler
 
 import android.app.Dialog
+import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -11,9 +13,11 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.marginBottom
 import androidx.core.view.size
 import com.github.javafaker.Bool
@@ -30,8 +34,8 @@ class ViewStaff : AppCompatActivity() {
     private lateinit var backBtnViewStaff: ImageView
     private lateinit var staffSelectView: Spinner
     private lateinit var staffMemberTxt: TextView
-    private lateinit var editBtn: ImageView
-    private lateinit var addRideBtn: ImageView
+    private lateinit var editBtn: Button
+    private lateinit var addRideBtn: TextView
     private lateinit var categoryTxt: TextView
     private lateinit var dobTxt: TextView
     private lateinit var prevRideTxt: TextView
@@ -42,6 +46,7 @@ class ViewStaff : AppCompatActivity() {
     private lateinit var createStaffConfirm : Button
     private lateinit var nameInput : TextInputEditText
     private lateinit var dobInput : TextInputEditText
+    private lateinit var showTrained : TextView
 
 
     private lateinit var loadingDialog: Dialog
@@ -62,14 +67,15 @@ class ViewStaff : AppCompatActivity() {
 
         // Initialize views using findViewById
         backBtnViewStaff = findViewById(R.id.backBtnViewStaff)
-        staffSelectView = findViewById(R.id.staffSelectView)
-        staffMemberTxt = findViewById(R.id.staffMemberTxt)
-        editBtn = findViewById(R.id.editBtn)
-        categoryTxt = findViewById(R.id.categoryTxt)
-        dobTxt = findViewById(R.id.dobTxt)
-        prevRideTxt = findViewById(R.id.prevRideTxt)
-        gridLayout = findViewById(R.id.gridLayout)
-        addRideBtn = findViewById(R.id.addRideIcon)
+        staffSelectView = findViewById(R.id.staffSelectSpinner)
+        staffMemberTxt = findViewById(R.id.staffNameView)
+        editBtn = findViewById(R.id.editButton)
+        categoryTxt = findViewById(R.id.categoryView)
+        dobTxt = findViewById(R.id.dateOfBirthView)
+        prevRideTxt = findViewById(R.id.previousRideView)
+        gridLayout = findViewById(R.id.ridesTrainedGrid)
+        addRideBtn = findViewById(R.id.addToRidesButton)
+        showTrained = findViewById(R.id.showTrained)
 
 
 
@@ -88,6 +94,21 @@ class ViewStaff : AppCompatActivity() {
         backBtnViewStaff.setOnClickListener(View.OnClickListener {
             finish()
         })
+
+        showTrained.setOnClickListener{
+            gridLayout.visibility = if (gridLayout.visibility == View.GONE) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+            if(gridLayout.visibility == View.GONE){
+                showTrained.text = "Show Rides Trained"
+            }
+            else
+            {
+                showTrained.text = "Hide Rides Trained"
+            }
+        }
 
         addRideBtn.setOnClickListener{
             if(selectedStaff != null)
@@ -317,7 +338,7 @@ class ViewStaff : AppCompatActivity() {
             for(staff in staffList){
                 staffNames.add(staff.Name)
             }
-            val adapter = ArrayAdapter(this, R.layout.spinner_white_text, staffNames)
+            val adapter = ArrayAdapter(this, R.layout.spinner_custom_dropdown, staffNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             staffSelectView.adapter = adapter
         }
@@ -382,23 +403,54 @@ class ViewStaff : AppCompatActivity() {
                             }
                         }
 
-                        // Create a new TextView for the ride name
+                        // Create the parent LinearLayout
+                        val rideLinearLayout = LinearLayout(this@ViewStaff).apply {
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                setMargins(8, 10, 8, 10) // Set margin for the layout
+                            }
+                            orientation = LinearLayout.HORIZONTAL // Horizontal orientation
+                            gravity = Gravity.CENTER_VERTICAL // Center contents vertically
+                            setPadding(16, 16, 16, 16) // Padding inside the layout
+                            setBackgroundResource(R.drawable.rounded_rectangle) // Rounded rectangle background
+                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.purple) // Tint background
+                        }
+
+                        // Create the TextView for the ride name
                         val rideTextView = TextView(this@ViewStaff).apply {
-                            text = rideToAdd // Set the text for the ride
-                            textSize = 16f // Set text size (you can adjust this)
-                            setTextColor(resources.getColor(android.R.color.white)) // Set text color
-                            setPadding(16, 8, 16, 8) // Add padding (left, top, right, bottom)
-                            layoutParams = GridLayout.LayoutParams().apply {
-                                // Add margin between cells
-                                setMargins(8, 8, 8, 8) // (left, top, right, bottom) margins for the TextView
-                                width = GridLayout.LayoutParams.WRAP_CONTENT
-                                height = GridLayout.LayoutParams.WRAP_CONTENT
+                            text = rideToAdd // Set the ride name
+                            textSize = 16f // Text size in SP
+                            setTextColor(ContextCompat.getColor(context, R.color.white)) // Set text color
+                            setPadding(8, 8, 8, 8) // Padding for the TextView
+                            layoutParams = LinearLayout.LayoutParams(
+                                0,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                1f
+                            )
+                        }
+
+                        // Create the ImageView for the icon
+                        val rideImageView = ImageView(this@ViewStaff).apply {
+                            setImageResource(R.drawable.eye_icon) // Set the drawable resource
+                            contentDescription = "View Ride" // Set content description for accessibility
+                            layoutParams = LinearLayout.LayoutParams(
+                                70 ,
+                                70
+                            ).apply { marginEnd = 16 }
+                            setColorFilter(ContextCompat.getColor(context, android.R.color.white), PorterDuff.Mode.SRC_IN)
+                            setOnClickListener{
+                                Toast.makeText(context, "Eye icon clicked for $rideToAdd", Toast.LENGTH_SHORT).show()
                             }
                         }
 
+                        // Add TextView and ImageView to the LinearLayout
+                        rideLinearLayout.addView(rideTextView)
+                        rideLinearLayout.addView(rideImageView)
 
-                        // Add the created TextView to the GridLayout
-                        gridLayout.addView(rideTextView)
+                        // Optionally add this LinearLayout to a parent layout (like GridLayout)
+                        gridLayout.addView(rideLinearLayout)
                     }
                 }
                 else {
