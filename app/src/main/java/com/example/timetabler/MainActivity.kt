@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -39,15 +40,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var loadingDialog: Dialog
 
     //main menu buttons
-    private lateinit var addStaffButton : Button
-    private lateinit var removeStaffButton : Button
-    private lateinit var createNewStaff : Button
-    private lateinit var deleteStaffbtn : Button
-    private lateinit var viewStaffButton : Button
-    private lateinit var createRideBtn : Button
-    private lateinit var DeleteRideBtn : Button
-    private lateinit var viewRideBtn : Button
-    private lateinit var generateBoardBtn : Button
+    private lateinit var addStaffButton : TextView
+    private lateinit var removeStaffButton : TextView
+    private lateinit var createNewStaff : TextView
+    private lateinit var deleteStaffbtn : TextView
+    private lateinit var viewStaffButton : TextView
+    private lateinit var createRideBtn : TextView
+    private lateinit var DeleteRideBtn : TextView
+    private lateinit var viewRideBtn : TextView
+    private lateinit var generateBoardBtn : TextView
 
 
     //layouts for main menu
