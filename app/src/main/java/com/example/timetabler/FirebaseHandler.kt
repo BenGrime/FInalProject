@@ -1,5 +1,6 @@
 package com.example.timetabler
 
+import android.util.Log
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -243,5 +244,39 @@ class FirebaseHandler {
                 callback(staffList)
             }
         })
+    }
+
+    fun getPriority(callback: (ArrayList<Pair<String ,Int>>) -> Unit){
+        val priorityList = ArrayList<Pair<String, Int>>()
+        db.collection("RidePriority").document("1").get().addOnSuccessListener { document ->
+            if (document != null) {
+                // Log the document data to verify the contents
+                Log.d("getPriority", "Document data: ${document.data}")
+
+                // Correct the field name to "priortiyList"
+                val data = document.data?.get("priorityList") as? List<Map<String, Any>>  // Access the correct field
+
+                // Log the priorityList to check its content
+                Log.d("getPriority", "PriorityList: $data")
+
+                if (data != null) {
+                    // Loop through the list and extract the pairs
+                    data.forEach { pair ->
+                        // Extract the values
+                        val rideName = pair["ride"] as? String  // Extract "ride" value
+                        val value = pair["value"] as? Long     // Extract "value" (using Long for Firestore's number type)
+
+                        // Add the pair (String, Int) to the list if both values exist
+                        if (rideName != null && value != null) {
+                            priorityList.add(Pair(rideName, value.toInt()))
+                        }
+                    }
+                }
+            }
+
+            // Return the list of pairs via the callback
+            callback(priorityList)
+        }
+
     }
 }
