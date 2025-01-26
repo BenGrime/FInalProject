@@ -46,6 +46,9 @@ class ViewRide : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_ride)
 
+
+        val rideSelected = intent.getStringExtra("rideName")
+
         // Initialize views
         backBtnViewRide = findViewById(R.id.backBtnViewRide)
         titleTxt = findViewById(R.id.titleTxt)
@@ -103,6 +106,14 @@ class ViewRide : AppCompatActivity() {
             val adapter = ArrayAdapter(this, R.layout.spinner_custom_dropdown, rideNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             rideSelectView.adapter = adapter
+
+            // If rideName is passed, automatically select the corresponding ride
+            if (!rideSelected.isNullOrEmpty()) {
+                val selectedRideIndex = rideNames.indexOf(rideSelected)
+                if (selectedRideIndex > 0) { // Make sure it's not "Select Ride"
+                    rideSelectView.setSelection(selectedRideIndex)
+                }
+            }
         }
 
         // Handle ride selection
@@ -180,7 +191,17 @@ class ViewRide : AppCompatActivity() {
                                 ).apply { marginEnd = 16 }
                                 setColorFilter(ContextCompat.getColor(context, android.R.color.white), PorterDuff.Mode.SRC_IN)
                                 setOnClickListener{
-                                    Toast.makeText(context, "Eye icon clicked for $staffName", Toast.LENGTH_SHORT).show()
+                                    staffName.let {
+                                        val cleanedStaffName = when {
+                                            it.endsWith(" Op", ignoreCase = true) -> it.removeSuffix(" Op")
+                                            it.endsWith(" Att", ignoreCase = true) -> it.removeSuffix(" Att")
+                                            else -> it // If neither suffix is found, leave it as is
+                                        }
+                                        val intent = Intent(this@ViewRide, ViewStaff::class.java)
+                                        intent.putExtra("staffName", cleanedStaffName)
+                                        startActivity(intent)
+                                        finish()
+                                    }
                                 }
                             }
 

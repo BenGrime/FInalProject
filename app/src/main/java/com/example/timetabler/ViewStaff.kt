@@ -1,6 +1,7 @@
 package com.example.timetabler
 
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -64,6 +65,7 @@ class ViewStaff : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_staff)
+        val staffSelected = intent.getStringExtra("staffName")
 
         // Initialize views using findViewById
         backBtnViewStaff = findViewById(R.id.backBtnViewStaff)
@@ -302,7 +304,7 @@ class ViewStaff : AppCompatActivity() {
                                     else -> ""
                                 }
                             )
-
+                            //update the staff data. but we need to go through and change all the rides they are trained on and update their name
                             db.collection("Staff").document(staff.Id)
                                 .update(updatedFields)
                                 .addOnSuccessListener {
@@ -316,6 +318,7 @@ class ViewStaff : AppCompatActivity() {
                                 .addOnFailureListener { e ->
                                     Toast.makeText(this, "Failed to update staff: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
+
                         } ?: run {
                             Toast.makeText(this, "No staff selected to update", Toast.LENGTH_SHORT).show()
                         }
@@ -341,6 +344,14 @@ class ViewStaff : AppCompatActivity() {
             val adapter = ArrayAdapter(this, R.layout.spinner_custom_dropdown, staffNames)
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             staffSelectView.adapter = adapter
+
+            // If rideName is passed, automatically select the corresponding ride
+            if (!staffSelected.isNullOrEmpty()) {
+                val selectedRideIndex = staffNames.indexOf(staffSelected)
+                if (selectedRideIndex > 0) { // Make sure it's not "Select Ride"
+                    staffSelectView.setSelection(selectedRideIndex)
+                }
+            }
         }
 
         staffSelectView.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -441,7 +452,12 @@ class ViewStaff : AppCompatActivity() {
                             ).apply { marginEnd = 16 }
                             setColorFilter(ContextCompat.getColor(context, android.R.color.white), PorterDuff.Mode.SRC_IN)
                             setOnClickListener{
-                                Toast.makeText(context, "Eye icon clicked for $rideToAdd", Toast.LENGTH_SHORT).show()
+                                rideToAdd.let {
+                                    val intent = Intent(this@ViewStaff, ViewRide::class.java)
+                                    intent.putExtra("rideName", it)
+                                    startActivity(intent)
+                                    finish()
+                                }
                             }
                         }
 
