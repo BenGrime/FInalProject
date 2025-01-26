@@ -46,7 +46,7 @@ class LoginScreen : AppCompatActivity() {
         }
 
         loginBtn.setOnClickListener{
-            if(emailBox.text.toString() != null && passwordBox.text.toString() != null)
+            if(!emailBox.text.toString().isNullOrEmpty() && !passwordBox.text.toString().isNullOrEmpty())
             {
                 auth.signInWithEmailAndPassword(emailBox.text.toString(), passwordBox.text.toString()).addOnSuccessListener{
                     val intent = Intent(this, MainActivity::class.java)
@@ -65,7 +65,7 @@ class LoginScreen : AppCompatActivity() {
         forgotPasswordBtn.setOnClickListener {
             val email = emailBox.text.toString().trim() // Trim whitespace
 
-            if (email.isEmpty()) {
+            if (!email.isNullOrEmpty()) {
                 Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show()
             } else {
                 auth.sendPasswordResetEmail(email).addOnSuccessListener {
