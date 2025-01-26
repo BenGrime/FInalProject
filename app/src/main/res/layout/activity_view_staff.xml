@@ -53,9 +53,13 @@
     <Spinner
         android:id="@+id/staffSelectSpinner"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="60sp"
+        android:layout_centerInParent="true"
+        android:backgroundTint="@color/purple"
         android:padding="10sp"
-        android:contentDescription="Staff Selection Dropdown" />
+        android:contentDescription="Staff Selection Dropdown"
+        android:gravity="center"
+        />
 
     <!-- Avatar and Name Section -->
     <LinearLayout
