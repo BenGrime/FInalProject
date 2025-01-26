@@ -22,6 +22,11 @@ class LoginScreen : AppCompatActivity() {
     private val inst = FirebaseFirestore.getInstance()
     private lateinit var auth: FirebaseAuth;
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishAffinity()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_screen)
@@ -31,6 +36,7 @@ class LoginScreen : AppCompatActivity() {
         loginBtn = findViewById(R.id.login)
         forgotPasswordBtn = findViewById(R.id.forgotPassword)
         auth = Firebase.auth
+
 
         if(auth.currentUser != null)
         {

@@ -24,6 +24,8 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -33,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     private val db = Firebase.firestore
     var fh = FirebaseHandler()
+    private lateinit var auth: FirebaseAuth;
 
     //set dialog
     private lateinit var dialog : Dialog
@@ -106,6 +109,12 @@ class MainActivity : AppCompatActivity() {
         val failedToUpdateList = intent.getSerializableExtra("failedToUpdateList") as? ArrayList<ArrayList<String>>
         if (!failedToUpdateList.isNullOrEmpty()) {
             // check
+        }
+        auth = Firebase.auth
+        if(auth.currentUser == null){
+            val intent = Intent(this, LoginScreen::class.java)
+            startActivity(intent)
+            finish()
         }
 
 
