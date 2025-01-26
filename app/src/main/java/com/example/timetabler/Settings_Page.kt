@@ -122,7 +122,7 @@ class Settings_Page : AppCompatActivity() {
                     )
                 }
                 val spinner = Spinner(this@Settings_Page)
-                val selection = listOf(1, 2, 3, 4, 5)
+                val selection = listOf(1, 2, 3)
                 val adapter = ArrayAdapter(this@Settings_Page, android.R.layout.simple_spinner_item, selection)
                 adapter.setDropDownViewResource(R.layout.spinner_custom_dropdown)
                 spinner.adapter = adapter
