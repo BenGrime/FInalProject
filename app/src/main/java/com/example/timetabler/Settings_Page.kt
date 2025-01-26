@@ -1,5 +1,6 @@
 package com.example.timetabler
 
+import android.content.Intent
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,6 +19,8 @@ import android.widget.ToggleButton
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
 class Settings_Page : AppCompatActivity() {
@@ -31,6 +34,9 @@ class Settings_Page : AppCompatActivity() {
     private lateinit var deleteData : LinearLayout
     private lateinit var priorityText : TextView
     private lateinit var backBtn : ImageView
+    private lateinit var logoutBtn : LinearLayout
+
+    private lateinit var auth: FirebaseAuth;
 
     private var spinnerList : ArrayList<Spinner> = ArrayList()
 
@@ -38,6 +44,7 @@ class Settings_Page : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings_page)
+        auth = Firebase.auth
         savePreferences = findViewById(R.id.savePreferences)
         backBtn = findViewById(R.id.backBtnSettings)
         backBtn.setOnClickListener{
@@ -46,6 +53,13 @@ class Settings_Page : AppCompatActivity() {
         toggle1 = findViewById(R.id.notifToggle)
         toggle2 = findViewById(R.id.darkModeToggle)
         toggle3 = findViewById(R.id.languageToggle)
+        logoutBtn = findViewById(R.id.logoutBtn)
+        logoutBtn.setOnClickListener{
+            auth.signOut()
+            val intent = Intent(this, LoginScreen::class.java)
+            startActivity(intent)
+            finish()
+        }
         settingsGrid = findViewById(R.id.settingsGrid)
         deleteData = findViewById(R.id.deleteStaffData)
         priorityList = findViewById(R.id.priorityListBtn)

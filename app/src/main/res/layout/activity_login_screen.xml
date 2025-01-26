@@ -30,37 +30,46 @@
         android:textStyle="bold">
     </TextView>
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/email"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="60sp"
-        android:hint="Email"
+        android:layout_height="wrap_content"
         android:layout_marginTop="25sp"
-        android:textColor="@color/black"
-        android:maxLines="1"
-        android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789@-."
-        android:padding="10sp"
+        app:hintEnabled="false">
 
-        android:background="@color/white">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="60sp"
+            android:hint="Email"
+            android:textColor="@color/black"
+            android:maxLines="1"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789@-."
+            android:inputType="textEmailAddress"
+            android:padding="10sp"
+            android:background="@color/white" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    </com.google.android.material.textfield.TextInputEditText>
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/password"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="60sp"
-        android:hint="Password"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20sp"
-        android:textColor="@color/black"
-        android:maxLines="1"
-        android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789@-."
-        android:padding="10sp"
-        app:PasswordToggleEnabled="true"
-        android:background="@color/white">
+        app:endIconMode="password_toggle"
+        app:hintEnabled="false">
 
-    </com.google.android.material.textfield.TextInputEditText>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="60sp"
+            android:hint="Password"
+            android:textColor="@color/black"
+            android:maxLines="1"
+            android:inputType="textPassword"
+            android:padding="10sp"
+            android:background="@color/white" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
+        android:id="@+id/login"
         android:layout_width="200sp"
         android:layout_height="50sp"
         android:text="Login"
@@ -76,6 +85,7 @@
     </TextView>
 
     <TextView
+        android:id="@+id/forgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="50sp"
         android:text="Forgot your password?"
