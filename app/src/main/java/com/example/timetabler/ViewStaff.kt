@@ -259,6 +259,7 @@ class ViewStaff : AppCompatActivity() {
                 createStaffConfirm = dialog.findViewById(R.id.createStaffConfirm)
                 nameInput = dialog.findViewById(R.id.staffNameInput)
                 dobInput = dialog.findViewById(R.id.staffDobInput)
+                dobInput.isEnabled = false
 
                 // Populate the dialog with selected staff's information
                 nameInput.setText(selectedStaff?.Name ?: "")
@@ -273,51 +274,72 @@ class ViewStaff : AppCompatActivity() {
 
                 createStaffConfirm.setOnClickListener {
                     val newName = nameInput.text?.toString()?.trim()
-                    val newDobText = dobInput.text?.toString()?.trim()
+                    //val newDobText = dobInput.text?.toString()?.trim()
 
-                    if (newName == selectedStaff?.Name && newDobText == selectedStaff?.DoB?.let { formatDate(it) }) {
+                    if (newName == selectedStaff?.Name ) { //&& newDobText == selectedStaff?.DoB?.let { formatDate(it) }
                         Toast.makeText(this, "Fields were not changed", Toast.LENGTH_SHORT).show()
-                    } else {
-                        if (TextUtils.isEmpty(newName) || TextUtils.isEmpty(newDobText)) {
-                            Toast.makeText(this, "Name or Date of Birth cannot be empty", Toast.LENGTH_SHORT).show()
+                    }
+                    else
+                    {
+                        if (TextUtils.isEmpty(newName) ) {//|| TextUtils.isEmpty(newDobText)
+                            Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show()
                             return@setOnClickListener
                         }
 
-                        // Convert newDobText to Timestamp
-                        val dobFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                        val newDobTimestamp = try {
-                            Timestamp(dobFormat.parse(newDobText) ?: throw IllegalArgumentException("Invalid date"))
-                        } catch (e: Exception) {
-                            Toast.makeText(this, "Invalid Date of Birth format. Use dd/MM/yyyy.", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener
-                        }
+//                        // Convert newDobText to Timestamp
+//                        val dobFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+//                        val newDobTimestamp = try {
+//                            Timestamp(dobFormat.parse(newDobText) ?: throw IllegalArgumentException("Invalid date"))
+//                        } catch (e: Exception) {
+//                            Toast.makeText(this, "Invalid Date of Birth format. Use dd/MM/yyyy.", Toast.LENGTH_SHORT).show()
+//                            return@setOnClickListener
+//                        }
 
                         // Firestore update logic
                         selectedStaff?.let { staff ->
                             val updatedFields = mapOf(
-                                "name" to newName,
-                                "doB" to newDobTimestamp,
-                                "category" to when {
-                                    calculateAge(newDobTimestamp) < 18 -> "Attendant"
-                                    calculateAge(newDobTimestamp) in 18..20 -> "Fairground"
-                                    calculateAge(newDobTimestamp) > 20 -> "SRO"
-                                    else -> ""
-                                }
+                                "name" to newName
+//                                "doB" to newDobTimestamp,
+//                                "category" to when {
+//                                    calculateAge(newDobTimestamp) < 18 -> "Attendant"
+//                                    calculateAge(newDobTimestamp) in 18..20 -> "Fairground"
+//                                    calculateAge(newDobTimestamp) > 20 -> "SRO"
+//                                    else -> ""
+//                                }
                             )
-                            //update the staff data. but we need to go through and change all the rides they are trained on and update their name
-                            db.collection("Staff").document(staff.Id)
-                                .update(updatedFields)
-                                .addOnSuccessListener {
-                                    Toast.makeText(this, "Staff updated successfully", Toast.LENGTH_SHORT).show()
-                                    dialog.dismiss()
+                            fh.getAllRides {ridesReturned ->
+                                var oldName = staff.Name
+                                //update the staff data. but we need to go through and change all the rides they are trained on and update their name
+                                db.collection("Staff").document(staff.Id).update(updatedFields).addOnSuccessListener {
+                                    for(r in ridesReturned)
+                                    {
+                                        if(r.staffTrained.any {it.toString().startsWith(oldName)})
+                                        {
+                                            val newList = r.staffTrained.map { staffName ->
+                                                when {
+                                                    staffName.toString().endsWith(" Op", ignoreCase = true) -> "${newName} Op"
+                                                    staffName.toString().endsWith(" Att", ignoreCase = true) -> "${newName} Att"
+                                                    else -> newName // Keep the new name without suffix
+                                                }
+                                            }
+                                            val fieldToUpdate = mapOf("staffTrained" to newList)
 
-                                    // Re-fetch the updated staff data
-                                   recreate()
+                                            db.collection("Rides").document(r.Id).update(fieldToUpdate).addOnSuccessListener{
+                                                Toast.makeText(this, "Staff updated successfully", Toast.LENGTH_SHORT).show()
+                                                dialog.dismiss()
+                                                // Re-fetch the updated staff data
+                                                recreate()
+                                            }
 
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(this, "Failed to update staff: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
+                                        }
+                                    }
+
+
+                                }.addOnFailureListener { e ->
+                                        Toast.makeText(this, "Failed to update staff: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+
 
                         } ?: run {
                             Toast.makeText(this, "No staff selected to update", Toast.LENGTH_SHORT).show()
@@ -370,7 +392,7 @@ class ViewStaff : AppCompatActivity() {
 
 
                     val formattedDoB = formatDate(selectedStaff!!.DoB)
-                    dobTxt.text = "Date of Birth: $formattedDoB"
+                    dobTxt.text = "Date of Birth: $formattedDoB   (${calculateAge(selectedStaff!!.DoB)})"
 
 
                     prevRideTxt.text = if (selectedStaff!!.PreviousRide == "null") {
