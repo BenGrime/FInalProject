@@ -171,7 +171,7 @@ class MainActivity : AppCompatActivity() {
         generateBoardBtn = findViewById(R.id.generateBoardButton)
 
         settingsBtn.setOnClickListener(View.OnClickListener {
-            val intent = Intent(this, Settings_Page::class.java)
+            val intent = Intent(this, settings_selection_page::class.java)
             startActivity(intent)
         })
 
