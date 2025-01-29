@@ -279,4 +279,15 @@ class FirebaseHandler {
         }
 
     }
+
+    fun getManager(id : String, callback: (Manager) -> Unit){
+        db.collection("Managers").document(id).get().addOnSuccessListener{
+            val m = it.get("accessLevel").toString().toIntOrNull()
+                ?.let { it1 -> Manager(it1, it.get("name").toString()) }
+
+            if (m != null) {
+                callback(m)
+            }
+        }
+    }
 }
