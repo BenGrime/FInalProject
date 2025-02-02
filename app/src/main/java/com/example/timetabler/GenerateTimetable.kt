@@ -1,5 +1,6 @@
 package com.example.timetabler
 
+import android.text.BoringLayout
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -34,14 +35,35 @@ class GenerateTimetable {
         return Random.nextInt(0, staffSelected.size -1)
     }
 
-    fun getRandomStaff(staffSelected: ArrayList<String>, currentRide: String, staffObjList : ArrayList<Staff>, rides : ArrayList<Ride>) : String {
+    fun getRandomStaff(staffSelected: ArrayList<String>, currentRide: String, staffObjList : ArrayList<Staff>, rides : ArrayList<Ride>, skip : Boolean) : String {
         val staffForRide = ArrayList<Staff>()
 
         // Filter staff trained for the current ride
         for (r in staffObjList) {
             for (i in r.RidesTrained) {
-                if (i.toString().contains(currentRide)) {
-                    staffForRide.add(r)
+                if (i.toString().contains(currentRide))
+                {
+                    //check the category and age
+                    for(ride in rides){
+                        if(currentRide.contains(ride.Name)){
+                            if(currentRide.endsWith(" Op") || !currentRide.endsWith(" Att")){
+                                val minAge = ride.minAgeToOperate
+                                if(fh.calculateAge(r.DoB.toDate()) >= minAge){//they are old enough to operate
+                                    staffForRide.add(r)
+                                }
+                            }
+                            else if(currentRide.endsWith(" Att"))
+                            {
+                                val minAgeAtt = ride.minAgeToAttend
+                                val minAgeOp = ride.minAgeToOperate
+                                val age = fh.calculateAge(r.DoB.toDate())
+                                if(age in minAgeAtt..<minAgeOp){//they are old enough to attend
+                                    staffForRide.add(r)
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -51,10 +73,23 @@ class GenerateTimetable {
             val randomStaff = staffForRide[randomIndex]
 
             // Check if the selected staff meets the conditions
-            if (!currentRide.contains(randomStaff.PreviousRide) || randomStaff.PreviousRide == "")
-            { // Were they on it before?
+            if(skip)
+            {
                 for (r in randomStaff.RidesTrained)
                 {
+                    if (r.toString().contains("Op"))
+                    { // Check if it's an "Op"
+                        return randomStaff.Name
+                    }
+                    else if (r.toString().contains("Att"))
+                    { // Check if it's an "Att"
+                        val strippedRide = currentRide.replace(Regex("(Op|Att)\$"), "").trim()
+                        if (!randomStaff.RidesTrained.any { it.toString().contains(strippedRide) && it.toString().contains("Op") })
+                        {
+                            return randomStaff.Name
+                        }
+                    }
+
                     if (r.toString().contains(currentRide))
                     { // Are they trained for the ride?
                         if (r.toString().contains("Op"))
@@ -72,6 +107,44 @@ class GenerateTimetable {
                     }
                 }
             }
+            else
+            {
+                if (!currentRide.contains(randomStaff.PreviousRide) || randomStaff.PreviousRide == "")
+                { // Were they on it before?
+                    for (r in randomStaff.RidesTrained)
+                    {
+                        if (r.toString().contains("Op"))
+                        { // Check if it's an "Op"
+                            return randomStaff.Name
+                        }
+                        else if (r.toString().contains("Att"))
+                        { // Check if it's an "Att"
+                            val strippedRide = currentRide.replace(Regex("(Op|Att)\$"), "").trim()
+                            if (!randomStaff.RidesTrained.any { it.toString().contains(strippedRide) && it.toString().contains("Op") })
+                            {
+                                return randomStaff.Name
+                            }
+                        }
+
+                        if (r.toString().contains(currentRide))
+                        { // Are they trained for the ride?
+                            if (r.toString().contains("Op"))
+                            { // Check if it's an "Op"
+                                return randomStaff.Name
+                            }
+                            else if (r.toString().contains("Att"))
+                            { // Check if it's an "Att"
+                                val strippedRide = currentRide.replace(Regex("(Op|Att)\$"), "").trim()
+                                if (!randomStaff.RidesTrained.any { it.toString().contains(strippedRide) && it.toString().contains("Op") })
+                                {
+                                    return randomStaff.Name
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // If the staff member doesn't meet the conditions, remove them
             staffForRide.removeAt(randomIndex)
         }
@@ -125,10 +198,10 @@ class GenerateTimetable {
 
             if (staff == "Select Staff") {
                 if (staffSelected.isNotEmpty() || newStaffObjList.isNotEmpty()) {
-                    var staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides)
+                    var staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides, false)
                     if (staffName.isNotEmpty()) {
                         while (assignedStaff.contains(staffName)) {
-                            staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides)
+                            staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides, false)
                         }
                         // Update the board with the selected staff
                         completeBoard[index][1] = staffName
@@ -317,7 +390,6 @@ class GenerateTimetable {
                 //put the rest on car park
                 completeBoard.forEachIndexed { index, row ->
                     val ride = row[0]
-                    val staff = row[1]
 
                     if (ride == "Car Park" && spareStaff.size > 0) {
                         //are there any rides that havent been assigned
@@ -477,5 +549,324 @@ class GenerateTimetable {
                 rideList.add(staff) // Add staff to the target ride
             }
         }
+    }
+
+    fun timetable2(list : ArrayList<ArrayList<String>>, staffSelected : ArrayList<String> , staffObjList : ArrayList<Staff>, rides : ArrayList<Ride>, callback: (ArrayList<ArrayList<String>>) -> Unit)
+    {
+        if(anyRequirements(list))
+        {
+            list.forEach{row ->
+                val staff = row[1]
+
+                if(staff != "Select Staff")
+                {
+                    staffSelected.remove(staff)
+                }
+            }
+        }
+        val newStaffObjList = ArrayList<Staff>()
+        for(s in staffObjList)
+        {
+            for(n in staffSelected){
+                if(s.Name == n)
+                {
+                    newStaffObjList.add(s)
+                }
+            }
+        }
+        fh.getPriority { priorityList ->
+            priorityList.sortByDescending { it.second } // Sort by the integer value in the pair
+            val assignedStaff = mutableSetOf<String>()
+            // Create an ArrayList of ArrayLists to represent the 2D structure
+            var completeBoard = ArrayList<ArrayList<String>>()
+            //create copy for the full board
+            list.forEach { row ->
+                val ride = row[0]
+                val staff = row[1]
+                completeBoard.add(arrayListOf(ride, staff))
+
+            }
+
+            if(priorityList[priorityList.size -1].second == priorityList[0].second){
+
+                val indices = completeBoard.indices.shuffled() // Shuffle indices to randomize order
+                val usedIndices = mutableSetOf<Int>() // Keep track of used indices
+
+                indices.forEach { index ->
+                    if (usedIndices.contains(index)) return@forEach // Skip if already processed
+
+                    val row = completeBoard[index]
+                    val ride = row[0]
+                    val staff = row[1]
+
+                    if (staff == "Select Staff") {
+                        if (staffSelected.isNotEmpty() || newStaffObjList.isNotEmpty()) {
+                            var staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides, true)
+                            if (staffName.isNotEmpty()) {
+                                while (assignedStaff.contains(staffName)) {
+                                    staffName = getRandomStaff(staffSelected, ride, newStaffObjList, rides, true)
+                                }
+                                // Update the board with the selected staff
+                                completeBoard[index][1] = staffName
+                                assignedStaff.add(staffName)
+                                staffSelected.remove(staffName)
+                                newStaffObjList.removeIf { it.Name == staffName }
+                                usedIndices.add(index) // Mark this index as processed
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for(p in priorityList)
+                {
+                    completeBoard.forEachIndexed{index, row ->
+
+                        if(completeBoard[index][0].contains(p.first))
+                        {
+                            if (completeBoard[index][1] == "Select Staff") {
+                                if (staffSelected.isNotEmpty() || newStaffObjList.isNotEmpty()) {
+                                    var staffName = getRandomStaff(staffSelected, completeBoard[index][0], newStaffObjList, rides, true)
+                                    if (staffName.isNotEmpty()) {
+                                        while (assignedStaff.contains(staffName)) {
+                                            staffName = getRandomStaff(staffSelected, completeBoard[index][0], newStaffObjList, rides, true)
+                                        }
+                                        // Update the board with the selected staff
+                                        completeBoard[index][1] = staffName
+                                        assignedStaff.add(staffName)
+                                        staffSelected.remove(staffName)
+                                        newStaffObjList.removeIf { it.Name == staffName }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //by this point either the board is randomly done, or in priority order, but staff may be on previous ride
+            completeBoard.forEach{ row->
+                println("Ride:" + row[0] + " Staff: "+row[1])
+            }
+
+            //get missing values and spares if any
+            var spareStaff : ArrayList<String> = ArrayList()
+            for (name in staffSelected) {
+                if (!assignedStaff.contains(name)) {
+                    spareStaff.add(name)
+                }
+            }
+            var unassignedRides : ArrayList<String> = ArrayList()
+            completeBoard.forEach { row ->
+                val ride = row[0]
+                val staff = row[1]
+                if(staff == "Select Staff")
+                {
+                    unassignedRides.add(ride)
+                }
+            }
+
+            completeBoard.forEachIndexed {index, row->
+
+                for(s in spareStaff)
+                {
+                    if(row[0] == "Select Staff")
+                    {
+                        for(so in staffObjList)
+                        {
+                            if(so.Name == s)
+                            {
+                                if(isTrained(so, row[0]))
+                                {
+                                    completeBoard[index][1] = s
+                                    assignedStaff.add(s)
+                                    staffSelected.remove(s)
+                                    newStaffObjList.removeIf { it.Name == s }
+                                    unassignedRides.remove(row[1])
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            spareStaff = ArrayList()
+            for (name in staffSelected) {
+                if (!assignedStaff.contains(name)) {
+                    spareStaff.add(name)
+                }
+            }
+
+
+            //put the rest on car park
+            completeBoard.forEachIndexed { index, row ->
+                val ride = row[0]
+
+                if (ride == "Car Park" && spareStaff.size > 0) {
+                    //are there any rides that havent been assigned
+                    completeBoard[index][1] = spareStaff[0]
+                    assignedStaff.add(spareStaff[0])
+                    newStaffObjList.removeIf { it.Name == spareStaff[0] }
+                    staffSelected.remove(spareStaff[0])
+                    spareStaff.remove(spareStaff[0])
+                    unassignedRides.remove(unassignedRides[0])
+                }
+            }
+
+            //find a way to limit the amount of staff on previous rides
+            var count = 0
+            completeBoard.forEach{ row->
+                for(s in staffObjList){
+                    if(s.Name == row[1]){
+                        if(row[0].contains(s.PreviousRide))
+                        {
+                            count++
+                            break
+                        }
+                    }
+                }
+            }
+
+            completeBoard.forEach{ row->
+                println("Ride:" + row[0] + " Staff: "+row[1])
+            }
+            callback(completeBoard)
+
+
+        }
+
+    }
+
+    fun evaluation(t1 : ArrayList<ArrayList<String>>,
+                   t2 : ArrayList<ArrayList<String>>,
+//                   t3 : ArrayList<ArrayList<String>>,
+                   staffObjList : ArrayList<Staff>,
+                   priorityList : ArrayList<Pair<String, Int>>,
+                   rides : ArrayList<Ride>,
+                   requirements : ArrayList<ArrayList<String>>,
+                   callback: (ArrayList<ArrayList<String>>) -> Unit){
+        var t1Score = 0
+        var t2Score = 0
+        var t3Score = 0
+        println("-----------------------------------------------------------------------------------------------------")
+        t1.forEach {
+            println("Ride: " + it[0] + " Staff: " + it[1])
+        }
+        t2.forEach {
+            println("Ride: " + it[0] + " Staff: " + it[1])
+        }
+
+        t1.forEachIndexed {  index, row->
+            for(s in staffObjList){
+                if(s.Name == row[1]){
+                    if(row[0] == s.PreviousRide){
+                        t1Score += 1
+                    }
+                }
+            }
+            if(row[1] == "Select Staff")
+            {
+                priorityList.forEach{ pair ->
+                    if(pair.first == row[0]) {
+                        if (pair.second == 3) {
+                            t1Score += 4
+                        } else if (pair.second == 2) {
+                            t1Score += 3
+                        } else {
+                            t1Score += 2
+                        }
+                    }
+
+                }
+            }
+            requirements.forEach{ requirement ->
+                if(requirement[0] == row[0])
+                {
+                    if(requirement[1] != row[1] && requirement[1] != "Select Staff"){
+                        t2Score += 5
+                    }
+                }
+            }
+        }
+
+        t2.forEachIndexed {  index, row->
+            for(s in staffObjList){
+                if(s.Name == row[1]){
+                    if(row[0] == s.PreviousRide){
+                        t2Score += 1
+                    }
+                }
+            }
+            if(row[1] == "Select Staff")
+            {
+                priorityList.forEach{ pair ->
+                    if(pair.first == row[0]) {
+                        if (pair.second == 3) {
+                            t2Score += 4
+                        } else if (pair.second == 2) {
+                            t2Score += 3
+                        } else {
+                            t2Score += 2
+                        }
+                    }
+
+                }
+            }
+            requirements.forEach{ requirement ->
+                if(requirement[0] == row[0])
+                {
+                    if(requirement[1] != row[1] && requirement[1] != "Select Staff"){
+                        t2Score += 5
+                    }
+                }
+            }
+        }
+//        t3.forEachIndexed {  index, row->
+//            for(s in staffObjList){
+//                if(s.Name == row[1]){
+//                    if(row[0] == s.PreviousRide){
+//                        t3Score += 1
+//                    }
+//                }
+//            }
+//            if(row[1] == "Select Staff")
+//            {
+//                priorityList.forEach{ pair ->
+//                    if(pair.first == row[0]) {
+//                        if (pair.second == 3) {
+//                            t3Score += 4
+//                        } else if (pair.second == 2) {
+//                            t3Score += 3
+//                        } else {
+//                            t3Score += 2
+//                        }
+//                    }
+//
+//                }
+//            }
+//            requirements.forEach{ requirement ->
+//                if(requirement[0] == row[0])
+//                {
+//                    if(requirement[1] != row[1]){
+//                        t3Score += 5
+//                    }
+//                }
+//            }
+//        }
+
+        if(t1Score <= t2Score){
+//            if(t1Score < t3Score){
+//                callback(t1)
+//            }
+//            else{
+//                callback(t3)
+//            }
+            println("NUMBER 1")
+            callback(t1)
+        }
+        else{
+            println("NUMBER 2")
+            callback(t2)
+        }
+
     }
 }

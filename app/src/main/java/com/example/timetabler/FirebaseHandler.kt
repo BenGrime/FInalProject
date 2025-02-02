@@ -279,6 +279,36 @@ class FirebaseHandler {
         }
 
     }
+    fun getBoard(callback: (ArrayList<Pair<String ,String>>) -> Unit){
+        val priorityList = ArrayList<Pair<String, String>>()
+        db.collection("Board").document("completeBoard").get().addOnSuccessListener { document ->
+            if (document != null) {
+                // Log the document data to verify the contents
+
+                // Correct the field name to "priortiyList"
+                val data = document.data?.get("Board") as? List<Map<String, Any>>  // Access the correct field
+
+
+                if (data != null) {
+                    // Loop through the list and extract the pairs
+                    data.forEach { pair ->
+                        // Extract the values
+                        val rideName = pair["ride"] as? String  // Extract "ride" value
+                        val staffName = pair["staff"] as? String     // Extract "value" (using Long for Firestore's number type)
+
+                        // Add the pair (String, Int) to the list if both values exist
+                        if (rideName != null && staffName != null) {
+                            priorityList.add(Pair(rideName, staffName))
+                        }
+                    }
+                }
+            }
+
+            // Return the list of pairs via the callback
+            callback(priorityList)
+        }
+
+    }
 
     fun getManager(id : String, callback: (Manager) -> Unit){
         db.collection("Managers").document(id).get().addOnSuccessListener{

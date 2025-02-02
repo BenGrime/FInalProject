@@ -3,6 +3,7 @@ package com.example.timetabler
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.mifmif.common.regex.Main
@@ -17,6 +18,7 @@ class settings_selection_page : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings_selection_page)
+        var accessLevel = intent.extras?.get("accessLevel") as? Int ?: -1
         backBtn = findViewById(R.id.backBtnSettingsSelect)
         backBtn.setOnClickListener{
             finish()
@@ -47,7 +49,12 @@ class settings_selection_page : AppCompatActivity() {
             val intent = Intent(this, Settings_Page::class.java)
             startActivity(intent)
         }
-
+        if(accessLevel >= 3)
+        {
+            algorDepBtn.visibility = View.GONE
+            databaseBtn.visibility = View.GONE
+            manageUsersBtn.visibility = View.GONE
+        }
 
 
 

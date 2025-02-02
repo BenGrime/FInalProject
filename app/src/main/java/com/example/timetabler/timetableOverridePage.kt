@@ -70,6 +70,7 @@ class timetableOverridePage : AppCompatActivity() {
         dialog.setCancelable(true)
 
 
+
         CancelBtn.setOnClickListener(View.OnClickListener {
             finish()
         })
@@ -186,74 +187,93 @@ class timetableOverridePage : AppCompatActivity() {
 
         if(selectedStaffList != null && staffSelected!= null)
         {
-            fh.getSelectedStaffObjs(staffSelected) { staffListObj ->
-                fh.getAllRides { rides ->
-                    (rides as? ArrayList<Ride>)?.let {
-                        loadingText.text = "Generating the board"
-                        generateTimetable.timetable1(selectedStaffList, staffSelected, staffListObj, it){ result ->
-                            nameList.add("Select Staff")
+            fh.getPriority { pri ->
+                fh.getSelectedStaffObjs(staffSelected) { staffListObj ->
+                    fh.getAllRides { rides ->
+                        (rides as? ArrayList<Ride>)?.let {
+                            loadingText.text = "Generating the board"
+                            val staffSelect2 = ArrayList(staffSelected)
+                            generateTimetable.timetable1(selectedStaffList, staffSelected, staffListObj, it){ time1 ->
+                                generateTimetable.timetable2(selectedStaffList, staffSelect2, staffListObj, it) { time2 ->
+                                    generateTimetable.evaluation(time1, time2,  staffListObj, pri, rides, selectedStaffList ) { result ->
 
-                            //change strings to objects
-                            if (staffCopy != null) {
-                                fh.getSelectedStaffObjs(staffCopy){
 
-                                    for(staff in it)//get all staff objects from names from previous page
-                                    {
-                                        staffList.add(staff)
-                                        nameList.add(staff.Name)//add the names to this list
-                                        when (staff.Category) {
-                                            "Attendant" -> {
-                                                attList.add(staff.Name)
-                                            }
+                                        nameList.add("Select Staff")
 
-                                            "Fairground" -> {
-                                                opList.add(staff.Name)
-                                                adultList.add(staff.Name)
-                                            }
+                                        //change strings to objects
+                                        if (staffCopy != null) {
+                                            fh.getSelectedStaffObjs(staffCopy) {
 
-                                            else -> {
-                                                adultList.add(staff.Name)
-                                                sroList.add(staff.Name)
+                                                for (staff in it)//get all staff objects from names from previous page
+                                                {
+                                                    staffList.add(staff)
+                                                    nameList.add(staff.Name)//add the names to this list
+                                                    when (staff.Category) {
+                                                        "Attendant" -> {
+                                                            attList.add(staff.Name)
+                                                        }
+
+                                                        "Fairground" -> {
+                                                            opList.add(staff.Name)
+                                                            adultList.add(staff.Name)
+                                                        }
+
+                                                        else -> {
+                                                            adultList.add(staff.Name)
+                                                            sroList.add(staff.Name)
+                                                        }
+                                                    }
+                                                }
+                                                var rideNumber = 0
+                                                fh.getAllRides { rides ->
+                                                    //                                        hideLoading()
+                                                    staffSelected.add(0, "Select Staff")
+                                                    //create TextView with ride 1
+
+                                                    for (ride in rides) {
+                                                        if (ride.open) {
+                                                            var iterator = 1
+
+                                                            for (i in 1..ride.prefNumOp) {
+                                                                createRow(
+                                                                    ride,
+                                                                    iterator,
+                                                                    result,
+                                                                    rideNumber
+                                                                )
+                                                                rideNumber++
+                                                                iterator++
+                                                            }
+                                                            for (i in 1..ride.prefNumAtt) {
+                                                                createRow(
+                                                                    ride,
+                                                                    iterator,
+                                                                    result,
+                                                                    rideNumber
+                                                                )
+                                                                iterator++
+                                                                rideNumber++
+                                                            }
+                                                        }
+                                                    }
+                                                    var carParkNumber = 0
+                                                    result.forEach { row ->
+                                                        if (row[0] == "Car Park") {
+                                                            carParkNumber++
+                                                        }
+                                                    }
+                                                    repeat(carParkNumber) {
+                                                        carParkSection(rideNumber, result)
+                                                        rideNumber++
+                                                    }
+                                                    finishedBoard = ArrayList(result)
+                                                    hideLoading()
+
+                                                }
+
                                             }
                                         }
                                     }
-                                    var rideNumber = 0
-                                    fh.getAllRides { rides ->
-//                                        hideLoading()
-                                        staffSelected.add(0, "Select Staff")
-                                        //create TextView with ride 1
-
-                                        for(ride in rides) {
-                                            if(ride.open) {
-                                                var iterator = 1
-
-                                                for (i in 1..ride.prefNumOp) {
-                                                    createRow(ride, iterator, result, rideNumber)
-                                                    rideNumber++
-                                                    iterator++
-                                                }
-                                                for (i in 1..ride.prefNumAtt) {
-                                                    createRow(ride, iterator, result, rideNumber)
-                                                    iterator++
-                                                    rideNumber++
-                                                }
-                                            }
-                                        }
-                                        var carParkNumber = 0
-                                        result.forEach { row ->
-                                            if(row[0] == "Car Park"){
-                                                carParkNumber++
-                                            }
-                                        }
-                                        repeat(carParkNumber){
-                                            carParkSection(rideNumber, result)
-                                            rideNumber++
-                                        }
-                                        finishedBoard = ArrayList(result)
-                                        hideLoading()
-
-                                    }
-
                                 }
                             }
                         }

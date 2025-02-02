@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -106,6 +107,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        loadingScreenOn()
 
         val ridePage = intent.getStringExtra("RidePage")
         val failedToUpdateList = intent.getSerializableExtra("failedToUpdateList") as? ArrayList<ArrayList<String>>
@@ -118,36 +120,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-        fh.getManager(auth.currentUser!!.uid) {
-            if (it.accessLevel == 1) {
+        fh.getManager(auth.currentUser!!.uid) {manager->
 
-            } else if (it.accessLevel == 2) {
-
-            } else if (it.accessLevel == 3) {
-                createNewStaff.isEnabled = false
-                createNewStaff.alpha = 0.5f
-                removeStaffButton.alpha = 0.5f
-                removeStaffButton.isEnabled = false
-                deleteStaffbtn.isEnabled = false
-                deleteStaffbtn.alpha = 0.5f
-                createRideBtn.isEnabled = false
-                createRideBtn.alpha = 0.5f
-                DeleteRideBtn.alpha = 0.5f
-                DeleteRideBtn.isEnabled = false
-            } else if (it.accessLevel == 4) {
-                createNewStaff.isEnabled = false
-                createNewStaff.alpha = 0.5f
-                removeStaffButton.alpha = 0.5f
-                removeStaffButton.isEnabled = false
-                deleteStaffbtn.isEnabled = false
-                deleteStaffbtn.alpha = 0.5f
-                generateBoardBtn.isEnabled = false
-                generateBoardBtn.alpha = 0.5f
-                createRideBtn.isEnabled = false
-                createRideBtn.alpha = 0.5f
-                DeleteRideBtn.alpha = 0.5f
-                DeleteRideBtn.isEnabled = false
-            }
 
 
             //THIS IS FOR THE TOGGLE
@@ -233,6 +207,7 @@ class MainActivity : AppCompatActivity() {
 
             settingsBtn.setOnClickListener(View.OnClickListener {
                 val intent = Intent(this, settings_selection_page::class.java)
+                intent.putExtra("accessLevel", manager.accessLevel)
                 startActivity(intent)
             })
 
@@ -1125,6 +1100,25 @@ class MainActivity : AppCompatActivity() {
 
 
             })
+
+            if (manager.accessLevel == 3)
+            {
+                createNewStaff.visibility = View.GONE
+                removeStaffButton.visibility = View.GONE
+                deleteStaffbtn.visibility = View.GONE
+                DeleteRideBtn.visibility = View.GONE
+                createRideBtn.visibility = View.GONE
+            }
+            else if (manager.accessLevel == 4)
+            {
+                createNewStaff.visibility = View.GONE
+                removeStaffButton.visibility = View.GONE
+                deleteStaffbtn.visibility = View.GONE
+                DeleteRideBtn.visibility = View.GONE
+                createRideBtn.visibility = View.GONE
+                generateBoardBtn.visibility = View.GONE
+            }
+            loadingScreenOff()
         }
     }
 
@@ -1243,5 +1237,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    fun loadingScreenOn(){
+        findViewById<RelativeLayout>(R.id.loadingOverlayMain).visibility = View.VISIBLE
+    }
+    fun loadingScreenOff(){
+        findViewById<RelativeLayout>(R.id.loadingOverlayMain).visibility = View.GONE
+    }
+
+
 
 }
