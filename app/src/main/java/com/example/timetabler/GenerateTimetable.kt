@@ -651,6 +651,7 @@ class GenerateTimetable {
 
             //get missing values and spares if any
             var spareStaff : ArrayList<String> = ArrayList()
+            staffSelected.shuffle()
             for (name in staffSelected) {
                 if (!assignedStaff.contains(name)) {
                     spareStaff.add(name)
@@ -665,12 +666,12 @@ class GenerateTimetable {
                     unassignedRides.add(ride)
                 }
             }
-
+            spareStaff.shuffle()
             completeBoard.forEachIndexed {index, row->
 
-                for(s in spareStaff)
+                if(row[0] == "Select Staff")
                 {
-                    if(row[0] == "Select Staff")
+                    for(s in spareStaff)
                     {
                         for(so in staffObjList)
                         {
