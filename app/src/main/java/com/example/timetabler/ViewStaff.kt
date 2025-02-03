@@ -3,7 +3,9 @@ package com.example.timetabler
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Paint
 import android.graphics.PorterDuff
+import android.graphics.drawable.ShapeDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -673,8 +675,16 @@ class ViewStaff : AppCompatActivity() {
             layoutParams = GridLayout.LayoutParams().apply {
                 width = GridLayout.LayoutParams.MATCH_PARENT
                 height = GridLayout.LayoutParams.WRAP_CONTENT
-                setMargins(6, 6, 6, 6)
+                setMargins(6, 10, 6, 10)
             }
+            val border = ShapeDrawable().apply {
+                paint.color = resources.getColor(R.color.black, theme)  // Set the border color
+                paint.strokeWidth = 2f  // Set the border width
+                paint.style = Paint.Style.STROKE  // Only draw the border, not filled
+            }
+
+            // Set the border as background
+            background = border
         }
 
         // Create TextView and Spinner (use AppCompat versions)
@@ -764,6 +774,8 @@ class ViewStaff : AppCompatActivity() {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX < 0) { // Swipe left
                             animateRowRemoval(rowLayout)
+                            addRideToListBtn.alpha = 1f
+                            addRideToListBtn.isEnabled = true
                             return true
                         }
                     }
