@@ -2,11 +2,14 @@ package com.example.timetabler
 
 import android.app.Dialog
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.view.GestureDetector
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -29,6 +32,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.AppCompatSpinner
+import androidx.core.view.GestureDetectorCompat
 
 class ViewStaff : AppCompatActivity() {
 
@@ -125,9 +131,14 @@ class ViewStaff : AppCompatActivity() {
                 //on it, have a add another ride which adds a textView and Spinner to grid layout
 
                 textViewBulk.text = "Add Rides to " + selectedStaff!!.Name
+                // Get the height of the screen
+
 
                 addRideToListBtn.setOnClickListener {
-                    if(dropdownsBulk.size <= 26){
+                    val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+
+                    val dialogHeight = dialog.window?.decorView?.height ?: 0
+                    if(dialogHeight <= screenHeight-100){
                         addRideElement()
                     }
                     else
@@ -153,22 +164,44 @@ class ViewStaff : AppCompatActivity() {
                     // Iterate through the GridLayout's children
                     for (i in 0 until dropdownsBulk.childCount) {
                         val view = dropdownsBulk.getChildAt(i)
-                        if (view is Spinner) { // Check if the view is a Spinner
-                            val selectedItem = view.selectedItem?.toString()
-                            if (!selectedItem.isNullOrEmpty() && selectedItem != "Select Ride") {
-                                // Check if the item is already in the set
-                                if (!selectedItems.add(selectedItem)) {
-                                    hasDuplicates = true
-                                    break
+                        if (view is LinearLayout) { // Check if the view is a LinearLayout (which contains the TextView and Spinner)
+                            // Iterate through the child views of the LinearLayout
+                            for (j in 0 until view.childCount) {
+                                val innerView = view.getChildAt(j)
+                                if (innerView is Spinner) { // Check if the child view is a Spinner
+                                    val selectedItem = innerView.selectedItem?.toString()
+                                    if (!selectedItem.isNullOrEmpty() && selectedItem != "Select Ride") {
+                                        // Check if the item is already in the set
+                                        if (!selectedItems.add(selectedItem)) {
+                                            hasDuplicates = true
+                                            break
+                                        }
+                                    } else {
+                                        Toast.makeText(this, "Please select rides.", Toast.LENGTH_SHORT).show()
+                                        break
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                Toast.makeText(this, "Please select rides.", Toast.LENGTH_SHORT).show()
-                                break
                             }
                         }
                     }
+//                    for (i in 0 until dropdownsBulk.childCount) {
+//                        val view = dropdownsBulk.getChildAt(i)
+//                        if (view is Spinner) { // Check if the view is a Spinner
+//                            val selectedItem = view.selectedItem?.toString()
+//                            if (!selectedItem.isNullOrEmpty() && selectedItem != "Select Ride") {
+//                                // Check if the item is already in the set
+//                                if (!selectedItems.add(selectedItem)) {
+//                                    hasDuplicates = true
+//                                    break
+//                                }
+//                            }
+//                            else
+//                            {
+//                                Toast.makeText(this, "Please select rides.", Toast.LENGTH_SHORT).show()
+//                                break
+//                            }
+//                        }
+//                    }
 
                     // Handle result
                     if (hasDuplicates) {
@@ -558,29 +591,110 @@ class ViewStaff : AppCompatActivity() {
         return age
     }
 
+//    private fun addRideElement() {
+//        // Create a new TextView
+//        val textView = TextView(this).apply {
+//            text = "Ride Name" // Example placeholder
+//            textSize = 18f
+//            setTextColor(resources.getColor(R.color.black, theme))
+//            layoutParams = GridLayout.LayoutParams().apply {
+//                width = GridLayout.LayoutParams.WRAP_CONTENT
+//                height = GridLayout.LayoutParams.WRAP_CONTENT
+//                marginEnd = 16
+//                setMargins(6, 6, 6, 6) // Add margins to the TextView
+//            }
+//        }
+//
+//        val spinner = Spinner(this).apply {
+//            layoutParams = GridLayout.LayoutParams().apply {
+//                width = GridLayout.LayoutParams.WRAP_CONTENT
+//                height = GridLayout.LayoutParams.WRAP_CONTENT
+//                setMargins(6, 6, 6, 6) // Add margins to the Spinner
+//            }
+//        }
+//        textView.setPadding(6, 6, 6, 6)
+//        spinner.setPadding(6, 6, 6, 6)
+//        val untrainedRides = mutableListOf<String>()
+//        var trainedRides = selectedStaff?.RidesTrained
+//        fh.getAllRides { rideArray ->
+//            untrainedRides.add("Select Ride")
+//            for (ride in rideArray) {
+//                if (!trainedRides?.contains(ride.Name + " Op")!! && !trainedRides.contains(ride.Name + " Att")) {
+//                    // if it doesnt contain the ride name
+//                    if(calculateAge(selectedStaff!!.DoB) >= ride.minAgeToOperate || ((calculateAge(selectedStaff!!.DoB) >= ride.minAgeToAttend) && ride.prefNumAtt > 0))
+//                    {//if they are old enough to operate OR old enough to attend AND the ride needs attendants
+//
+//                        //this add attendant rides to 18+
+//                        if(!selectedStaff!!.Category.equals("Attendant") && ride.minAgeToOperate == 16)
+//                        {
+//
+//                        }
+//                        else
+//                        {
+//                            untrainedRides.add(ride.Name)
+//                        }
+//                    }
+//
+//                }
+//                //what if they are only the Att or Op and we want to add the other to a ride that has the option for the other
+//                else if(trainedRides.contains(ride.Name + " Op") && !trainedRides.contains(ride.Name + " Att"))
+//                {
+//                    if(calculateAge(selectedStaff!!.DoB) >= ride.minAgeToOperate && ride.prefNumAtt > 0){
+//                        untrainedRides.add(ride.Name + " Att")
+//                    }
+//
+//
+//                }
+//                else if(!trainedRides.contains(ride.Name + " Op") && trainedRides.contains(ride.Name + " Att"))
+//                {
+//                    if(calculateAge(selectedStaff!!.DoB) >= ride.minAgeToOperate && ride.prefNumAtt > 0){
+//                        untrainedRides.add(ride.Name + " Op")
+//                    }
+//                }
+//            }
+//            // Add dummy items to the Spinner
+//            val adapter = ArrayAdapter(
+//                this@ViewStaff,
+//                android.R.layout.simple_spinner_item,
+//                untrainedRides
+//            )
+//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//            spinner.adapter = adapter
+//
+//        }
+//        // Add the new TextView and Spinner to the GridLayout
+//        dropdownsBulk.addView(textView)
+//        dropdownsBulk.addView(spinner)
+//    }
+
     private fun addRideElement() {
-        // Create a new TextView
-        val textView = TextView(this).apply {
-            text = "Ride Name" // Example placeholder
-            textSize = 18f
-            setTextColor(resources.getColor(R.color.black, theme))
+        val rowLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
             layoutParams = GridLayout.LayoutParams().apply {
-                width = GridLayout.LayoutParams.WRAP_CONTENT
+                width = GridLayout.LayoutParams.MATCH_PARENT
                 height = GridLayout.LayoutParams.WRAP_CONTENT
-                marginEnd = 16
-                setMargins(6, 6, 6, 6) // Add margins to the TextView
+                setMargins(6, 6, 6, 6)
             }
         }
 
-        val spinner = Spinner(this).apply {
-            layoutParams = GridLayout.LayoutParams().apply {
-                width = GridLayout.LayoutParams.WRAP_CONTENT
-                height = GridLayout.LayoutParams.WRAP_CONTENT
-                setMargins(6, 6, 6, 6) // Add margins to the Spinner
+        // Create TextView and Spinner (use AppCompat versions)
+        val textView = AppCompatTextView(this).apply {
+            text = "Ride Name"
+            textSize = 18f
+            setTextColor(resources.getColor(R.color.black, theme))
+            setPadding(6, 6, 6, 6)
+            // Set width to match_parent and height to wrap_content
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(6, 6, 6, 6)
             }
         }
-        textView.setPadding(6, 6, 6, 6)
-        spinner.setPadding(6, 6, 6, 6)
+
+        val spinner = AppCompatSpinner(this).apply {
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(6, 6, 6, 6)
+            }
+            setPadding(6, 6, 6, 6)
+        }
         val untrainedRides = mutableListOf<String>()
         var trainedRides = selectedStaff?.RidesTrained
         fh.getAllRides { rideArray ->
@@ -629,10 +743,68 @@ class ViewStaff : AppCompatActivity() {
             spinner.adapter = adapter
 
         }
-        // Add the new TextView and Spinner to the GridLayout
-        dropdownsBulk.addView(textView)
-        dropdownsBulk.addView(spinner)
+
+        // Add TextView and Spinner to the row
+        rowLayout.addView(textView)
+        rowLayout.addView(spinner)
+
+        // Gesture Detector for swipe-to-delete
+        val gestureDetector = GestureDetectorCompat(this, object : GestureDetector.SimpleOnGestureListener() {
+            private val SWIPE_THRESHOLD = 100
+            private val SWIPE_VELOCITY_THRESHOLD = 100
+
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                val diffX = e2.x - (e1?.x ?: 0f)
+                if (Math.abs(diffX) > Math.abs(e2.y - (e1?.y ?: 0f))) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX < 0) { // Swipe left
+                            animateRowRemoval(rowLayout)
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
+        })
+
+        // Attach swipe listener
+        val swipeListener = View.OnTouchListener { v, event ->
+            gestureDetector.onTouchEvent(event)
+            if (event.action == MotionEvent.ACTION_UP) {
+                v.performClick() // Trigger performClick for accessibility
+            }
+            true
+        }
+
+        // Apply swipe listener to both TextView and Spinner
+        textView.setOnTouchListener(swipeListener)
+        spinner.setOnTouchListener(swipeListener)
+
+        // Add the row to GridLayout
+        dropdownsBulk.addView(rowLayout)
     }
+
+
+    // Smooth slide-out animation before removal
+    private fun animateRowRemoval(rowLayout: LinearLayout) {
+        rowLayout.animate()
+            .translationX(-rowLayout.width.toFloat()) // Slide left
+            .alpha(0.0f) // Fade out
+            .setDuration(300)
+            .withEndAction {
+                dropdownsBulk.removeView(rowLayout) // Remove after animation
+            }
+            .start()
+    }
+
+
+
+
     private fun showLoading() {
         // Create and show the dialog
         loadingDialog = Dialog(this)
