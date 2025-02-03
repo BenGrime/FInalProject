@@ -752,11 +752,20 @@ class ViewStaff : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             spinner.adapter = adapter
 
+            // Add TextView and Spinner to the row
+            rowLayout.addView(textView)
+            rowLayout.addView(spinner)
+
+            val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+            val dialogHeight = dialog.window?.decorView?.height ?: 0
+            if(dialogHeight >= screenHeight-100){
+                addRideToListBtn.alpha = 0.5f
+                addRideToListBtn.isEnabled = false
+                Toast.makeText(this, "Max amount of rides reached", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Add TextView and Spinner to the row
-        rowLayout.addView(textView)
-        rowLayout.addView(spinner)
+
 
         // Gesture Detector for swipe-to-delete
         val gestureDetector = GestureDetectorCompat(this, object : GestureDetector.SimpleOnGestureListener() {
