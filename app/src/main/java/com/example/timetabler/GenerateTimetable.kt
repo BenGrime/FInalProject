@@ -46,13 +46,7 @@ class GenerateTimetable {
                     //check the category and age
                     for(ride in rides){
                         if(currentRide.contains(ride.Name)){
-                            if(currentRide.endsWith(" Op") || !currentRide.endsWith(" Att")){
-                                val minAge = ride.minAgeToOperate
-                                if(fh.calculateAge(r.DoB.toDate()) >= minAge){//they are old enough to operate
-                                    staffForRide.add(r)
-                                }
-                            }
-                            else if(currentRide.endsWith(" Att"))
+                            if(currentRide.endsWith(" Att"))
                             {
                                 val minAgeAtt = ride.minAgeToAttend
                                 val minAgeOp = ride.minAgeToOperate
@@ -61,9 +55,15 @@ class GenerateTimetable {
                                     staffForRide.add(r)
                                 }
                             }
+                            else
+                            {
+                                val minAge = ride.minAgeToOperate
+                                if(fh.calculateAge(r.DoB.toDate()) >= minAge){//they are old enough to operate
+                                    staffForRide.add(r)
+                                }
+                            }
                         }
                     }
-
                 }
             }
         }
