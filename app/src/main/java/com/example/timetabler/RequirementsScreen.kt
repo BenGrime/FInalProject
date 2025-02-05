@@ -186,17 +186,20 @@ class RequirementsScreen : AppCompatActivity() {
                             }
                             if(ride.Name == strippedR && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
                             {
-                                if(repeater == 0)
-                                {
-                                    trainedList.add(staff.Name)
-                                    repeater += 1
+                                if(iterator <= ride.minAgeToOperate && r.toString().endsWith(" Op")){
+                                    if(repeater == 0)
+                                    {
+                                        trainedList.add(staff.Name)
+                                        repeater += 1
+                                    }
                                 }
+
                             }
                         }
                     }
                     adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, trainedList).apply { setDropDownViewResource(R.layout.spinner_custom_dropdown) }
                 }
-                else
+                else //16 or 21 to operate
                 {
                     val trainedList : ArrayList<String> = ArrayList()
                     trainedList.add("Select Staff")
@@ -213,12 +216,16 @@ class RequirementsScreen : AppCompatActivity() {
 
                             if(ride.Name == strippedR && staff.Category.equals("SRO"))
                             {
-                                if(repeater == 0)
+                                if(iterator <= ride.minAgeToOperate)//looking for operators
                                 {
-                                    trainedList.add(staff.Name)
-                                    repeater += 1
+                                    if(r.toString().endsWith( "Op")){
+                                        if(repeater == 0)
+                                        {
+                                            trainedList.add(staff.Name)
+                                            repeater += 1
+                                        }
+                                    }
                                 }
-
                             }
                             else if(ride.Name == strippedR && ride.minAgeToOperate == 16)
                             {
@@ -251,7 +258,7 @@ class RequirementsScreen : AppCompatActivity() {
                                 r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                                 else -> r
                             }
-                            if(ride.Name == strippedR ) {
+                            if(ride.Name == strippedR && r.toString().endsWith(" Att")) {
                                 if(repeater == 0){
                                     trainedList.add(staff.Name)
                                     repeater++
@@ -274,7 +281,7 @@ class RequirementsScreen : AppCompatActivity() {
                                 r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                                 else -> r
                             }
-                            if(ride.Name == strippedR )
+                            if(ride.Name == strippedR && r.toString().endsWith(" Att"))
                             {
                                 if(repeater == 0)
                                 {

@@ -375,10 +375,12 @@ class timetableOverridePage : AppCompatActivity() {
                             }
                             if(ride.Name == strippedR && (staff.Category.equals("SRO") || staff.Category.equals("Fairground")))
                             {
-                                if(repeater == 0)
-                                {
-                                    trainedList.add(staff.Name)
-                                    repeater += 1
+                                if(iterator <= ride.minAgeToOperate && r.toString().endsWith(" Op")){
+                                    if(repeater == 0)
+                                    {
+                                        trainedList.add(staff.Name)
+                                        repeater += 1
+                                    }
                                 }
                             }
                         }
@@ -402,10 +404,15 @@ class timetableOverridePage : AppCompatActivity() {
 
                             if(ride.Name == strippedR && staff.Category.equals("SRO"))
                             {
-                                if(repeater == 0)
+                                if(iterator <= ride.minAgeToOperate)//looking for operators
                                 {
-                                    trainedList.add(staff.Name)
-                                    repeater += 1
+                                    if(r.toString().endsWith( "Op")){
+                                        if(repeater == 0)
+                                        {
+                                            trainedList.add(staff.Name)
+                                            repeater += 1
+                                        }
+                                    }
                                 }
 
                             }
@@ -440,7 +447,7 @@ class timetableOverridePage : AppCompatActivity() {
                                 r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                                 else -> r
                             }
-                            if(ride.Name == strippedR ) {
+                            if(ride.Name == strippedR && r.toString().endsWith(" Att")) {
                                 if(repeater == 0){
                                     trainedList.add(staff.Name)
                                     repeater++
@@ -463,7 +470,7 @@ class timetableOverridePage : AppCompatActivity() {
                                 r.toString().endsWith(" Att", ignoreCase = true) -> r.toString().removeSuffix(" Att")
                                 else -> r
                             }
-                            if(ride.Name == strippedR )
+                            if(ride.Name == strippedR && r.toString().endsWith(" Att"))
                             {
                                 if(repeater == 0)
                                 {
