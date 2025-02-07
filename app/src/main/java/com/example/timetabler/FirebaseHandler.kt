@@ -280,7 +280,7 @@ class FirebaseHandler {
 
     }
     fun getBoard(callback: (ArrayList<Pair<String ,String>>) -> Unit){
-        val priorityList = ArrayList<Pair<String, String>>()
+        val board = ArrayList<Pair<String, String>>()
         db.collection("Board").document("completeBoard").get().addOnSuccessListener { document ->
             if (document != null) {
                 // Log the document data to verify the contents
@@ -298,14 +298,14 @@ class FirebaseHandler {
 
                         // Add the pair (String, Int) to the list if both values exist
                         if (rideName != null && staffName != null) {
-                            priorityList.add(Pair(rideName, staffName))
+                            board.add(Pair(rideName, staffName))
                         }
                     }
                 }
             }
 
             // Return the list of pairs via the callback
-            callback(priorityList)
+            callback(board)
         }
 
     }

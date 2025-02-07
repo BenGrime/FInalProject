@@ -230,16 +230,6 @@ class GenerateTimetable {
                 unassignedRides.add(ride)
             }
         }
-
-        completeBoard.forEach { row ->
-            val ride = row[0]
-            val staff = row[1]
-            println("Ride: " + ride + " ,Staff: " + staff)
-        }
-        println("AFTER SWAPS:")
-
-
-
         //deal with them
         if (unassignedRides.size != 0)//BE AWARE OF STAFF SHORTAGES
         {
@@ -416,18 +406,6 @@ class GenerateTimetable {
             }
         }
 
-        //all sorted
-        //no spare staff, no rides unassigned that im not ok with
-
-        //now check the board is ok for 1 final time???
-
-
-        //when it gets to the end of the rows
-        completeBoard.forEach { row ->
-            val ride = row[0]
-            val staff = row[1]
-            println("Ride: " + ride + " ,Staff: " + staff)
-        }
         callback(completeBoard)
 
     }
@@ -454,7 +432,7 @@ class GenerateTimetable {
             var indexOfRide = 0
             var staffOnRideObj: Staff? = null
             completedBoard.forEachIndexed { index, row ->
-                if (randomRide.toString().contains(row[0])) {
+                if (randomRide.contains(row[0])) {
                     staffOnRandomRide = row[1]
                     indexOfRide = index
 
@@ -645,9 +623,6 @@ class GenerateTimetable {
                 }
             }
             //by this point either the board is randomly done, or in priority order, but staff may be on previous ride
-            completeBoard.forEach{ row->
-                println("Ride:" + row[0] + " Staff: "+row[1])
-            }
 
             //get missing values and spares if any
             var spareStaff : ArrayList<String> = ArrayList()
@@ -713,23 +688,19 @@ class GenerateTimetable {
                 }
             }
 
-            //find a way to limit the amount of staff on previous rides
-            var count = 0
-            completeBoard.forEach{ row->
-                for(s in staffObjList){
-                    if(s.Name == row[1]){
-                        if(row[0].contains(s.PreviousRide))
-                        {
-                            count++
-                            break
-                        }
-                    }
-                }
-            }
-
-            completeBoard.forEach{ row->
-                println("Ride:" + row[0] + " Staff: "+row[1])
-            }
+//            //find a way to limit the amount of staff on previous rides
+//            var count = 0
+//            completeBoard.forEach{ row->
+//                for(s in staffObjList){
+//                    if(s.Name == row[1]){
+//                        if(row[0].contains(s.PreviousRide))
+//                        {
+//                            count++
+//                            break
+//                        }
+//                    }
+//                }
+//            }
             callback(completeBoard)
 
 
