@@ -62,7 +62,9 @@ class LoginScreen : AppCompatActivity() {
             {
                 auth.signInWithEmailAndPassword(emailBox.text.toString(), passwordBox.text.toString()).addOnSuccessListener{
                     saveCredentials(this, emailBox.text.toString(), passwordBox.text.toString())
-                    advance()
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 }.addOnFailureListener{
                     Toast.makeText(this, "Email or Password Incorrect", Toast.LENGTH_SHORT).show()
                 }
@@ -90,13 +92,6 @@ class LoginScreen : AppCompatActivity() {
             }
         }
     }
-
-    private fun advance(){
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
-
     // Check if biometric hardware is available and fingerprints are enrolled
     private fun isBiometricAvailable(): Boolean {
         val biometricManager = androidx.biometric.BiometricManager.from(this)
@@ -129,7 +124,9 @@ class LoginScreen : AppCompatActivity() {
                     {
                         auth.signInWithEmailAndPassword(info.first.toString(), info.second.toString()).addOnSuccessListener{
                             Toast.makeText(applicationContext, "Authentication Successful!", Toast.LENGTH_SHORT).show()
-                            advance()
+                            val intent = Intent(applicationContext, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
                         }.addOnFailureListener {
                             Toast.makeText(applicationContext, "Something went wrong. Sign in normally", Toast.LENGTH_SHORT).show()
                         }
