@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:padding="10dp"
+            android:layout_marginRight="50sp"
+            android:text="Change email"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/staffNameLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/textView"
+            app:layout_constraintStart_toStartOf="@+id/textView"
+            app:layout_constraintTop_toBottomOf="@+id/textView">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Old password"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_marginRight="10dp"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/oldPassword"
+                android:layout_width="150sp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:hint="password here"
+                android:maxLines="1"
+                android:inputType="text">
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/staffDoBLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/staffNameLayout"
+            app:layout_constraintStart_toStartOf="@+id/staffNameLayout"
+            app:layout_constraintTop_toBottomOf="@+id/staffNameLayout">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="New email"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_marginRight="10dp" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/newEmail"
+                android:layout_width="150sp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:maxLines="1"
+                android:inputType="textEmailAddress">
+
+            </com.google.android.material.textfield.TextInputEditText>
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            app:layout_constraintEnd_toEndOf="@+id/staffDoBLayout"
+            app:layout_constraintStart_toStartOf="@+id/staffDoBLayout"
+            app:layout_constraintTop_toBottomOf="@+id/staffDoBLayout">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/changeEmailCancel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:strokeColor="@color/darkRed"
+                app:strokeWidth="2dp"
+                android:layout_marginStart="15dp"
+                app:backgroundTint="@color/red">
+
+            </com.google.android.material.button.MaterialButton>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/changeEmailConfirm"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:text="@string/confirm"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:strokeColor="@color/darkGreen"
+                app:backgroundTint="@color/green"
+                app:strokeWidth="2dp"
+                android:layout_marginStart="15dp">
+
+            </com.google.android.material.button.MaterialButton>
+
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+</androidx.cardview.widget.CardView>
+

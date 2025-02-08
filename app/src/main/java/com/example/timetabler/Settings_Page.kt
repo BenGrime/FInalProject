@@ -36,7 +36,7 @@ class Settings_Page : AppCompatActivity() {
     private lateinit var backBtn : ImageView
     private lateinit var logoutBtn : LinearLayout
 
-    private lateinit var auth: FirebaseAuth;
+    private lateinit var auth: FirebaseAuth
 
     private var spinnerList : ArrayList<Spinner> = ArrayList()
 
@@ -53,13 +53,13 @@ class Settings_Page : AppCompatActivity() {
         toggle1 = findViewById(R.id.notifToggle)
         toggle2 = findViewById(R.id.darkModeToggle)
         toggle3 = findViewById(R.id.languageToggle)
-        logoutBtn = findViewById(R.id.logoutBtn)
-        logoutBtn.setOnClickListener{
-            auth.signOut()
-            val intent = Intent(this, LoginScreen::class.java)
-            startActivity(intent)
-            finish()
-        }
+//        logoutBtn = findViewById(R.id.logoutBtn)
+//        logoutBtn.setOnClickListener{
+//            auth.signOut()
+//            val intent = Intent(this, LoginScreen::class.java)
+//            startActivity(intent)
+//            finish()
+//        }
         settingsGrid = findViewById(R.id.settingsGrid)
         deleteData = findViewById(R.id.deleteStaffData)
         priorityList = findViewById(R.id.priorityListBtn)

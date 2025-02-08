@@ -31,7 +31,7 @@ class settings_selection_page : AppCompatActivity() {
         }
         profileBtn = findViewById(R.id.profileBtn)
         profileBtn.setOnClickListener{
-            val intent = Intent(this, Settings_Page::class.java)
+            val intent = Intent(this, profilePage::class.java)
             startActivity(intent)
         }
         algorDepBtn = findViewById(R.id.algorithmDepenBtn)
