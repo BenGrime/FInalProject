@@ -40,7 +40,7 @@ class profilePage : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-        changeEmail = findViewById(R.id.changeEmail)
+//        changeEmail = findViewById(R.id.changeEmail)
 //        changeEmail.setOnClickListener{
 //            dialog = Dialog(this)
 //            dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -64,10 +64,11 @@ class profilePage : AppCompatActivity() {
 //                val currentEmail = user?.email
 //                var password = inputPassword.text.toString()
 //                var newEmail = newEmailInput.text.toString()
-//                var credential = currentEmail?.let { it1 -> EmailAuthProvider.getCredential(it1, password) }
-//
 //                // Step 1: Reauthenticate the user
-//                if (password.isNotEmpty() || newEmail.isNotEmpty()) {
+//                if (password.isNotEmpty() && newEmail.isNotEmpty()) {
+//                    val credential = currentEmail?.let { EmailAuthProvider.getCredential(it, password) }
+//
+//                    // Step 1: Reauthenticate the user
 //                    if (credential != null) {
 //                        user?.reauthenticate(credential)?.addOnCompleteListener { authTask ->
 //                            if (authTask.isSuccessful) {
@@ -77,7 +78,8 @@ class profilePage : AppCompatActivity() {
 //                                        Toast.makeText(this, "Email updated successfully!", Toast.LENGTH_SHORT).show()
 //                                        dialog.dismiss()
 //                                    } else {
-//                                        Toast.makeText(this, "Failed to update email.", Toast.LENGTH_SHORT).show()
+//                                        Toast.makeText(this, "Failed to update email: ${updateTask.exception?.message}", Toast.LENGTH_SHORT).show()
+//                                        println(updateTask.exception?.message)
 //                                    }
 //                                }
 //                            } else {
@@ -85,8 +87,9 @@ class profilePage : AppCompatActivity() {
 //                            }
 //                        }
 //                    }
+//                } else {
+//                    Toast.makeText(this, "Please fill in both fields", Toast.LENGTH_SHORT).show()
 //                }
-//                Toast.makeText(this, "Please fill in fields", Toast.LENGTH_SHORT).show()
 //            }
 //
 //        }

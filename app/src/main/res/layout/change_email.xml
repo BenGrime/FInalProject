@@ -26,75 +26,66 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
         <LinearLayout
-            android:id="@+id/staffNameLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="32dp"
+            android:id="@+id/passwordLayout"
+            android:layout_width="250sp"
+            android:layout_height="50sp"
             android:orientation="horizontal"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="@+id/textView"
             app:layout_constraintStart_toStartOf="@+id/textView"
             app:layout_constraintTop_toBottomOf="@+id/textView">
 
-
-            <TextView
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Old password"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:layout_marginRight="10dp"
-                />
+                app:endIconMode="password_toggle"
+                app:hintEnabled="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/oldPassword"
-                android:layout_width="150sp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-                android:hint="password here"
-                android:maxLines="1"
-                android:inputType="text">
-
-            </com.google.android.material.textfield.TextInputEditText>
-
-
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/oldPassword"
+                    android:layout_width="250sp"
+                    android:layout_height="match_parent"
+                    android:hint="Password"
+                    android:textColor="@color/black"
+                    android:maxLines="1"
+                    android:inputType="textPassword"
+                    android:padding="10sp"
+                    android:background="@color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/staffDoBLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_width="250sp"
+            android:layout_height="50sp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"
             android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="@+id/staffNameLayout"
-            app:layout_constraintStart_toStartOf="@+id/staffNameLayout"
-            app:layout_constraintTop_toBottomOf="@+id/staffNameLayout">
+            app:layout_constraintEnd_toEndOf="@+id/passwordLayout"
+            app:layout_constraintStart_toStartOf="@+id/passwordLayout"
+            app:layout_constraintTop_toBottomOf="@+id/passwordLayout">
 
 
-            <TextView
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="New email"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:layout_marginRight="10dp" />
+                app:hintEnabled="false">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/newEmail"
-                android:layout_width="150sp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-                android:maxLines="1"
-                android:inputType="textEmailAddress">
-
-            </com.google.android.material.textfield.TextInputEditText>
-
-
-
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/newEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="New email"
+                    android:textColor="@color/black"
+                    android:maxLines="1"
+                    android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789@-."
+                    android:inputType="textEmailAddress"
+                    android:padding="10sp"
+                    android:background="@color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -137,15 +128,8 @@
                 app:backgroundTint="@color/green"
                 app:strokeWidth="2dp"
                 android:layout_marginStart="15dp">
-
             </com.google.android.material.button.MaterialButton>
-
         </LinearLayout>
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
 </androidx.cardview.widget.CardView>
 
