@@ -5,8 +5,10 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import android.widget.ToggleButton
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Firebase
@@ -26,6 +28,11 @@ class profilePage : AppCompatActivity() {
     private lateinit var confirm : MaterialButton
     private lateinit var inputPassword : TextInputEditText
     private lateinit var newEmailInput : TextInputEditText
+    private lateinit var toggle1: ToggleButton
+    private lateinit var toggle2: ToggleButton
+    private lateinit var toggle3: ToggleButton
+    private lateinit var backBtn : ImageView
+
 
     override fun onCreate(savedInstanceState: Bundle?) 
     {
@@ -33,6 +40,13 @@ class profilePage : AppCompatActivity() {
         setContentView(R.layout.activity_profile_page)
 
         auth = Firebase.auth
+        backBtn = findViewById(R.id.backBtnProfile)
+        backBtn.setOnClickListener{
+            finish()
+        }
+        toggle1 = findViewById(R.id.notifToggle)
+        toggle2 = findViewById(R.id.darkModeToggle)
+        toggle3 = findViewById(R.id.languageToggle)
         logoutBtn = findViewById(R.id.logout)
         logoutBtn.setOnClickListener{
             auth.signOut()

@@ -25,16 +25,16 @@ import com.google.firebase.firestore.firestore
 
 class Settings_Page : AppCompatActivity() {
     private val db = Firebase.firestore
-    private lateinit var toggle1: ToggleButton
-    private lateinit var toggle2: ToggleButton
-    private lateinit var toggle3: ToggleButton
     private lateinit var priorityList : LinearLayout
     private lateinit var savePreferences : LinearLayout
     private lateinit var settingsGrid : GridLayout
     private lateinit var deleteData : LinearLayout
     private lateinit var priorityText : TextView
     private lateinit var backBtn : ImageView
-    private lateinit var logoutBtn : LinearLayout
+    private lateinit var evalGrid : GridLayout
+    private lateinit var evalList : LinearLayout
+    private lateinit var evalText : TextView
+
 
     private lateinit var auth: FirebaseAuth
 
@@ -50,16 +50,6 @@ class Settings_Page : AppCompatActivity() {
         backBtn.setOnClickListener{
             finish()
         }
-        toggle1 = findViewById(R.id.notifToggle)
-        toggle2 = findViewById(R.id.darkModeToggle)
-        toggle3 = findViewById(R.id.languageToggle)
-//        logoutBtn = findViewById(R.id.logoutBtn)
-//        logoutBtn.setOnClickListener{
-//            auth.signOut()
-//            val intent = Intent(this, LoginScreen::class.java)
-//            startActivity(intent)
-//            finish()
-//        }
         settingsGrid = findViewById(R.id.settingsGrid)
         deleteData = findViewById(R.id.deleteStaffData)
         priorityList = findViewById(R.id.priorityListBtn)
@@ -81,6 +71,28 @@ class Settings_Page : AppCompatActivity() {
                 priorityText.text = "Close Priority List"
             }
         }
+
+        evalGrid = findViewById(R.id.evaluationGrid)
+        evalList = findViewById(R.id.evaluationBtn)
+        evalText = findViewById(R.id.evaluationText)
+        evalList.setOnClickListener{
+            evalGrid.visibility = if (evalGrid.visibility == View.GONE) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+            if(evalGrid.visibility == View.GONE){
+                evalText.text = "Edit Priority List"
+            }
+            else
+            {
+                evalText.text = "Close Priority List"
+            }
+        }
+
+
+
+
         savePreferences.setOnClickListener{
             //save stuff
             //get all rides, using the ride add it to a pair with "5" add that to board
@@ -97,7 +109,7 @@ class Settings_Page : AppCompatActivity() {
                 }
                 val firebaseBoard = finishedBoard.map { innerList -> mapOf("ride" to innerList.first, "value" to innerList.second) } as ArrayList<Map<String, Int>>
                 firebaseBoard.forEach { row -> println("Row: $row, Type: ${row::class.simpleName}") }
-                db.collection("RidePriority").document("1").set(mapOf("priorityList" to firebaseBoard)).addOnSuccessListener{
+                db.collection("Settings").document("RidePriority").set(mapOf("priorityList" to firebaseBoard)).addOnSuccessListener{
                     Toast.makeText(this, "UPDATED", Toast.LENGTH_SHORT).show()
 
                 }

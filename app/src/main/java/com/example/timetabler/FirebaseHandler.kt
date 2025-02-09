@@ -248,7 +248,7 @@ class FirebaseHandler {
 
     fun getPriority(callback: (ArrayList<Pair<String ,Int>>) -> Unit){
         val priorityList = ArrayList<Pair<String, Int>>()
-        db.collection("RidePriority").document("1").get().addOnSuccessListener { document ->
+        db.collection("Settings").document("RidePriority").get().addOnSuccessListener { document ->
             if (document != null) {
                 // Log the document data to verify the contents
                 Log.d("getPriority", "Document data: ${document.data}")
@@ -319,5 +319,24 @@ class FirebaseHandler {
                 callback(m)
             }
         }
+    }
+
+    fun getManagers(callback: (ArrayList<Manager>) -> Unit){
+        db.collection("Managers").get().addOnSuccessListener{
+            var list = ArrayList<Manager>()
+            for(m in it){
+                val accessLevel = m.getLong("accessLevel")
+                val name = m.getString("name")
+
+                val manager = Manager(
+                    accessLevel = accessLevel!!.toInt(),
+                    name = name.toString())
+
+                list.add(manager)
+            }
+            callback(list)
+
+        }
+
     }
 }

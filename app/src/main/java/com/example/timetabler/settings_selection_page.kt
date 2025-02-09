@@ -10,7 +10,6 @@ import com.mifmif.common.regex.Main
 
 class settings_selection_page : AppCompatActivity() {
     private lateinit var profileBtn : LinearLayout
-    private lateinit var prefBtn : LinearLayout
     private lateinit var algorDepBtn : LinearLayout
     private lateinit var databaseBtn : LinearLayout
     private lateinit var manageUsersBtn : LinearLayout
@@ -24,11 +23,6 @@ class settings_selection_page : AppCompatActivity() {
             finish()
         }
 
-        prefBtn = findViewById(R.id.prefBtn)
-        prefBtn.setOnClickListener{
-            val intent = Intent(this, Settings_Page::class.java)
-            startActivity(intent)
-        }
         profileBtn = findViewById(R.id.profileBtn)
         profileBtn.setOnClickListener{
             val intent = Intent(this, profilePage::class.java)
@@ -46,7 +40,7 @@ class settings_selection_page : AppCompatActivity() {
         }
         manageUsersBtn = findViewById(R.id.manageUsersBtn)
         manageUsersBtn.setOnClickListener{
-            val intent = Intent(this, Settings_Page::class.java)
+            val intent = Intent(this, ManageUsers::class.java)
             startActivity(intent)
         }
         if(accessLevel >= 3)
