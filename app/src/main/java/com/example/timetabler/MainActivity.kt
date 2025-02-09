@@ -120,6 +120,17 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+        fh.doesManagerExist(auth.currentUser!!.uid){
+            if(!it)
+            {
+                Toast.makeText(this, "Contact Boss or IT", Toast.LENGTH_SHORT).show()
+                auth.currentUser?.delete()
+                val intent = Intent(this, LoginScreen::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+
         fh.getManager(auth.currentUser!!.uid) {manager->
 
 

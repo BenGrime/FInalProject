@@ -2,8 +2,10 @@ package com.example.timetabler
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.print.PrintAttributes.Margins
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +20,8 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginRight
+import androidx.core.view.size
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.google.android.material.button.MaterialButton
@@ -138,8 +142,7 @@ class ManageUsers : AppCompatActivity()
                             orientation = LinearLayout.VERTICAL // Change to vertical to allow dropdown
                             setPadding(16, 30, 16, 30)
                             setBackgroundResource(R.drawable.rounded_rectangle)
-                            backgroundTintList =
-                                ContextCompat.getColorStateList(context, R.color.customGreen)
+                            backgroundTintList = ContextCompat.getColorStateList(context, R.color.white)
                         }
 
                         val mainRow = LinearLayout(this@ManageUsers).apply {
@@ -151,10 +154,13 @@ class ManageUsers : AppCompatActivity()
                             gravity = Gravity.CENTER_VERTICAL
                         }
 
+
+
                         val managerTextView = TextView(this@ManageUsers).apply {
                             text = m.name
                             textSize = 20f
-                            setTextColor(ContextCompat.getColor(context, R.color.white))
+                            setTypeface(typeface, Typeface.BOLD)
+                            setTextColor(ContextCompat.getColor(context, R.color.black))
                             setPadding(8, 8, 8, 8)
                             layoutParams = LinearLayout.LayoutParams(
                                 0,
@@ -181,16 +187,88 @@ class ManageUsers : AppCompatActivity()
                             orientation = LinearLayout.VERTICAL
                             visibility = View.GONE // Hidden initially
                             setPadding(16, 8, 16, 8)
-                            setBackgroundColor(ContextCompat.getColor(context, R.color.lightBlue)) // Different color for dropdown
+                            setBackgroundColor(ContextCompat.getColor(context, R.color.white)) // Different color for dropdown
 
-                            val actionTextView = TextView(this@ManageUsers).apply {
-                                text = "Manage this Manager"
-                                textSize = 16f
-                                setTextColor(ContextCompat.getColor(context, R.color.white))
-                                setPadding(8, 8, 8, 8)
+                            val dividerView = View(this@ManageUsers).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT, // Match parent width
+                                    2 // Height of 1dp
+                                ).apply {
+                                    setMargins(0, 16, 0, 16) // Vertical margin of 16dp
+                                }
+                                setBackgroundColor(ContextCompat.getColor(context, R.color.black)) // Set background color
                             }
 
-                            addView(actionTextView) // Add extra options here
+                            val rowLayout = LinearLayout(this@ManageUsers).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                )
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = Gravity.CENTER_VERTICAL // Align items in the center vertically
+                            }
+
+                            val textView = TextView(this@ManageUsers).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    0,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    1.5f // More weight to push Spinner slightly right
+                                )
+                                text = "Change Access Level"
+                            }
+
+                            val spinner = Spinner(this@ManageUsers).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    0,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    1f // Slightly to the right, but not centered
+                                ).apply {
+                                    marginEnd = 20
+                                }
+                            }
+
+                            auth.currentUser?.let { it1 ->
+                                fh.getManager(it1.uid){
+                                    if(it.accessLevel == 1)
+                                    {
+                                        spinner.adapter = ArrayAdapter(this@ManageUsers, android.R.layout.simple_spinner_dropdown_item, listOf(2,3,4))
+                                    }
+                                    else
+                                    {
+                                        spinner.adapter = ArrayAdapter(this@ManageUsers, android.R.layout.simple_spinner_dropdown_item, listOf(3,4))
+                                    }
+
+                                }
+                            }
+
+                            val deleteIcon = ImageView(this@ManageUsers).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    100, 100
+                                ).apply {
+                                    marginStart = 32 // Extra spacing from Spinner
+                                }
+                                setImageResource(R.drawable.bin_icon)
+                                setColorFilter(ContextCompat.getColor(context, R.color.red))
+                            }
+
+                            deleteIcon.setOnClickListener{
+                                db.collection("Managers").get().addOnSuccessListener{
+                                    for(document in it){
+                                        if(document.get("name") == managerTextView.text.toString()){
+                                            db.collection("Managers").document(document.id).delete().addOnSuccessListener{
+                                                Toast.makeText(this@ManageUsers, managerTextView.text.toString() + " successfully deleted!", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Add views to row layout
+                            rowLayout.addView(textView)  // Left-aligned text
+                            rowLayout.addView(spinner)   // Slightly to the right
+                            rowLayout.addView(deleteIcon) // Right-aligned icon
+                            addView(dividerView)
+                            addView(rowLayout)
                         }
 
                         // Add click listener to expand/collapse the dropdown
@@ -223,7 +301,11 @@ class ManageUsers : AppCompatActivity()
     }
 
     private fun expandView(view: View) {
-        view.measure(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+//        view.measure(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec((view.parent as View).width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
         val targetHeight = view.measuredHeight
 
         view.layoutParams.height = 0

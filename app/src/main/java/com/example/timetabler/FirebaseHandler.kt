@@ -339,4 +339,17 @@ class FirebaseHandler {
         }
 
     }
+
+    fun doesManagerExist(id : String, callback: (Boolean) -> Unit){
+        db.collection("Managers").get().addOnSuccessListener{
+            for(m in it){
+                if(m.id == id)
+                {
+                    callback(true)
+                    return@addOnSuccessListener // Exit early after finding a match
+                }
+            }
+            callback(false)
+        }
+    }
 }
