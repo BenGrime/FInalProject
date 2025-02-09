@@ -96,6 +96,7 @@ class ManageUsers : AppCompatActivity()
                                 auth.signInWithEmailAndPassword(credentials.first.toString(), credentials.second.toString()).addOnSuccessListener{
                                     Toast.makeText(this, "Account Created!", Toast.LENGTH_SHORT).show()
                                     dialog.dismiss()
+                                    recreate()
                                 }
                             }.addOnFailureListener{
                                 Toast.makeText(this, "Couldn't send emil", Toast.LENGTH_SHORT).show()
@@ -121,6 +122,9 @@ class ManageUsers : AppCompatActivity()
 
         managersList = findViewById(R.id.managersList)
         save = findViewById(R.id.saveChanges)
+        save.setOnClickListener{
+
+        }
         var accessLevelCurrent = 0
         fh.getManagers{
             fh.getManager(auth.currentUser!!.uid) {manager ->
@@ -257,6 +261,7 @@ class ManageUsers : AppCompatActivity()
                                         if(document.get("name") == managerTextView.text.toString()){
                                             db.collection("Managers").document(document.id).delete().addOnSuccessListener{
                                                 Toast.makeText(this@ManageUsers, managerTextView.text.toString() + " successfully deleted!", Toast.LENGTH_SHORT).show()
+                                                recreate()
                                             }
                                         }
                                     }
