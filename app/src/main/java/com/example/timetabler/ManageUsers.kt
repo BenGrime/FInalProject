@@ -123,6 +123,48 @@ class ManageUsers : AppCompatActivity()
         managersList = findViewById(R.id.managersList)
         save = findViewById(R.id.saveChanges)
         save.setOnClickListener{
+            val managerPairs = ArrayList<Pair<String, Int>>()
+
+            for (i in 0 until managersList.childCount) {
+                val managerLinearLayout = managersList.getChildAt(i) as? LinearLayout
+                managerLinearLayout?.let {
+                    val mainRow = it.getChildAt(0) as? LinearLayout // Assuming mainRow is the first child
+                    mainRow?.let { row ->
+                        val managerTextView = row.getChildAt(0) as? TextView // Assuming it's the first child
+                        managerTextView?.let { textView ->
+                            val name = textView.text.toString() // Get manager name
+
+                            // Find the dropdownSection (second child of managerLinearLayout)
+                            val dropdownSection = managerLinearLayout.getChildAt(1) as? LinearLayout
+                            dropdownSection?.let { dropdown ->
+                                // Get the inner LinearLayout (first child of dropdownSection)
+                                val innerLayout = dropdown.getChildAt(1) as? LinearLayout
+                                innerLayout?.let { inner ->
+                                    // Loop through innerLayout's children to find the Spinner
+                                    for (j in 0 until inner.childCount) {
+                                        val child = inner.getChildAt(j)
+                                        if (child is Spinner && child.tag == name) {
+                                            val selectedValue = child.selectedItem as? Int ?: 0 // Get selected value
+                                            managerPairs.add(Pair(name, selectedValue)) // Store in list
+                                            break // Stop searching once found
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for(pair in managerPairs) {
+                db.collection("Managers").whereEqualTo("name", pair.first).get().addOnSuccessListener{
+                    val updateMap = mapOf("accessLevel" to pair.second)
+                    db.collection("Managers").document(it.documents.first().id).update(updateMap).addOnSuccessListener{
+                        Toast.makeText(this, "UPDATED", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+            }
+
 
         }
         var accessLevelCurrent = 0
@@ -230,6 +272,7 @@ class ManageUsers : AppCompatActivity()
                                     marginEnd = 20
                                 }
                             }
+                            spinner.tag = m.name
 
                             auth.currentUser?.let { it1 ->
                                 fh.getManager(it1.uid){
