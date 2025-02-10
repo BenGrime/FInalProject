@@ -223,7 +223,7 @@ class MainActivity : AppCompatActivity() {
             })
 
             notificationBtn.setOnClickListener(View.OnClickListener {
-                val intent = Intent(this, Notifications_Page::class.java)
+                val intent = Intent(this, ViewBoard::class.java)
                 startActivity(intent)
             })
 

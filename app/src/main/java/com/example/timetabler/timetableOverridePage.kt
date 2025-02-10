@@ -235,22 +235,12 @@ class timetableOverridePage : AppCompatActivity() {
                                                             var iterator = 1
 
                                                             for (i in 1..ride.prefNumOp) {
-                                                                createRow(
-                                                                    ride,
-                                                                    iterator,
-                                                                    result,
-                                                                    rideNumber
-                                                                )
+                                                                createRow(ride, iterator, result, rideNumber)
                                                                 rideNumber++
                                                                 iterator++
                                                             }
                                                             for (i in 1..ride.prefNumAtt) {
-                                                                createRow(
-                                                                    ride,
-                                                                    iterator,
-                                                                    result,
-                                                                    rideNumber
-                                                                )
+                                                                createRow(ride, iterator, result, rideNumber)
                                                                 iterator++
                                                                 rideNumber++
                                                             }
