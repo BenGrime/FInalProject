@@ -102,6 +102,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetectorCompat
     private lateinit var settingsBtn : ImageView
     private lateinit var notificationBtn : ImageView
+    private lateinit var viewBoardBtn: MaterialButton
+    private lateinit var gbBtn : MaterialButton
+    private lateinit var optionsCancel: MaterialButton
     var selectedRide =""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -223,12 +226,26 @@ class MainActivity : AppCompatActivity() {
             })
 
             notificationBtn.setOnClickListener(View.OnClickListener {
-                val intent = Intent(this, ViewBoard::class.java)
+                val intent = Intent(this, Notifications_Page::class.java)
                 startActivity(intent)
             })
 
             generateBoardBtn.setOnClickListener(View.OnClickListener {
-                startActivity(Intent(this, Staff_Selection::class.java))
+                dialog.setContentView(R.layout.board_options)
+                gbBtn = dialog.findViewById(R.id.gbBtn)
+                viewBoardBtn = dialog.findViewById(R.id.ViewBoard)
+                viewBoardBtn.setOnClickListener{
+                    startActivity(Intent(this, ViewBoard::class.java))
+                    dialog.dismiss()
+                }
+                optionsCancel = dialog.findViewById(R.id.boardOptionsCancel)
+                optionsCancel.setOnClickListener{dialog.dismiss()}
+                gbBtn.setOnClickListener{
+                    startActivity(Intent(this, Staff_Selection::class.java))
+                    dialog.dismiss()
+                }
+                dialog.show()
+
             })
 
 

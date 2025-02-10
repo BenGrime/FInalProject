@@ -263,7 +263,7 @@
             android:background="@drawable/rounded_rectangle"
             android:gravity="center"
             android:textStyle="bold"
-            android:text="GENERATE BOARD"
+            android:text="BOARD OPTIONS"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:layout_marginBottom="30dp"
