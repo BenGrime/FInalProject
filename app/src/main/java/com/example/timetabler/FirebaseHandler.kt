@@ -352,4 +352,32 @@ class FirebaseHandler {
             callback(false)
         }
     }
+
+    fun getEvalPoints(callback: (ArrayList<Pair<String ,Int>>) -> Unit){
+        var evalList = ArrayList<Pair<String, Int>>()
+        db.collection("Settings").document("EvaluationPoints").get().addOnSuccessListener{document ->
+            if (document != null) {
+                // Correct the field name to "priortiyList"
+                val data = document.data?.get("evalList") as? List<Map<String, Any>>  // Access the correct field
+
+                if (data != null) {
+                    // Loop through the list and extract the pairs
+                    data.forEach { pair ->
+                        // Extract the values
+                        val name = pair["name"] as? String  // Extract "ride" value
+                        val value = pair["value"] as? Long     // Extract "value" (using Long for Firestore's number type)
+
+                        // Add the pair (String, Int) to the list if both values exist
+                        if (name != null && value != null) {
+                            evalList.add(Pair(name, value.toInt()))
+                        }
+                    }
+                }
+            }
+            callback(evalList)
+        }
+
+
+    }
+
 }

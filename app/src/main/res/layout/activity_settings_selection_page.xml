@@ -98,33 +98,6 @@
         </ImageView>
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/databaseBtn"
-        android:layout_width="match_parent"
-        android:layout_height="50sp"
-        android:background="@drawable/rounded_rectangle"
-        android:backgroundTint="@color/white"
-        android:layout_marginTop="20sp">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Database"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:layout_marginStart="10sp">
-        </TextView>
-        <ImageView
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:src="@drawable/arrow2"
-            android:layout_gravity="center"
-            app:tint="@color/gray"
-            android:layout_marginEnd="10sp">
-
-        </ImageView>
-    </LinearLayout>
-    <LinearLayout
         android:id="@+id/manageUsersBtn"
         android:layout_width="match_parent"
         android:layout_height="50sp"

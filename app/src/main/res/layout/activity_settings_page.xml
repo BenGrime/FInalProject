@@ -26,9 +26,12 @@
                 android:id="@+id/backBtnSettings"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:layout_gravity="center"
                 android:layout_margin="8dp"
                 android:src="@drawable/back_arrow"
                 android:contentDescription="Back Button" />
+
+
 
             <TextView
                 android:id="@+id/headerTitle"

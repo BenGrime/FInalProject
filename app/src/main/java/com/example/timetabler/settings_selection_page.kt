@@ -11,7 +11,6 @@ import com.mifmif.common.regex.Main
 class settings_selection_page : AppCompatActivity() {
     private lateinit var profileBtn : LinearLayout
     private lateinit var algorDepBtn : LinearLayout
-    private lateinit var databaseBtn : LinearLayout
     private lateinit var manageUsersBtn : LinearLayout
     private lateinit var backBtn : ImageView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,11 +32,6 @@ class settings_selection_page : AppCompatActivity() {
             val intent = Intent(this, Settings_Page::class.java)
             startActivity(intent)
         }
-        databaseBtn = findViewById(R.id.databaseBtn)
-        databaseBtn.setOnClickListener{
-            val intent = Intent(this, Settings_Page::class.java)
-            startActivity(intent)
-        }
         manageUsersBtn = findViewById(R.id.manageUsersBtn)
         manageUsersBtn.setOnClickListener{
             val intent = Intent(this, ManageUsers::class.java)
@@ -46,7 +40,6 @@ class settings_selection_page : AppCompatActivity() {
         if(accessLevel >= 3)
         {
             algorDepBtn.visibility = View.GONE
-            databaseBtn.visibility = View.GONE
             manageUsersBtn.visibility = View.GONE
         }
 
