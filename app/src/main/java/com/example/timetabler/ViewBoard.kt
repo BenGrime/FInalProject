@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
@@ -27,17 +29,24 @@ class ViewBoard : AppCompatActivity()
     private lateinit var edit : MaterialButton
     private lateinit var title : TextView
     private lateinit var des : TextView
+    private lateinit var auth: FirebaseAuth;
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_board)
         showLoading()
+        auth = Firebase.auth
         grid = findViewById(R.id.viewBoardGrid)
         back = findViewById(R.id.viewBack)
         edit = findViewById(R.id.viewBoardEdit)
         title = findViewById(R.id.viewBoardTitle)
         des = findViewById(R.id.viewBoardDes)
+        fh.getManager(auth.currentUser!!.uid){
+            if(it.accessLevel == 4){
+                edit.visibility = View.GONE
+            }
+        }
         fh.getBoard { b-> viewBoard(b) }
     }
 
@@ -71,7 +80,15 @@ class ViewBoard : AppCompatActivity()
 
 
             val staffTextView = TextView(this).apply {
-                text = pair.second
+                if(pair.second == "Select Staff")
+                {
+                    text = ""
+                }
+                else
+                {
+                    text = pair.second
+                }
+
                 textSize = 16f
                 setTextColor(ContextCompat.getColor(this@ViewBoard, R.color.black))
                 setBackgroundColor(ContextCompat.getColor(this@ViewBoard, R.color.white))
@@ -128,9 +145,10 @@ class ViewBoard : AppCompatActivity()
                 }
                updateStaff(newBoard)
             }
-            var trainedList = ArrayList<String>()
-            for (pair in board) {
 
+            for (pair in board) {
+                var trainedList = ArrayList<String>()
+                var alreadyAdded = ArrayList<String>()
                 val rideTextView = TextView(this).apply {
                     text = pair.first
                     textSize = 16f
@@ -171,14 +189,17 @@ class ViewBoard : AppCompatActivity()
                         var list : ArrayList<String> = ArrayList()
                         list.add("Select Staff")
                         for(i in trainedList){
-                            if(i != "Select Staff") {
-                                list.add(
-                                    when {
-                                        i.endsWith(" Op") -> i.removeSuffix(" Op")
-                                        i.endsWith(" Att") -> i.removeSuffix(" Att")
-                                        else -> i
-                                    }
-                                )
+                            if(i != "Select Staff" )
+                            {
+                                val name = when {
+                                    i.endsWith(" Op") -> i.removeSuffix(" Op")
+                                    i.endsWith(" Att") -> i.removeSuffix(" Att")
+                                    else -> i
+                                }
+                                if(!alreadyAdded.contains(name)) {
+                                    list.add(name)
+                                    alreadyAdded.add(name)
+                                }
                             }
                         }
 

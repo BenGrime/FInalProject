@@ -230,23 +230,34 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             })
 
-            generateBoardBtn.setOnClickListener(View.OnClickListener {
-                dialog.setContentView(R.layout.board_options)
-                gbBtn = dialog.findViewById(R.id.gbBtn)
-                viewBoardBtn = dialog.findViewById(R.id.ViewBoard)
-                viewBoardBtn.setOnClickListener{
+            if(manager.accessLevel == 4){
+                generateBoardBtn.text = "View Board"
+                generateBoardBtn.setOnClickListener {
                     startActivity(Intent(this, ViewBoard::class.java))
                     dialog.dismiss()
                 }
-                optionsCancel = dialog.findViewById(R.id.boardOptionsCancel)
-                optionsCancel.setOnClickListener{dialog.dismiss()}
-                gbBtn.setOnClickListener{
-                    startActivity(Intent(this, Staff_Selection::class.java))
-                    dialog.dismiss()
-                }
-                dialog.show()
+            }
+            else
+            {
+                generateBoardBtn.setOnClickListener(View.OnClickListener {
+                    dialog.setContentView(R.layout.board_options)
+                    gbBtn = dialog.findViewById(R.id.gbBtn)
+                    viewBoardBtn = dialog.findViewById(R.id.ViewBoard)
+                    viewBoardBtn.setOnClickListener {
+                        startActivity(Intent(this, ViewBoard::class.java))
+                        dialog.dismiss()
+                    }
+                    optionsCancel = dialog.findViewById(R.id.boardOptionsCancel)
+                    optionsCancel.setOnClickListener { dialog.dismiss() }
+                    gbBtn.setOnClickListener {
+                        startActivity(Intent(this, Staff_Selection::class.java))
+                        dialog.dismiss()
+                    }
 
-            })
+                    dialog.show()
+
+                })
+            }
 
 
             addStaffButton.setOnClickListener(View.OnClickListener {
@@ -1144,7 +1155,6 @@ class MainActivity : AppCompatActivity() {
                 deleteStaffbtn.visibility = View.GONE
                 DeleteRideBtn.visibility = View.GONE
                 createRideBtn.visibility = View.GONE
-                generateBoardBtn.visibility = View.GONE
             }
             loadingScreenOff()
         }
