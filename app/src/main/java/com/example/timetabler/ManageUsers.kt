@@ -160,6 +160,7 @@ class ManageUsers : AppCompatActivity()
                     val updateMap = mapOf("accessLevel" to pair.second)
                     db.collection("Managers").document(it.documents.first().id).update(updateMap).addOnSuccessListener{
                         Toast.makeText(this, "UPDATED", Toast.LENGTH_SHORT).show()
+                        recreate()
                     }
                 }
 
@@ -278,11 +279,21 @@ class ManageUsers : AppCompatActivity()
                                 fh.getManager(it1.uid){
                                     if(it.accessLevel == 1)
                                     {
-                                        spinner.adapter = ArrayAdapter(this@ManageUsers, android.R.layout.simple_spinner_dropdown_item, listOf(2,3,4))
+                                        val selection = listOf(2,3,4)
+                                        spinner.adapter = ArrayAdapter(this@ManageUsers, android.R.layout.simple_spinner_dropdown_item, selection)
+                                        val index = selection.indexOf(m.accessLevel)
+                                        if (index >= 0) { // Ensure the value exists in the selection
+                                            spinner.setSelection(index)
+                                        }
                                     }
                                     else
                                     {
-                                        spinner.adapter = ArrayAdapter(this@ManageUsers, android.R.layout.simple_spinner_dropdown_item, listOf(3,4))
+                                        val selection = listOf(3,4)
+                                        spinner.adapter = ArrayAdapter(this@ManageUsers, android.R.layout.simple_spinner_dropdown_item, selection)
+                                        val index = selection.indexOf(m.accessLevel)
+                                        if (index >= 0) { // Ensure the value exists in the selection
+                                            spinner.setSelection(index)
+                                        }
                                     }
 
                                 }

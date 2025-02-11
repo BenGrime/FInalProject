@@ -512,7 +512,7 @@ class ViewStaff : AppCompatActivity() {
                             setOnClickListener{
                                 rideToAdd.let {
                                     val intent = Intent(this@ViewStaff, ViewRide::class.java)
-                                    intent.putExtra("rideName", it)
+                                    intent.putExtra("rideName", getBaseRideName(it))
                                     startActivity(intent)
                                     finish()
                                 }

@@ -135,11 +135,11 @@ class Settings_Page : AppCompatActivity() {
                 View.GONE
             }
             if(evalGrid.visibility == View.GONE){
-                evalText.text = "Edit Priority List"
+                evalText.text = "Edit Evaluation Points"
             }
             else
             {
-                evalText.text = "Close Priority List"
+                evalText.text = "Close Evaluation Points"
             }
         }
 

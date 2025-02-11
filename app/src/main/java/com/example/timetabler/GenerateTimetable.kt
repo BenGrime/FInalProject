@@ -716,82 +716,88 @@ class GenerateTimetable {
                    rides : ArrayList<Ride>,
                    requirements : ArrayList<ArrayList<String>>,
                    callback: (ArrayList<ArrayList<String>>) -> Unit){
-        var t1Score = 0
-        var t2Score = 0
-        var t3Score = 0
-        println("-----------------------------------------------------------------------------------------------------")
-        t1.forEach {
-            println("Ride: " + it[0] + " Staff: " + it[1])
-        }
-        t2.forEach {
-            println("Ride: " + it[0] + " Staff: " + it[1])
-        }
+        fh.getEvalPoints {
+            val staffOnPrev = it.firstOrNull { it.first == "Staff on previous ride" }?.second as? Int ?: 0
+            val reqNotMet = it.firstOrNull { it.first == "Requirement not met" }?.second as? Int ?: 0
+            val ridePri1 = it.firstOrNull { it.first == "Ride priority is 1" }?.second as? Int ?: 0
+            val ridePri2 = it.firstOrNull { it.first == "Ride priority is 2" }?.second as? Int ?: 0
+            val ridePri3 = it.firstOrNull { it.first == "Ride priority is 3" }?.second as? Int ?: 0
+            val lessThanPref = it.firstOrNull { it.first == "Ride has less than preferred number of staff" }?.second as? Int ?: 0
 
-        t1.forEachIndexed {  index, row->
-            for(s in staffObjList){
-                if(s.Name == row[1]){
-                    if(row[0] == s.PreviousRide){
-                        t1Score += 1
-                    }
-                }
+
+
+            var t1Score = 0
+            var t2Score = 0
+            var t3Score = 0
+            println("-----------------------------------------------------------------------------------------------------")
+            t1.forEach {
+                println("Ride: " + it[0] + " Staff: " + it[1])
             }
-            if(row[1] == "Select Staff")
-            {
-                priorityList.forEach{ pair ->
-                    if(pair.first == row[0]) {
-                        if (pair.second == 3) {
-                            t1Score += 4
-                        } else if (pair.second == 2) {
-                            t1Score += 3
-                        } else {
-                            t1Score += 2
+            t2.forEach {
+                println("Ride: " + it[0] + " Staff: " + it[1])
+            }
+
+            t1.forEachIndexed { index, row ->
+                for (s in staffObjList) {
+                    if (s.Name == row[1]) {
+                        if (row[0] == s.PreviousRide) {
+                            t1Score += staffOnPrev
                         }
                     }
-
                 }
-            }
-            requirements.forEach{ requirement ->
-                if(requirement[0] == row[0])
-                {
-                    if(requirement[1] != row[1] && requirement[1] != "Select Staff"){
-                        t2Score += 5
+                if (row[1] == "Select Staff") {
+                    priorityList.forEach { pair ->
+                        if (pair.first == row[0]) {
+                            if (pair.second == 3) {
+                                t1Score += ridePri3
+                            } else if (pair.second == 2) {
+                                t1Score += ridePri2
+                            } else {
+                                t1Score += ridePri1
+                            }
+                        }
+
                     }
                 }
-            }
-        }
-
-        t2.forEachIndexed {  index, row->
-            for(s in staffObjList){
-                if(s.Name == row[1]){
-                    if(row[0] == s.PreviousRide){
-                        t2Score += 1
-                    }
-                }
-            }
-            if(row[1] == "Select Staff")
-            {
-                priorityList.forEach{ pair ->
-                    if(pair.first == row[0]) {
-                        if (pair.second == 3) {
-                            t2Score += 4
-                        } else if (pair.second == 2) {
-                            t2Score += 3
-                        } else {
-                            t2Score += 2
+                requirements.forEach { requirement ->
+                    if (requirement[0] == row[0]) {
+                        if (requirement[1] != row[1] && requirement[1] != "Select Staff") {
+                            t2Score += reqNotMet
                         }
                     }
-
                 }
             }
-            requirements.forEach{ requirement ->
-                if(requirement[0] == row[0])
-                {
-                    if(requirement[1] != row[1] && requirement[1] != "Select Staff"){
-                        t2Score += 5
+
+            t2.forEachIndexed { index, row ->
+                for (s in staffObjList) {
+                    if (s.Name == row[1]) {
+                        if (row[0] == s.PreviousRide) {
+                            t2Score += staffOnPrev
+                        }
+                    }
+                }
+                if (row[1] == "Select Staff") {
+                    priorityList.forEach { pair ->
+                        if (pair.first == row[0]) {
+                            if (pair.second == 3) {
+                                t2Score += ridePri3
+                            } else if (pair.second == 2) {
+                                t2Score += ridePri2
+                            } else {
+                                t2Score += ridePri1
+                            }
+                        }
+
+                    }
+                }
+                requirements.forEach { requirement ->
+                    if (requirement[0] == row[0]) {
+                        if (requirement[1] != row[1] && requirement[1] != "Select Staff") {
+                            t2Score += reqNotMet
+                        }
                     }
                 }
             }
-        }
 //        t3.forEachIndexed {  index, row->
 //            for(s in staffObjList){
 //                if(s.Name == row[1]){
@@ -825,19 +831,21 @@ class GenerateTimetable {
 //            }
 //        }
 
-        if(t1Score <= t2Score){
+            println(t1Score)
+            println(t2Score)
+            if (t1Score <= t2Score) {
 //            if(t1Score < t3Score){
 //                callback(t1)
 //            }
 //            else{
 //                callback(t3)
 //            }
-            println("NUMBER 1")
-            callback(t1)
-        }
-        else{
-            println("NUMBER 2")
-            callback(t2)
+                println("NUMBER 1")
+                callback(t1)
+            } else {
+                println("NUMBER 2")
+                callback(t2)
+            }
         }
 
     }
