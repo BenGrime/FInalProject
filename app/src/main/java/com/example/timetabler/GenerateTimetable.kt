@@ -1,6 +1,7 @@
 package com.example.timetabler
 
 import android.text.BoringLayout
+import java.util.jar.Attributes.Name
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -32,7 +33,7 @@ class GenerateTimetable {
         if(staffSelected.size == 1){
             return 0
         }
-        return Random.nextInt(0, staffSelected.size -1)
+        return Random.nextInt(0, staffSelected.size)
     }
 
     fun getRandomStaff(staffSelected: ArrayList<String>, currentRide: String, staffObjList : ArrayList<Staff>, rides : ArrayList<Ride>, skip : Boolean) : String {
@@ -708,9 +709,74 @@ class GenerateTimetable {
 
     }
 
+    fun timetable3(list : ArrayList<ArrayList<String>>, staffSelected : ArrayList<String> , staffObjList : ArrayList<Staff>, rides : ArrayList<Ride>, callback: (ArrayList<ArrayList<String>>) -> Unit){
+        if(anyRequirements(list))
+        {
+            list.forEach{row ->
+                val staff = row[1]
+
+                if(staff != "Select Staff")
+                {
+                    staffSelected.remove(staff)
+                }
+            }
+        }
+        val newStaffObjList = ArrayList<Staff>()
+        for(s in staffObjList)
+        {
+            for(n in staffSelected){
+                if(s.Name == n)
+                {
+                    newStaffObjList.add(s)
+                }
+            }
+        }
+        val assignedStaff = mutableSetOf<String>()
+        // Create an ArrayList of ArrayLists to represent the 2D structure
+        var completeBoard = ArrayList<ArrayList<String>>()
+        //create copy for the full board
+        list.forEach { row ->
+            val ride = row[0]
+            val staff = row[1]
+            completeBoard.add(arrayListOf(ride, staff))
+
+        }
+
+        val indices = completeBoard.indices.shuffled() // Shuffle indices to randomize order
+        val usedIndices = mutableSetOf<Int>() // Keep track of used indices
+
+        indices.forEach { index ->
+            if (usedIndices.contains(index)) return@forEach // Skip if already processed
+
+            val row = completeBoard[index]
+            val ride = row[0]
+            val staff = row[1]
+
+            if (staff == "Select Staff") {
+                if (staffSelected.isNotEmpty() || newStaffObjList.isNotEmpty()) {
+
+                    var staffName = newStaffObjList.filter { it.Name.isNotEmpty() }[getRandomNumber(ArrayList(newStaffObjList.map { it.Name }))].Name
+                    if (staffName.isNotEmpty()) {
+                        while (assignedStaff.contains(staffName)) {
+                            staffName = newStaffObjList.filter { it.Name.isNotEmpty() }[getRandomNumber(ArrayList(newStaffObjList.map { it.Name }))].Name
+                        }
+                        // Update the board with the selected staff
+                        completeBoard[index][1] = staffName
+                        assignedStaff.add(staffName)
+                        staffSelected.remove(staffName)
+                        newStaffObjList.removeIf { it.Name == staffName }
+                        usedIndices.add(index) // Mark this index as processed
+                    }
+                }
+            }
+        }
+
+        callback(completeBoard)
+    }
+
     fun evaluation(t1 : ArrayList<ArrayList<String>>,
                    t2 : ArrayList<ArrayList<String>>,
-//                   t3 : ArrayList<ArrayList<String>>,
+                   t3 : ArrayList<ArrayList<String>>,
                    staffObjList : ArrayList<Staff>,
                    priorityList : ArrayList<Pair<String, Int>>,
                    rides : ArrayList<Ride>,
@@ -798,53 +864,51 @@ class GenerateTimetable {
                     }
                 }
             }
-//        t3.forEachIndexed {  index, row->
-//            for(s in staffObjList){
-//                if(s.Name == row[1]){
-//                    if(row[0] == s.PreviousRide){
-//                        t3Score += 1
-//                    }
-//                }
-//            }
-//            if(row[1] == "Select Staff")
-//            {
-//                priorityList.forEach{ pair ->
-//                    if(pair.first == row[0]) {
-//                        if (pair.second == 3) {
-//                            t3Score += 4
-//                        } else if (pair.second == 2) {
-//                            t3Score += 3
-//                        } else {
-//                            t3Score += 2
-//                        }
-//                    }
-//
-//                }
-//            }
-//            requirements.forEach{ requirement ->
-//                if(requirement[0] == row[0])
-//                {
-//                    if(requirement[1] != row[1]){
-//                        t3Score += 5
-//                    }
-//                }
-//            }
-//        }
+        t3.forEachIndexed {  index, row->
+            for(s in staffObjList){
+                if(s.Name == row[1]){
+                    if(row[0] == s.PreviousRide){
+                        t3Score += staffOnPrev
+                    }
+                }
+            }
+            if(row[1] == "Select Staff")
+            {
+                priorityList.forEach{ pair ->
+                    if(pair.first == row[0]) {
+                        if (pair.second == 3) {
+                            t3Score += ridePri3
+                        } else if (pair.second == 2) {
+                            t3Score += ridePri2
+                        } else {
+                            t3Score += ridePri1
+                        }
+                    }
+
+                }
+            }
+            requirements.forEach{ requirement ->
+                if(requirement[0] == row[0])
+                {
+                    if(requirement[1] != row[1]){
+                        t3Score += reqNotMet
+                    }
+                }
+            }
+        }
 
             println(t1Score)
             println(t2Score)
-            if (t1Score <= t2Score) {
-//            if(t1Score < t3Score){
-//                callback(t1)
-//            }
-//            else{
-//                callback(t3)
-//            }
+            println(t3Score)
+            if (t1Score <= t2Score && t1Score <= t3Score) {
                 println("NUMBER 1")
                 callback(t1)
-            } else {
+            } else if (t2Score <= t1Score && t2Score <= t3Score) {
                 println("NUMBER 2")
                 callback(t2)
+            } else {
+                println("NUMBER 3")
+                callback(t3)
             }
         }
 
