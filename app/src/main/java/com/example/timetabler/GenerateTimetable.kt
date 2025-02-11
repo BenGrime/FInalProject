@@ -795,6 +795,11 @@ class GenerateTimetable {
             var t1Score = 0
             var t2Score = 0
             var t3Score = 0
+            var noStaffCount1 = 0
+            var noStaffCount2 = 0
+            var noStaffCount3 = 0
+            var rideNumberList : ArrayList<Pair<String, Int>> = ArrayList()
+            var temp = ""
             println("-----------------------------------------------------------------------------------------------------")
             t1.forEach {
                 println("Ride: " + it[0] + " Staff: " + it[1])
@@ -812,6 +817,7 @@ class GenerateTimetable {
                     }
                 }
                 if (row[1] == "Select Staff") {
+                    noStaffCount1 +=1
                     priorityList.forEach { pair ->
                         if (pair.first == row[0]) {
                             if (pair.second == 3) {
@@ -832,7 +838,35 @@ class GenerateTimetable {
                         }
                     }
                 }
+
+                var add = 1
+                if(row[1] == "Select staff"){
+                    add = 0
+                }
+                rideNumberList.add(Pair(row[0], add))
+
             }
+            var rideScores = mutableMapOf<String, Int>()
+
+            for ((ride, score) in rideNumberList) {
+                // Extract the base ride name (removing "Op" or "Att")
+                val baseName = when{
+                    ride.endsWith(" Op") -> ride.removeSuffix(" Op")
+                    ride.endsWith(" Att") -> ride.removeSuffix(" Att")
+                    else -> ride
+                }
+
+                // Sum scores for each base ride name
+                rideScores[baseName] = rideScores.getOrDefault(baseName, 0) + score
+            }
+            for (r in rides) {
+                val totalScore = rideScores[r.Name] ?: 0 // Get the total score, default to 0 if not found
+
+                if (totalScore < (r.prefNumOp + r.prefNumAtt)) {
+                   t1Score += lessThanPref
+                }
+            }
+
 
             t2.forEachIndexed { index, row ->
                 for (s in staffObjList) {
@@ -843,6 +877,7 @@ class GenerateTimetable {
                     }
                 }
                 if (row[1] == "Select Staff") {
+                    noStaffCount2 +=1
                     priorityList.forEach { pair ->
                         if (pair.first == row[0]) {
                             if (pair.second == 3) {
@@ -863,53 +898,152 @@ class GenerateTimetable {
                         }
                     }
                 }
+
+                var add = 1
+                if(row[1] == "Select staff"){
+                    add = 0
+                }
+                rideNumberList.add(Pair(row[0], add))
+
             }
-        t3.forEachIndexed {  index, row->
-            for(s in staffObjList){
-                if(s.Name == row[1]){
-                    if(row[0] == s.PreviousRide){
-                        t3Score += staffOnPrev
-                    }
+            rideScores = mutableMapOf<String, Int>()
+
+            for ((ride, score) in rideNumberList) {
+                // Extract the base ride name (removing "Op" or "Att")
+                val baseName = when{
+                    ride.endsWith(" Op") -> ride.removeSuffix(" Op")
+                    ride.endsWith(" Att") -> ride.removeSuffix(" Att")
+                    else -> ride
+                }
+
+                // Sum scores for each base ride name
+                rideScores[baseName] = rideScores.getOrDefault(baseName, 0) + score
+            }
+            for (r in rides) {
+                val totalScore = rideScores[r.Name] ?: 0 // Get the total score, default to 0 if not found
+
+                if (totalScore < (r.prefNumOp + r.prefNumAtt)) {
+                    t2Score += lessThanPref
                 }
             }
-            if(row[1] == "Select Staff")
-            {
-                priorityList.forEach{ pair ->
-                    if(pair.first == row[0]) {
-                        if (pair.second == 3) {
-                            t3Score += ridePri3
-                        } else if (pair.second == 2) {
-                            t3Score += ridePri2
-                        } else {
-                            t3Score += ridePri1
+
+            t3.forEachIndexed {  index, row->
+                for(s in staffObjList){
+                    if(s.Name == row[1]){
+                        if(row[0] == s.PreviousRide){
+                            t3Score += staffOnPrev
                         }
                     }
-
                 }
-            }
-            requirements.forEach{ requirement ->
-                if(requirement[0] == row[0])
+                if(row[1] == "Select Staff")
                 {
-                    if(requirement[1] != row[1]){
-                        t3Score += reqNotMet
+                    noStaffCount3 +=1
+                    priorityList.forEach{ pair ->
+                        if(pair.first == row[0]) {
+                            if (pair.second == 3) {
+                                t3Score += ridePri3
+                            } else if (pair.second == 2) {
+                                t3Score += ridePri2
+                            } else {
+                                t3Score += ridePri1
+                            }
+                        }
+
                     }
                 }
+                requirements.forEach{ requirement ->
+                    if(requirement[0] == row[0])
+                    {
+                        if(requirement[1] != row[1]){
+                            t3Score += reqNotMet
+                        }
+                    }
+                }
+                var add = 1
+                if(row[1] == "Select staff"){
+                    add = 0
+                }
+                rideNumberList.add(Pair(row[0], add))
             }
-        }
+
+            rideScores = mutableMapOf<String, Int>()
+
+            for ((ride, score) in rideNumberList) {
+                // Extract the base ride name (removing "Op" or "Att")
+                val baseName = when{
+                    ride.endsWith(" Op") -> ride.removeSuffix(" Op")
+                    ride.endsWith(" Att") -> ride.removeSuffix(" Att")
+                    else -> ride
+                }
+
+                // Sum scores for each base ride name
+                rideScores[baseName] = rideScores.getOrDefault(baseName, 0) + score
+            }
+            for (r in rides) {
+                val totalScore = rideScores[r.Name] ?: 0 // Get the total score, default to 0 if not found
+
+                if (totalScore < (r.prefNumOp + r.prefNumAtt)) {
+                    t3Score += lessThanPref
+                }
+            }
+
 
             println(t1Score)
             println(t2Score)
             println(t3Score)
             if (t1Score <= t2Score && t1Score <= t3Score) {
-                println("NUMBER 1")
-                callback(t1)
+                // t1 has the lowest score, but check for tie-breaker
+                if (t1Score == t2Score || t1Score == t3Score) {
+                    if (noStaffCount1 <= noStaffCount2 && noStaffCount1 <= noStaffCount3) {
+                        println("NUMBER 1")
+                        callback(t1)
+                    } else if (noStaffCount2 <= noStaffCount3) {
+                        println("NUMBER 2")
+                        callback(t2)
+                    } else {
+                        println("NUMBER 3")
+                        callback(t3)
+                    }
+                } else {
+                    println("NUMBER 1")
+                    callback(t1)
+                }
             } else if (t2Score <= t1Score && t2Score <= t3Score) {
-                println("NUMBER 2")
-                callback(t2)
+                // t2 has the lowest score, but check for tie-breaker
+                if (t2Score == t1Score || t2Score == t3Score) {
+                    if (noStaffCount2 <= noStaffCount1 && noStaffCount2 <= noStaffCount3) {
+                        println("NUMBER 2")
+                        callback(t2)
+                    } else if (noStaffCount1 <= noStaffCount3) {
+                        println("NUMBER 1")
+                        callback(t1)
+                    } else {
+                        println("NUMBER 3")
+                        callback(t3)
+                    }
+                } else {
+                    println("NUMBER 2")
+                    callback(t2)
+                }
             } else {
-                println("NUMBER 3")
-                callback(t3)
+                // t3 has the lowest score, but check for tie-breaker
+                if (t3Score == t1Score || t3Score == t2Score) {
+                    if (noStaffCount3 <= noStaffCount1 && noStaffCount3 <= noStaffCount2) {
+                        println("NUMBER 3")
+                        callback(t3)
+                    } else if (noStaffCount1 <= noStaffCount2) {
+                        println("NUMBER 1")
+                        callback(t1)
+                    } else {
+                        println("NUMBER 2")
+                        callback(t2)
+                    }
+                } else {
+                    println("NUMBER 3")
+                    callback(t3)
+                }
             }
+
         }
 
     }
