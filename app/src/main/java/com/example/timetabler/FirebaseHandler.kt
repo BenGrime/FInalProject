@@ -376,8 +376,12 @@ class FirebaseHandler {
             }
             callback(evalList)
         }
+    }
 
-
+    fun getPreset(callback : (String) -> Unit){
+        db.collection("Settings").document("chosenPreset").get().addOnSuccessListener{
+            callback(it.get("preset").toString())
+        }
     }
 
 }

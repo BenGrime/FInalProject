@@ -135,14 +135,85 @@
                     android:padding="8dp" />
             </LinearLayout>
 
+<!--            <GridLayout-->
+<!--                android:id="@+id/evaluationGrid"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:columnCount="1"-->
+<!--                android:visibility="gone"-->
+<!--                android:padding="8dp">-->
+
+<!--            </GridLayout>-->
+
             <GridLayout
                 android:id="@+id/evaluationGrid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:columnCount="1"
-                android:visibility="gone"
                 android:padding="8dp">
+
+                <LinearLayout
+                    android:id="@+id/staffFavourBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_rectangle"
+                    android:gravity="center"
+                    android:backgroundTint="@color/white">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Favour Staff"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:padding="10dp">
+                    </TextView>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/balancedBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_rectangle"
+                    android:gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/white">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Balanced"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:padding="10dp">
+                    </TextView>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/busFavourBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_rectangle"
+                    android:gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/white">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Favour Business"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:padding="10dp">
+                    </TextView>
+
+                </LinearLayout>
+
+
 
             </GridLayout>
 
