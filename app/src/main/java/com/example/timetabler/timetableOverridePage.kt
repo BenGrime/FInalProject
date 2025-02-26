@@ -195,7 +195,7 @@ class timetableOverridePage : AppCompatActivity() {
                             val staffSelect2 = ArrayList(staffSelected)
                             generateTimetable.timetable1(selectedStaffList, staffSelected, staffListObj, it){ time1 ->
                                 generateTimetable.timetable2(selectedStaffList, staffSelect2, staffListObj, it) { time2 ->
-                                    generateTimetable.timetable2(selectedStaffList, staffSelect2, staffListObj, it) { time3 ->
+                                    generateTimetable.timetable3(selectedStaffList, staffSelect2, staffListObj, it) { time3 ->
                                         generateTimetable.evaluation(time1, time2, time3,  staffListObj, pri, rides, selectedStaffList ) { result ->
 
 

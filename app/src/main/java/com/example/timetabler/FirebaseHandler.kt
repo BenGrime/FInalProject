@@ -364,8 +364,8 @@ class FirebaseHandler {
                     // Loop through the list and extract the pairs
                     data.forEach { pair ->
                         // Extract the values
-                        val name = pair["name"] as? String  // Extract "ride" value
-                        val value = pair["value"] as? Long     // Extract "value" (using Long for Firestore's number type)
+                        val name = pair["first"] as? String  // Extract "ride" value
+                        val value = pair["second"] as? Long     // Extract "value" (using Long for Firestore's number type)
 
                         // Add the pair (String, Int) to the list if both values exist
                         if (name != null && value != null) {
