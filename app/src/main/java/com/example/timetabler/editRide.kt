@@ -26,6 +26,8 @@ class editRide : AppCompatActivity() {
 
     private val db = Firebase.firestore
 
+    var fh = FirebaseHandler()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_ride)
@@ -84,28 +86,74 @@ class editRide : AppCompatActivity() {
                 && prefNumAttInput.text?.toString() == ride.prefNumAtt.toString()
                 && prefNumOpInput.text?.toString() == ride.prefNumOp.toString()
                 && openInput.selectedItem.toString() == ride.open.toString()
+                && rideNameInput.text?.toString() == ride.Name
             )
             {
                 Toast.makeText(this, "Fields not been changed", Toast.LENGTH_SHORT).show()
             }
             else
             {
-                val openValue = when (openInput.selectedItem.toString() == "Yes"){
-                    true -> true
-                    false -> false
+                if (rideMinOpInput.text?.isEmpty() == true
+                    && rideMinAttInput.text?.isEmpty() == true
+                    && minAttNumInput.text?.isEmpty() == true
+                    && minOpNumInput.text?.isEmpty() == true
+                    && prefNumAttInput.text?.isEmpty() == true
+                    && prefNumOpInput.text?.isEmpty() == true
+                    && openInput.selectedItem.toString().isEmpty() == true
+                    && rideNameInput.text?.isEmpty() == true
+                ){
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 }
-                val updatedFields = mapOf(
-                    "minAgeToOperate" to rideMinOpInput.text?.toString()?.toInt(),
-                    "minAgeToAttend" to rideMinAttInput.text?.toString()?.toInt(),
-                    "minNumAtt" to minAttNumInput.text?.toString()?.toInt(),
-                    "minNumOp" to minOpNumInput.text?.toString()?.toInt(),
-                    "prefNumAtt" to prefNumAttInput.text?.toString()?.toInt(),
-                    "prefNumOp" to prefNumOpInput.text?.toString()?.toInt(),
-                    "open" to openValue
-                )
-                db.collection("Rides").document(ride.Id).update(updatedFields).addOnSuccessListener {
-                    Toast.makeText(this, "Ride Updated", Toast.LENGTH_SHORT).show()
-                    finish()
+                else
+                {
+                    val openValue = when (openInput.selectedItem.toString() == "Yes") {
+                        true -> true
+                        false -> false
+                    }
+                    val updatedFields = mapOf(
+                        "name" to rideNameInput.text?.toString(),
+                        "minAgeToOperate" to rideMinOpInput.text?.toString()?.toInt(),
+                        "minAgeToAttend" to rideMinAttInput.text?.toString()?.toInt(),
+                        "minNumAtt" to minAttNumInput.text?.toString()?.toInt(),
+                        "minNumOp" to minOpNumInput.text?.toString()?.toInt(),
+                        "prefNumAtt" to prefNumAttInput.text?.toString()?.toInt(),
+                        "prefNumOp" to prefNumOpInput.text?.toString()?.toInt(),
+                        "open" to openValue
+                    )
+                    var completedStaff = 0
+                    val totalStaff = ride.staffTrained.size
+                    fun finalUpdate() {
+                        completedStaff++
+                        if(completedStaff == totalStaff)
+                        {
+                            db.collection("Rides").document(ride.Id).update(updatedFields)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Ride Updated", Toast.LENGTH_SHORT).show()
+                                    finish()
+                                }
+                        }
+                    }
+                    val currentName = ride.Name
+                    for(s in ride.staffTrained)
+                    {
+                        fh.getDocumentFromName(s.toString().replace(Regex(" (Op|Att)\$"), "")){doc ->
+                            for(r in doc!!.RidesTrained){
+                                var updatedList : MutableList<Any> = ArrayList()
+                                if(r.toString().contains(currentName)){
+                                    val newRideName = r.toString().replace(currentName, rideNameInput.text.toString())
+                                    updatedList.add(newRideName)
+                                }
+                                else
+                                {
+                                    updatedList.add(r.toString())
+                                }
+                                val updateMap = hashMapOf<String, Any>("ridesTrained" to updatedList)
+                                db.collection("Staff").document(doc.Id).update(updateMap).addOnSuccessListener{
+                                    finalUpdate()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
