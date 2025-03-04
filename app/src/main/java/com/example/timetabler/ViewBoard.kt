@@ -1,9 +1,11 @@
 package com.example.timetabler
 
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.GridLayout
 import android.widget.RelativeLayout
@@ -29,7 +31,10 @@ class ViewBoard : AppCompatActivity()
     private lateinit var edit : MaterialButton
     private lateinit var title : TextView
     private lateinit var des : TextView
-    private lateinit var auth: FirebaseAuth;
+    private lateinit var auth: FirebaseAuth
+    private lateinit var dialog : Dialog
+    private lateinit var dialogGrid : GridLayout
+    private lateinit var closeBtn : MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -123,6 +128,8 @@ class ViewBoard : AppCompatActivity()
                 showLoading()
                 var newBoard : ArrayList<ArrayList<String>> = ArrayList()
                 var tempList : ArrayList<String> = ArrayList()
+                var duplicateList : ArrayList<Pair<String, String>> = ArrayList()
+                var carryOn  = true
                 for (i in 0 until grid.childCount) {
                     val view = grid.getChildAt(i)
 
@@ -134,6 +141,15 @@ class ViewBoard : AppCompatActivity()
                         }
                         is Spinner -> {
                             val selectedItem = view.selectedItem.toString()
+                            if (newBoard.any { it.contains(selectedItem) }) {
+                                carryOn = false
+                                duplicateList.add(Pair(tempList.first(), selectedItem))
+                                for(item in newBoard){
+                                    if(item.contains(selectedItem)){
+                                        duplicateList.add(Pair(item[0], selectedItem))
+                                    }
+                                }
+                            }
                             tempList.add(selectedItem)
                         }
                     }
@@ -143,8 +159,53 @@ class ViewBoard : AppCompatActivity()
                     }
 
                 }
-               updateStaff(newBoard)
+                if(carryOn)
+                {
+                    updateStaff(newBoard)
+                }
+                else{
+                    dialog = Dialog(this)
+                    dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+                    dialog.setCancelable(true)
+                    dialog.setContentView(R.layout.duplicate_names_chosen)
+
+                    closeBtn = dialog.findViewById<MaterialButton>(R.id.closeBtn)
+                    closeBtn.setOnClickListener{
+                        dialog.dismiss()
+                        duplicateList.clear()
+                        grid.removeAllViews()
+                        editBoard(board)
+
+                    }
+
+                    dialogGrid = dialog.findViewById<GridLayout>(R.id.namesDuplicatedList)
+                    dialog.show()
+                    for (pair in duplicateList) {
+                        // Create the first TextView for the first string in the pair
+                        val firstTextView = TextView(this).apply {
+                            text = pair.first // First part of the pair
+                            textSize = 16f
+                            setTextColor(ContextCompat.getColor(context, R.color.black))
+                            setPadding(8, 8, 8, 8) // Add padding if needed
+                        }
+
+                        // Create the second TextView for the second string in the pair
+                        val secondTextView = TextView(this).apply {
+                            text = "-> " + pair.second // Second part of the pair
+                            textSize = 16f
+                            setTextColor(ContextCompat.getColor(context, R.color.black))
+                            setPadding(8, 8, 8, 8) // Add padding if needed
+                        }
+
+                        // Add both TextViews to the GridLayout
+                        dialogGrid.addView(firstTextView)
+                        dialogGrid.addView(secondTextView)
+                    }
+                    dialog.show()
+                }
             }
+
 
             for (pair in board) {
                 var trainedList = ArrayList<String>()
