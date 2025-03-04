@@ -244,35 +244,53 @@ class ViewBoard : AppCompatActivity()
                 fh.getDocumentFromName(staff) { staffObj ->
                     if (staffObj != null) {//if name is "Select Staff" it'll return null
                         val strippedRide = ride.replace(Regex("(Op|Att)\$"), "").trim()
-                        val updateMap = mapOf("previousRide" to strippedRide)
-                        db.collection("Staff").document(staffObj.Id).update(updateMap)
-                            .addOnSuccessListener {
-                                // Decrease the pending task count and process next task
-                                if (pendingTasks.decrementAndGet() == 0)
-                                {
-                                    println("Task completed. Remaining tasks: $pendingTasks")
-                                    saving(list)
+                        if(staffObj.PreviousRide != strippedRide)
+                        {
+                            val updateMap = mapOf("previousRide" to strippedRide)
+                            db.collection("Staff").document(staffObj.Id).update(updateMap)
+                                .addOnSuccessListener {
+                                    // Decrease the pending task count and process next task
+                                    if (pendingTasks.decrementAndGet() == 0)
+                                    {
+                                        println("Task completed. Remaining tasks: $pendingTasks")
+                                        saving(list)
+                                    }
+                                    else
+                                    {
+                                        println("Task completed. Remaining tasks: $pendingTasks")
+                                        processNext() // Continue processing the next task
+                                    }
                                 }
-                                else
-                                {
-                                    println("Task completed. Remaining tasks: $pendingTasks")
-                                    processNext() // Continue processing the next task
+                                .addOnFailureListener {
+                                    // Handle failure if necessary
+                                    val tempList = ArrayList<String>()
+                                    tempList.add(staffObj.Name)
+                                    tempList.add(strippedRide)
+                                    if (pendingTasks.decrementAndGet() == 0) {
+                                        // All tasks are complete, hide loading
+                                        saving(list)
+                                    } else {
+                                        println("Task completed. Remaining tasks: $pendingTasks")
+                                        processNext() // Continue despite failure
+                                    }
                                 }
+                        }
+                        else
+                        {
+                            if (pendingTasks.decrementAndGet() == 0)
+                            {
+                                println("Task completed. Remaining tasks: $pendingTasks")
+                                saving(list)
                             }
-                            .addOnFailureListener {
-                                // Handle failure if necessary
-                                val tempList = ArrayList<String>()
-                                tempList.add(staffObj.Name)
-                                tempList.add(strippedRide)
-                                if (pendingTasks.decrementAndGet() == 0) {
-                                    // All tasks are complete, hide loading
-                                    saving(list)
-                                } else {
-                                    println("Task completed. Remaining tasks: $pendingTasks")
-                                    processNext() // Continue despite failure
-                                }
+                            else
+                            {
+                                println("Task completed. Remaining tasks: $pendingTasks")
+                                processNext() // Continue processing the next task
                             }
-                    } else {
+                        }
+                    }
+                    else
+                    {
                         processNext() // Skip and process the next item
                     }
                 }
