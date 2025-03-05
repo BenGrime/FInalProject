@@ -191,7 +191,7 @@ class timetableOverridePage : AppCompatActivity() {
                 fh.getSelectedStaffObjs(staffSelected) { staffListObj ->
                     fh.getAllRides { rides ->
                         (rides as? ArrayList<Ride>)?.let {
-                            loadingText.text = "Generating the board"
+                            loadingText.text = "Generating the Timetable"
                             val staffSelect2 = ArrayList(staffSelected)
                             generateTimetable.timetable1(selectedStaffList, staffSelected, staffListObj, it){ time1 ->
                                 generateTimetable.timetable2(selectedStaffList, staffSelect2, staffListObj, it) { time2 ->

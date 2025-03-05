@@ -62,8 +62,8 @@ class ViewBoard : AppCompatActivity()
             grid.removeAllViews()
             editBoard(board)
         }
-        title.text = "View Board"
-        des.text = "The Current Board"
+        title.text = "View Timetable"
+        des.text = "The Current Timetable"
         back.text = "Back"
         edit.text = "Edit"
         for(pair in board)
@@ -115,8 +115,8 @@ class ViewBoard : AppCompatActivity()
     private fun editBoard(board : ArrayList<Pair<String, String>>){
         fh.getAllStaff {staffList ->
 
-            title.text = "Edit Board"
-            des.text = "Edit The Current Board"
+            title.text = "Edit Timetable"
+            des.text = "Edit The Current Timetable"
             back.text = "Cancel"
             edit.text = "Confirm"
             back.setOnClickListener {
