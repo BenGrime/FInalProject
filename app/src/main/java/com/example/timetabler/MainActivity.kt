@@ -1107,15 +1107,18 @@ class MainActivity : AppCompatActivity() {
                                                     }
                                                     val currentStaffMap =
                                                         hashMapOf<String, Any>("ridesTrained" to updatedRidesTrained)//create the map to update
-                                                    db.collection("Staff").document(staff.Id)
-                                                        .update(currentStaffMap)
-                                                        .addOnSuccessListener {
-                                                            Toast.makeText(
-                                                                this@MainActivity,
-                                                                "Deleted: $selectedItem",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
+                                                    db.collection("Staff").document(staff.Id).update(currentStaffMap).addOnSuccessListener {
+
+                                                        fh.getPriority { p ->
+
+                                                            val filteredList = p.filterNot { it.first == ride.Name }
+                                                            val newMap = filteredList.map { innerList -> mapOf("ride" to innerList.first, "value" to innerList.second) } as ArrayList<Map<String, Int>>
+                                                            db.collection("Settings").document("RidePriority").set(mapOf("priorityList" to newMap)).addOnSuccessListener {
+                                                                Toast.makeText(this@MainActivity, "Deleted: $selectedItem", Toast.LENGTH_SHORT).show()
+                                                                finish()
+                                                            }
                                                         }
+                                                    }
                                                 }
                                                 dialog.dismiss()
                                                 dialog2.dismiss()

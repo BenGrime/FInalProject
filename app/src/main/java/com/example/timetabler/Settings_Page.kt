@@ -51,6 +51,9 @@ class Settings_Page : AppCompatActivity() {
     private lateinit var balanced : LinearLayout
     private lateinit var busFavour : LinearLayout
 
+    private lateinit var favourStaffTxt : TextView
+    private lateinit var balancedTxt : TextView
+    private lateinit var favourBusTxt : TextView
 
     private lateinit var auth: FirebaseAuth
 
@@ -94,6 +97,10 @@ class Settings_Page : AppCompatActivity() {
         staffFavour.setOnClickListener { updateButtonColors(staffFavour) }
         balanced.setOnClickListener { updateButtonColors(balanced) }
         busFavour.setOnClickListener { updateButtonColors(busFavour) }
+
+        favourStaffTxt = findViewById(R.id.favourStaffText)
+        favourBusTxt = findViewById(R.id.favourBusinessText)
+        balancedTxt = findViewById(R.id.balancedText)
 
 
         auth = Firebase.auth
@@ -206,34 +213,6 @@ class Settings_Page : AppCompatActivity() {
                 val firebaseBoard = priorityList.map { innerList -> mapOf("ride" to innerList.first, "value" to innerList.second) } as ArrayList<Map<String, Int>>
                 firebaseBoard.forEach { row -> println("Row: $row, Type: ${row::class.simpleName}") }
                 db.collection("Settings").document("RidePriority").set(mapOf("priorityList" to firebaseBoard)).addOnSuccessListener{
-//                    var pointList : ArrayList<Pair<String, Int>> = ArrayList()
-//                    for (child in evalGrid) {
-//                        if (child is LinearLayout) {
-//                            var text: String? = null
-//                            var selectedValue: Int? = null
-//
-//                            for (j in 0 until child.childCount) {
-//                                val innerChild = child.getChildAt(j)
-//                                when (innerChild) {
-//                                    is TextView -> {
-//                                        text = innerChild.text.toString()
-//                                    }
-//                                    is Spinner -> {
-//                                        selectedValue = innerChild.selectedItem as Int
-//                                    }
-//                                }
-//                            }
-//
-//                            if (text != null && selectedValue != null) {
-//                                pointList.add(Pair(text, selectedValue))
-//                            }
-//                        }
-//                    }
-//
-//                    val firebaseEval = pointList.map { innerList -> mapOf("name" to innerList.first, "value" to innerList.second) } as ArrayList<Map<String, Int>>
-//                    db.collection("Settings").document("EvaluationPoints").set(mapOf("evalList" to firebaseEval)).addOnSuccessListener{
-//                        Toast.makeText(this, "UPDATED", Toast.LENGTH_SHORT).show()
-//                    }
                     var chosen = "Balanced"
                     for (child in evalGrid) {
                         if (child is LinearLayout) {
@@ -251,7 +230,7 @@ class Settings_Page : AppCompatActivity() {
                     }
                     db.collection("Settings").document("chosenPreset").set(mapOf("preset" to chosen)).addOnSuccessListener{
                         val list : ArrayList<Pair<String, Int>>
-                        if(chosen == "Staff"){
+                        if(chosen == "Favour Staff"){
                             list = staffEvalList
                         }
                         else if(chosen == "Balanced"){
@@ -319,61 +298,9 @@ class Settings_Page : AppCompatActivity() {
                 settingsGrid.addView(rideLinearLayout)
             }
         }
-
-//        fh.getEvalPoints{evalPoints ->
-//            for(pair in evalPoints)
-//            {
-//                val name = pair.first
-//                val value = pair.second
-//
-//                val rideLinearLayout = LinearLayout(this@Settings_Page).apply {
-//                    layoutParams = LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT
-//                    ).apply {
-//                        setMargins(8, 10, 8, 10) // Set margin for the layout
-//                    }
-//                    orientation = LinearLayout.HORIZONTAL // Horizontal orientation
-//                    gravity = Gravity.CENTER_VERTICAL // Center contents vertically
-//                    setPadding(16, 16, 16, 16) // Padding inside the layout
-//                    setBackgroundResource(R.drawable.rounded_rectangle) // Rounded rectangle background
-//                    backgroundTintList = ContextCompat.getColorStateList(context, R.color.white) // Tint background
-//                }
-//
-//                val rideTextView = TextView(this@Settings_Page).apply {
-//                    text = name // Set the ride name
-//                    textSize = 16f // Text size in SP
-//                    setTextColor(ContextCompat.getColor(context, R.color.black)) // Set text color
-//                    setPadding(8, 8, 8, 8) // Padding for the TextView
-//                    layoutParams = LinearLayout.LayoutParams(
-//                        0,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT,
-//                        1f
-//                    )
-//                }
-//                val spinner = Spinner(this@Settings_Page)
-//                val selection = listOf(1, 2, 3, 4, 5)
-//                val adapter = ArrayAdapter(this@Settings_Page, android.R.layout.simple_spinner_item, selection)
-//                adapter.setDropDownViewResource(R.layout.spinner_custom_dropdown)
-//                spinner.adapter = adapter
-//                val index = selection.indexOf(value)
-//                if (index >= 0) { // Ensure the value exists in the selection
-//                    spinner.setSelection(index)
-//                }
-//
-//                // Add TextView and ImageView to the LinearLayout
-//                rideLinearLayout.addView(rideTextView)
-//                rideLinearLayout.addView(spinner)
-//
-//                // Optionally add this LinearLayout to a parent layout (like GridLayout)
-//                evalGrid.addView(rideLinearLayout)
-//            }
-//
-//        }
-
             fh.getPreset{
                 when (it) {
-                    "Staff" -> updateButtonColors(staffFavour)
+                    "Favour Staff" -> updateButtonColors(staffFavour)
                     "Balanced" -> updateButtonColors(balanced)
                     else -> updateButtonColors(busFavour)
                 }
@@ -386,7 +313,28 @@ class Settings_Page : AppCompatActivity() {
         val white = ContextCompat.getColor(this, R.color.white)
 
         staffFavour.backgroundTintList = ColorStateList.valueOf(if (selectedButton == staffFavour) darkGreen else white)
+        favourStaffTxt.setTextColor(
+            if (staffFavour.backgroundTintList?.defaultColor == darkGreen) {
+                ContextCompat.getColor(this, R.color.white) // Text color is white if the background is dark green
+            } else {
+                ContextCompat.getColor(this, R.color.black) // Text color is black otherwise
+            }
+        )
         balanced.backgroundTintList = ColorStateList.valueOf(if (selectedButton == balanced) darkGreen else white)
+        balancedTxt.setTextColor(
+            if (balanced.backgroundTintList?.defaultColor == darkGreen) {
+                ContextCompat.getColor(this, R.color.white) // Text color is white if the background is dark green
+            } else {
+                ContextCompat.getColor(this, R.color.black) // Text color is black otherwise
+            }
+        )
         busFavour.backgroundTintList = ColorStateList.valueOf(if (selectedButton == busFavour) darkGreen else white)
+        favourBusTxt.setTextColor(
+            if (busFavour.backgroundTintList?.defaultColor == darkGreen) {
+                ContextCompat.getColor(this, R.color.white) // Text color is white if the background is dark green
+            } else {
+                ContextCompat.getColor(this, R.color.black) // Text color is black otherwise
+            }
+        )
     }
 }

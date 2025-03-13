@@ -164,6 +164,7 @@
                     android:backgroundTint="@color/white">
 
                     <TextView
+                        android:id="@+id/favourStaffText"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="Favour Staff"
@@ -184,6 +185,7 @@
                     android:backgroundTint="@color/white">
 
                     <TextView
+                        android:id="@+id/balancedText"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="Balanced"
@@ -204,6 +206,7 @@
                     android:backgroundTint="@color/white">
 
                     <TextView
+                        android:id="@+id/favourBusinessText"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:text="Favour Business"
