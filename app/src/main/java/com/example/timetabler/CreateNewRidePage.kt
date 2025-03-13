@@ -95,9 +95,16 @@ class CreateNewRidePage : AppCompatActivity() {
                         )
 
                         db.collection("Rides").document(rideId).set(r).addOnSuccessListener {
+                            fh.getPriority { p ->
 
-                            Toast.makeText(this, "Ride created", Toast.LENGTH_SHORT).show()
-                            finish()
+                                p.add(Pair(r.Name, 3))
+                                val newMap = p.map { innerList -> mapOf("ride" to innerList.first, "value" to innerList.second)
+                                } as ArrayList<Map<String, Int>>
+                                db.collection("Settings").document("RidePriority").set(mapOf("priorityList" to newMap)).addOnSuccessListener {
+                                        Toast.makeText(this, "Ride created", Toast.LENGTH_SHORT).show()
+                                        finish()
+                                }
+                            }
                         }
 
                     }
