@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -57,28 +59,23 @@ class LoginScreen : AppCompatActivity() {
             finish()
         }
 
-        loginBtn.setOnClickListener{
-            if(!emailBox.text.toString().isNullOrEmpty() && !passwordBox.text.toString().isNullOrEmpty())
-            {
-                auth.signInWithEmailAndPassword(emailBox.text.toString(), passwordBox.text.toString()).addOnSuccessListener{
-                    saveCredentials(this, emailBox.text.toString(), passwordBox.text.toString())
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }.addOnFailureListener{
-                    Toast.makeText(this, "Email or Password Incorrect", Toast.LENGTH_SHORT).show()
-                }
+        passwordBox.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)) {
+                handleLogin()
+                true // Consume the event
+            } else {
+                false // Pass the event to other handlers
             }
-            else
-            {
-                Toast.makeText(this, "Please enter an email and/or password", Toast.LENGTH_SHORT).show()
-            }
+        }
 
+        loginBtn.setOnClickListener{
+            handleLogin()
         }
         forgotPasswordBtn.setOnClickListener {
             val email = emailBox.text.toString().trim() // Trim whitespace
 
-            if (!email.isNullOrEmpty()) {
+            if (email.isNullOrEmpty()) {
                 Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show()
             } else {
                 auth.sendPasswordResetEmail(email).addOnSuccessListener {
@@ -154,6 +151,24 @@ class LoginScreen : AppCompatActivity() {
 
         // Show the biometric prompt
         biometricPrompt.authenticate(promptInfo)
+    }
+
+    fun handleLogin(){
+        if(!emailBox.text.toString().isNullOrEmpty() && !passwordBox.text.toString().isNullOrEmpty())
+        {
+            auth.signInWithEmailAndPassword(emailBox.text.toString(), passwordBox.text.toString()).addOnSuccessListener{
+                saveCredentials(this, emailBox.text.toString(), passwordBox.text.toString())
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }.addOnFailureListener{
+                Toast.makeText(this, "Email or Password Incorrect", Toast.LENGTH_SHORT).show()
+            }
+        }
+        else
+        {
+            Toast.makeText(this, "Please enter an email and/or password", Toast.LENGTH_SHORT).show()
+        }
     }
     fun saveCredentials(context: Context, email: String, password: String) {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
