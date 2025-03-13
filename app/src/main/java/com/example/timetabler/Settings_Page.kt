@@ -51,6 +51,9 @@ class Settings_Page : AppCompatActivity() {
     private lateinit var balanced : LinearLayout
     private lateinit var busFavour : LinearLayout
 
+    private lateinit var favourStaffTxt : TextView
+    private lateinit var balancedTxt : TextView
+    private lateinit var favourBusTxt : TextView
 
     private lateinit var auth: FirebaseAuth
 
@@ -94,6 +97,10 @@ class Settings_Page : AppCompatActivity() {
         staffFavour.setOnClickListener { updateButtonColors(staffFavour) }
         balanced.setOnClickListener { updateButtonColors(balanced) }
         busFavour.setOnClickListener { updateButtonColors(busFavour) }
+
+        favourStaffTxt = findViewById(R.id.favourStaffText)
+        favourBusTxt = findViewById(R.id.favourBusinessText)
+        balancedTxt = findViewById(R.id.balancedText)
 
 
         auth = Firebase.auth
@@ -251,7 +258,7 @@ class Settings_Page : AppCompatActivity() {
                     }
                     db.collection("Settings").document("chosenPreset").set(mapOf("preset" to chosen)).addOnSuccessListener{
                         val list : ArrayList<Pair<String, Int>>
-                        if(chosen == "Staff"){
+                        if(chosen == "Favour Staff"){
                             list = staffEvalList
                         }
                         else if(chosen == "Balanced"){
@@ -373,7 +380,7 @@ class Settings_Page : AppCompatActivity() {
 
             fh.getPreset{
                 when (it) {
-                    "Staff" -> updateButtonColors(staffFavour)
+                    "Favour Staff" -> updateButtonColors(staffFavour)
                     "Balanced" -> updateButtonColors(balanced)
                     else -> updateButtonColors(busFavour)
                 }
@@ -386,7 +393,28 @@ class Settings_Page : AppCompatActivity() {
         val white = ContextCompat.getColor(this, R.color.white)
 
         staffFavour.backgroundTintList = ColorStateList.valueOf(if (selectedButton == staffFavour) darkGreen else white)
+        favourStaffTxt.setTextColor(
+            if (staffFavour.backgroundTintList?.defaultColor == darkGreen) {
+                ContextCompat.getColor(this, R.color.white) // Text color is white if the background is dark green
+            } else {
+                ContextCompat.getColor(this, R.color.black) // Text color is black otherwise
+            }
+        )
         balanced.backgroundTintList = ColorStateList.valueOf(if (selectedButton == balanced) darkGreen else white)
+        balancedTxt.setTextColor(
+            if (balanced.backgroundTintList?.defaultColor == darkGreen) {
+                ContextCompat.getColor(this, R.color.white) // Text color is white if the background is dark green
+            } else {
+                ContextCompat.getColor(this, R.color.black) // Text color is black otherwise
+            }
+        )
         busFavour.backgroundTintList = ColorStateList.valueOf(if (selectedButton == busFavour) darkGreen else white)
+        favourBusTxt.setTextColor(
+            if (busFavour.backgroundTintList?.defaultColor == darkGreen) {
+                ContextCompat.getColor(this, R.color.white) // Text color is white if the background is dark green
+            } else {
+                ContextCompat.getColor(this, R.color.black) // Text color is black otherwise
+            }
+        )
     }
 }
