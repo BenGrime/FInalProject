@@ -431,7 +431,7 @@ class ViewStaff : AppCompatActivity() {
                     dobTxt.text = "Date of Birth: $formattedDoB   (${calculateAge(selectedStaff!!.DoB)})"
 
 
-                    prevRideTxt.text = if (selectedStaff!!.PreviousRide == "null") {
+                    prevRideTxt.text = if (selectedStaff!!.PreviousRide == "") {
                         "No previous ride available"
                     } else {
                         "Previous Ride: ${selectedStaff!!.PreviousRide}"
